@@ -1,0 +1,667 @@
+/* ===============================================================
+   StuDash foundation — shared patterns on HeroUI v3 tokens.
+   Everything here reads semantic tokens (--surface, --accent, --field-*,
+   --radius, --spacing …) so it follows the active preset, mode, accent,
+   density and corner style. This layer sits above `legacy`, so it is the
+   single source of truth for buttons, fields, tabs, chips, dialogs, cards.
+   =============================================================== */
+
+/* ---------- Base ---------- */
+html {
+  background: var(--background);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  background-image: none;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--sd-text-body);
+  line-height: var(--sd-leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-soft-hover);
+  color: var(--foreground);
+}
+
+/* Headings: no default margins (spacing comes from the parent's gap), Persian-friendly
+   line-height, long titles wrap instead of overflowing. Sizes come from roles below. */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--foreground);
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: var(--sd-leading-heading);
+  overflow-wrap: break-word; /* break only words that can't fit alone; never mid-word otherwise */
+  text-wrap: pretty;
+}
+p { margin: 0; }
+
+a { color: inherit; }
+
+/* Native controls pick up the accent (checkboxes, radios, ranges) */
+:root { accent-color: var(--accent); }
+
+/* Visible, consistent keyboard focus everywhere */
+:where(a, button, input, select, textarea, summary, [tabindex], [role="button"], [role="tab"], [role="radio"], [role="switch"]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+:where(input, select, textarea):focus-visible {
+  outline-offset: 0;
+}
+
+/* Scrollbars from HeroUI tokens */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+/* Respect reduced motion in every theme */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ---------- Icons (Lucide-style masks, coloured by currentColor) ---------- */
+.sd-icon {
+  display: inline-block;
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  background-color: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+  vertical-align: -0.18em;
+}
+.sd-icon--sun { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41'/%3E%3C/svg%3E"); }
+.sd-icon--moon { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'/%3E%3C/svg%3E"); }
+.sd-icon--monitor { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='14' x='2' y='3' rx='2'/%3E%3Cpath d='M8 21h8M12 17v4'/%3E%3C/svg%3E"); }
+.sd-icon--palette { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='13.5' cy='6.5' r='.5' fill='black'/%3E%3Ccircle cx='17.5' cy='10.5' r='.5' fill='black'/%3E%3Ccircle cx='8.5' cy='7.5' r='.5' fill='black'/%3E%3Ccircle cx='6.5' cy='12.5' r='.5' fill='black'/%3E%3Cpath d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.7-.75 1.7-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z'/%3E%3C/svg%3E"); }
+.sd-icon--refresh { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8'/%3E%3Cpath d='M21 3v5h-5'/%3E%3Cpath d='M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16'/%3E%3Cpath d='M8 16H3v5'/%3E%3C/svg%3E"); }
+.sd-icon--book { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/%3E%3C/svg%3E"); }
+.sd-icon--calendar { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E"); }
+.sd-icon--download { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpath d='m7 10 5 5 5-5M12 15V3'/%3E%3C/svg%3E"); }
+.sd-icon--grad { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 10 12 5 2 10l10 5 10-5Z'/%3E%3Cpath d='M6 12v5c3 3 9 3 12 0v-5'/%3E%3C/svg%3E"); }
+.sd-icon--check { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); }
+.sd-icon--rotate { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8'/%3E%3Cpath d='M3 3v5h5'/%3E%3C/svg%3E"); }
+.sd-icon--external { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E"); }
+.sd-icon--logout { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9'/%3E%3C/svg%3E"); }
+.sd-icon--eye { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E"); }
+.sd-icon--lock { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='11' x='3' y='11' rx='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E"); }
+
+/* ---------- Card: official HeroUI .card / .card__header / __title / __description /
+   __content / __footer (+ --default|secondary|tertiary|transparent). The official CSS
+   supplies the variant surface, radius (from --radius) and shadow; .sd-card adds the
+   shared spacing scale and a token border. ---------- */
+.sd-card {
+  min-width: 0;
+  padding: var(--sd-card-padding);
+  gap: var(--sd-card-gap);
+  border: 1px solid var(--border);
+  color: var(--surface-foreground);
+}
+.sd-card > .card__header { gap: var(--sd-heading-gap); min-width: 0; }
+.sd-card .card__title { font-size: var(--sd-text-card-title); font-weight: 650; line-height: var(--sd-leading-heading); }
+.sd-card .card__description { font-size: var(--sd-text-caption); line-height: 1.6; }
+.sd-card > .card__content { gap: var(--sd-stack-gap); min-width: 0; }
+.sd-card > .card__footer {
+  gap: var(--sd-space-2);
+  flex-wrap: wrap;
+  padding-block-start: var(--sd-space-3);
+  border-block-start: 1px solid var(--separator);
+}
+.sd-card__header--split { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--sd-stack-gap); }
+.sd-card__heading { display: flex; flex-direction: column; gap: var(--sd-heading-gap); min-width: 0; }
+.sd-card__titlebar { display: flex; align-items: center; justify-content: space-between; gap: var(--sd-space-2); }
+.sd-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sd-space-2); }
+
+/* Interactive card: one stretched primary control (.sd-card__link) makes the whole card
+   clickable with a single tab stop; other buttons stay above it. Informational cards
+   do not get this. */
+.sd-card-interactive { position: relative; }
+.sd-card-interactive .sd-card__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.sd-card-interactive :is(button, a):not(.sd-card__link) { position: relative; z-index: 1; }
+.sd-card-interactive:has(.sd-card__link:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sd-card__link { all: unset; cursor: var(--cursor-interactive); }
+.sd-card__link:focus-visible { outline: none; }
+
+/* Screen-reader-only text */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Shared section heading inside cards */
+.sd-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sd-icon-gap);
+  font-size: var(--sd-text-section);
+  font-weight: 650;
+}
+.sd-section-title .sd-icon { color: var(--accent-soft-foreground); }
+.sd-subtle { color: var(--muted); font-size: var(--sd-text-caption); line-height: 1.6; }
+
+/* ---------- Head groups: title + description. Title↔description = --sd-heading-gap;
+   the group↔following content gap is owned by the parent (card/modal/section gap). ---------- */
+.settings-title-group, .settings-section-header, .sd-appearance-head > div:first-child,
+.course-hub-title-group > div:not([class]), .focus-modal-title-group, .google-header-logo + div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sd-heading-gap);
+  min-width: 0;
+}
+.settings-subtitle, .settings-section-header p, .course-hub-meta, .focus-modal-header p { font-size: var(--sd-text-caption); line-height: 1.6; color: var(--muted); }
+
+/* Section headings inside cards, modals and the settings dialog */
+.settings-section-header h3, .pinned-header h2, .report-chart-wrap h3, .report-courses-section h3 {
+  font-size: var(--sd-text-section);
+  font-weight: 650;
+}
+
+/* Settings: one section = header group + content, stacked with the shared gap.
+   Sections themselves are spaced by .settings-body's gap (no extra padding). */
+.settings-section { display: flex; flex-direction: column; gap: var(--sd-stack-gap); }
+
+/* ---------- Buttons ----------
+   One system, four emphasis levels, mirroring HeroUI .button variants. */
+.primary-btn, .ghost-btn, .ghost-btn-sm, .gcal-sync-pill, .onboard-btn, .tour-btn,
+.focus-action-main-btn, .note-add-btn, .report-launch-btn, .notes-launch-btn, .focus-launch-btn,
+.exam-banner-btn, .idea-action-btn, .vu-dialog-actions .primary-btn {
+  --sd-btn-bg: var(--default);
+  --sd-btn-fg: var(--default-foreground);
+  --sd-btn-hover: var(--default-hover);
+  --sd-btn-border: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sd-icon-gap);
+  min-height: var(--sd-control-height);
+  padding: 0 calc(var(--spacing) * 3.5);
+  border: 1px solid var(--sd-btn-border);
+  border-radius: calc(var(--radius) * 1.5);
+  background: var(--sd-btn-bg);
+  color: var(--sd-btn-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: var(--cursor-interactive);
+  box-shadow: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+:is(.primary-btn, .ghost-btn, .ghost-btn-sm, .gcal-sync-pill, .onboard-btn, .tour-btn, .focus-action-main-btn,
+    .note-add-btn, .report-launch-btn, .notes-launch-btn, .focus-launch-btn, .exam-banner-btn, .idea-action-btn):hover {
+  background: var(--sd-btn-hover);
+  color: var(--sd-btn-fg);
+  border-color: var(--sd-btn-border);
+  transform: none;
+}
+:is(.primary-btn, .ghost-btn, .ghost-btn-sm, .gcal-sync-pill, .onboard-btn, .tour-btn, .focus-action-main-btn,
+    .note-add-btn, .report-launch-btn, .notes-launch-btn, .focus-launch-btn, .exam-banner-btn, .idea-action-btn):active {
+  transform: scale(0.98);
+}
+:is(.primary-btn, .ghost-btn, .ghost-btn-sm, .gcal-sync-pill, .onboard-btn, .tour-btn, .focus-action-main-btn,
+    .note-add-btn, .idea-action-btn):disabled {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  transform: none;
+}
+
+/* Primary (filled accent) */
+.primary-btn, .onboard-btn, .focus-action-main-btn, .note-add-btn {
+  --sd-btn-bg: var(--accent);
+  --sd-btn-fg: var(--accent-foreground);
+  --sd-btn-hover: var(--accent-hover);
+}
+/* Secondary (outlined) */
+.ghost-btn, .tour-btn, .report-launch-btn, .notes-launch-btn, .focus-launch-btn, .idea-action-btn {
+  --sd-btn-bg: var(--surface);
+  --sd-btn-fg: var(--foreground);
+  --sd-btn-hover: var(--surface-hover);
+  --sd-btn-border: var(--border);
+}
+/* Soft (small, accent-tinted) */
+.ghost-btn-sm, .gcal-sync-pill, .exam-banner-btn {
+  --sd-btn-bg: var(--accent-soft);
+  --sd-btn-fg: var(--accent-soft-foreground);
+  --sd-btn-hover: var(--accent-soft-hover);
+  min-height: var(--sd-control-height-sm);
+  padding: 0 calc(var(--spacing) * 2.75);
+  font-size: 12px;
+  border-radius: calc(var(--radius) * 1.25);
+}
+/* Danger text buttons */
+.sd-btn-danger {
+  --sd-btn-bg: var(--danger-soft) !important;
+  --sd-btn-fg: var(--danger-soft-foreground) !important;
+  --sd-btn-hover: var(--danger-soft-hover) !important;
+  --sd-btn-border: transparent !important;
+}
+
+/* Icon-only buttons */
+.dialog-close-btn, .nav-btn, .class-action-btn, .note-action-btn, .side-tool-btn, .quick-tools-trigger-btn,
+.vu-sync-btn, .session-remove-btn, .hub-exam-delete-btn, .profile-edit-btn, .task-remove, .quick-tool-pin-btn {
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--spacing) * 8);
+  height: calc(var(--spacing) * 8);
+  min-width: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) * 1.25);
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: var(--cursor-interactive);
+  box-shadow: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+:is(.dialog-close-btn, .nav-btn, .class-action-btn, .note-action-btn, .side-tool-btn, .quick-tools-trigger-btn,
+    .vu-sync-btn, .session-remove-btn, .hub-exam-delete-btn, .profile-edit-btn, .task-remove, .quick-tool-pin-btn):hover {
+  background: var(--default);
+  color: var(--foreground);
+  transform: none;
+}
+.dialog-close-btn { font-size: 20px; }
+:is(.session-remove-btn, .hub-exam-delete-btn, .task-remove):hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.vu-sync-btn { border-color: var(--border); background: var(--surface); }
+.vu-sync-btn.spinning, .pp-icon-btn.spinning { animation: sd-spin 0.9s linear infinite; }
+@keyframes sd-spin { to { transform: rotate(360deg); } }
+
+/* "+" add buttons next to inputs */
+.add-btn, .note-add-btn.icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--sd-control-height);
+  height: var(--sd-control-height);
+  flex: none;
+  border: 0;
+  border-radius: calc(var(--radius) * 1.5);
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: var(--cursor-interactive);
+  box-shadow: none;
+}
+.add-btn:hover { background: var(--accent-hover); }
+
+/* ---------- Segmented controls / tabs (HeroUI secondary tabs look) ---------- */
+.tasks-panel-tabs, .cal-mode-toggle, .schedule-mode-toggle, .idea-lab-tabs, .focus-presets-bar, .hub-tabs, .sd-segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 0;
+  border-radius: calc(var(--radius) * 1.5);
+  background: var(--default);
+  box-shadow: none;
+}
+.tasks-tab-btn, .cal-mode-btn, .sched-mode-btn, .idea-tab-btn, .focus-preset-btn, .hub-tab-btn, .sd-segmented > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sd-icon-gap);
+  flex: 1 1 auto;
+  min-height: calc(var(--spacing) * 8);
+  padding: 0 calc(var(--spacing) * 3);
+  border: 0;
+  border-radius: calc(var(--radius) * 1.25);
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: var(--cursor-interactive);
+  box-shadow: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+:is(.tasks-tab-btn, .cal-mode-btn, .sched-mode-btn, .idea-tab-btn, .focus-preset-btn, .hub-tab-btn, .sd-segmented > button):hover {
+  color: var(--foreground);
+  background: transparent;
+}
+:is(.tasks-tab-btn, .cal-mode-btn, .sched-mode-btn, .idea-tab-btn, .focus-preset-btn, .hub-tab-btn).active,
+.sd-segmented > button[aria-checked="true"],
+.sd-segmented > button[aria-selected="true"] {
+  background: var(--segment);
+  color: var(--segment-foreground);
+  box-shadow: var(--surface-shadow);
+}
+.dark :is(.tasks-tab-btn, .cal-mode-btn, .sched-mode-btn, .idea-tab-btn, .focus-preset-btn, .hub-tab-btn).active,
+.dark .sd-segmented > button[aria-checked="true"] {
+  background: color-mix(in oklab, var(--foreground) 15%, var(--default));
+  color: var(--foreground);
+}
+.tab-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--foreground) 8%, transparent);
+  color: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.tasks-tab-btn.active .tab-badge { background: var(--accent); color: var(--accent-foreground); }
+
+/* ---------- Form fields (HeroUI field tokens) ---------- */
+:where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"], .input), textarea:not(.textarea), select) {
+  min-height: var(--sd-control-height);
+  padding: calc(var(--spacing) * 1.75) calc(var(--spacing) * 3);
+  border: 1px solid var(--border);
+  border-radius: var(--field-radius);
+  background-color: var(--field-background);
+  color: var(--field-foreground);
+  font-family: inherit;
+  font-size: 13px;
+  box-shadow: var(--field-shadow);
+  outline: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+textarea { line-height: 1.7; }
+:where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], .input), textarea:not(.textarea), select):hover {
+  border-color: var(--field-border-hover);
+}
+:where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], .input), textarea:not(.textarea), select):focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  outline: none;
+}
+::placeholder { color: var(--field-placeholder); opacity: 1; }
+:is(input, textarea, select):disabled { opacity: var(--disabled-opacity); cursor: var(--cursor-disabled); }
+
+/* Select: clear label/value, chevron, readable native menu (never clipped) */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: calc(var(--spacing) * 8.5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a96' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 16px;
+  background-position: left 10px center;
+  cursor: var(--cursor-interactive);
+}
+[dir="ltr"] select, select[dir="ltr"] { background-position: right 10px center; }
+select option, select optgroup {
+  background: var(--overlay);
+  color: var(--overlay-foreground);
+}
+
+/* Field layout: label ↔ control ↔ message use one gap; rows of fields use the stack gap */
+.form-group, .vu-field, .sd-field { display: flex; flex-direction: column; gap: var(--sd-field-gap); min-width: 0; }
+.sd-field--inline { flex-direction: row; align-items: center; gap: var(--sd-space-2); }
+.form-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--sd-stack-gap); }
+/* Rows stack below ~two field widths (narrow modals, 200% zoom) */
+.form-row > * { min-width: 0; }
+.form-row > :is(.form-group, label) { flex: 1 1 12rem; }
+/* Validation (ui-kit.js sets aria-invalid / data-invalid and an official .field-error) */
+:where(input, select, textarea)[aria-invalid="true"] { border-color: var(--danger); }
+:where(input, select, textarea)[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px var(--danger-soft); }
+[data-invalid="true"] > :is(span:first-child, .label) { color: var(--danger); }
+.field-error { margin: 0; padding-inline: 0; font-size: var(--sd-text-caption); line-height: 1.5; }
+
+/* Labels above fields */
+.form-group > span:first-child, .vu-field > span, .pp-form label > span, .sd-field > .label {
+  color: var(--muted);
+  font-size: var(--sd-text-label);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ---------- Chip: official HeroUI .chip / .chip__label with color (default|accent|success|
+   warning|danger), variant (secondary = default | primary | tertiary | soft) and size
+   modifiers. Colour meaning is shared app-wide (see SDUI.STATUS_COLOR in ui-kit.js). ---------- */
+.chip { white-space: nowrap; font-variant-numeric: tabular-nums; vertical-align: middle; }
+.chip strong { font-weight: 700; }
+/* Interactive chip (e.g. course shortcut): a real <button> with chip styling */
+.sd-chip-button { border: 0; font-family: inherit; cursor: var(--cursor-interactive); }
+.sd-chip-button:hover { --chip-bg: var(--default-soft-hover); }
+.sd-chip-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- Single-select filters (radiogroup): selectable, unlike informational chips ---------- */
+.sd-filter { display: inline-flex; flex-wrap: wrap; gap: var(--sd-space-1-5); }
+.sd-filter__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sd-space-1);
+  min-height: var(--sd-control-height-sm);
+  padding-inline: var(--sd-space-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font: 600 12.5px/1 var(--font-sans);
+  cursor: var(--cursor-interactive);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.sd-filter__option:hover { color: var(--foreground); background: var(--surface-hover); }
+.sd-filter__option[aria-checked="true"] {
+  border-color: transparent;
+  background: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+/* Non-colour cue for the selected option */
+.sd-filter__option[aria-checked="true"]::before {
+  content: "";
+  width: 0.9em;
+  height: 0.9em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---------- Modal: native <dialog>.showModal() (focus trap, Escape, top layer) with the
+   official HeroUI element classes added by ui-kit.js:
+     dialog.modal__dialog.sd-modal
+       [.sd-modal__panel  — the dialog's single form/div wrapper, layout-transparent]
+         .modal__header  (.modal__heading, .modal__close-trigger.close-button)
+         .sd-modal__subheader (optional tab bar, stays visible)
+         .modal__body.modal__body--scroll-inside   ← only this part scrolls
+         .modal__footer  (actions; primary is always last = far edge in RTL)
+   The dialog keeps overflow: visible so Select/DatePicker popovers portaled into it
+   are never clipped. ---------- */
+dialog.sd-modal {
+  inline-size: min(100% - 2 * var(--sd-space-4), var(--sd-modal-width, 36rem));
+  max-inline-size: none;
+  max-block-size: calc(100dvh - 2 * var(--sd-space-4));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  color: var(--overlay-foreground);
+  overflow: visible;
+}
+/* The official .modal__dialog sets display:flex, which would override the browser's
+   display:none for closed <dialog>s — keep closed dialogs hidden explicitly. */
+dialog.sd-modal:not([open]) { display: none; }
+dialog.sd-modal[open] { display: flex; flex-direction: column; animation: sd-dialog-in 0.18s ease-out; }
+dialog.sd-modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4px); }
+@keyframes sd-dialog-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.sd-modal--sm { --sd-modal-width: 28rem; }
+.sd-modal--md { --sd-modal-width: 32rem; }
+.sd-modal--lg { --sd-modal-width: 36rem; }
+.sd-modal--xl { --sd-modal-width: 44rem; }
+.sd-modal--2xl { --sd-modal-width: 50rem; }
+
+.sd-modal__panel { display: contents; }
+
+.sd-modal .sd-modal__header {
+  position: relative;
+  flex: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--sd-space-2) var(--sd-space-3);
+  margin: 0;
+  padding: var(--sd-modal-padding) var(--sd-modal-padding) var(--sd-space-4);
+  /* reserved lane for the close button so long titles wrap before reaching it */
+  padding-inline-end: calc(var(--sd-modal-padding) + var(--sd-control-height-sm) + var(--sd-space-2));
+  border-block-end: 1px solid var(--separator);
+}
+/* The title area grows; any extra header content (chips, buttons) wraps after it. */
+.sd-modal .sd-modal__header > :first-child { flex: 1 1 16rem; min-width: 0; }
+/* Hero headers (onboarding, feature tour): stacked and centred, symmetric padding. */
+.sd-modal .onboard-header.sd-modal__header,
+.sd-modal .feature-tour-header.sd-modal__header {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-inline-start: calc(var(--sd-modal-padding) + var(--sd-control-height-sm) + var(--sd-space-2));
+}
+.sd-modal .onboard-header.sd-modal__header > :first-child,
+.sd-modal .feature-tour-header.sd-modal__header > :first-child { flex: none; }
+.sd-modal .modal__heading { font-size: var(--sd-text-modal-title); font-weight: 650; line-height: var(--sd-leading-heading); }
+.sd-modal :is(.onboard-header, .feature-tour-header) .modal__heading { font-size: var(--sd-text-page); }
+.sd-modal .modal__heading:focus { outline: none; }
+/* Close button: vertically centred on the first line of the title, inside its own lane. */
+.sd-modal .modal__close-trigger {
+  position: absolute;
+  inset-inline-end: calc(var(--sd-modal-padding) - var(--sd-space-1-5));
+  inset-block-start: calc(var(--sd-modal-padding) + (var(--sd-text-modal-title) * var(--sd-leading-heading) - var(--sd-control-height-sm)) / 2);
+  width: var(--sd-control-height-sm);
+  height: var(--sd-control-height-sm);
+  border: 0;
+  border-radius: var(--radius-xl);
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+.sd-modal .modal__close-trigger:hover { background: var(--default); color: var(--foreground); }
+/* Optional tab bar under the header: aligned with the header/body edge. The Course Hub
+   nav is a full-bleed band that carries the same inline padding itself. */
+.sd-modal__subheader { flex: none; margin: var(--sd-space-3) var(--sd-modal-padding) 0; }
+.sd-modal .course-hub-nav.sd-modal__subheader { margin: 0; }
+.sd-modal .sd-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: var(--sd-space-4) var(--sd-modal-padding) var(--sd-modal-padding);
+  color: var(--overlay-foreground);
+  font-size: var(--sd-text-body);
+  line-height: var(--sd-leading-body);
+}
+/* Direct children of the body (sections, forms, grids) share one vertical rhythm */
+/* Between body sections (larger) vs. inside a section (smaller): headings stay with their content */
+.sd-modal .sd-modal__body { display: flex; flex-direction: column; gap: var(--sd-section-gap); }
+.sd-modal .sd-modal__body > * { flex: none; }
+.sd-modal .sd-modal__body > .hub-tab-content:not(.active),
+.sd-modal .sd-modal__body > .idea-tab-content:not(.active) { display: none; }
+
+/* Stat cards (study report, popup): official Card, label as description, value as title */
+.sd-stat-card { gap: var(--sd-space-1); padding: var(--sd-space-3); text-align: center; align-items: center; }
+.sd-stat-card .card__title { font-size: 18px; font-variant-numeric: tabular-nums; }
+.report-chart-wrap, .report-courses-section { gap: var(--sd-space-2); }
+.report-summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--sd-stack-gap); }
+
+.sd-modal .modal__header + .modal__body,
+.sd-modal .modal__body + .modal__footer,
+.sd-modal .modal__header + .modal__footer { margin-top: 0; }
+.sd-modal .sd-modal__body > form,
+.sd-modal .sd-modal__body > .onboard-form { display: flex; flex-direction: column; gap: var(--sd-stack-gap); }
+.sd-modal .sd-modal__footer {
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--sd-space-2);
+  margin: 0;
+  padding: var(--sd-space-4) var(--sd-modal-padding);
+  border-block-start: 1px solid var(--separator);
+}
+.sd-modal .sd-modal__footer :is(.primary-btn, [type="submit"]) { order: 2; }
+@media (max-height: 560px), (max-width: 520px) {
+  .sd-modal { --sd-modal-padding: var(--sd-space-4); }
+  .sd-modal .sd-modal__header { padding-block: var(--sd-space-3); }
+  .sd-modal .sd-modal__footer { padding-block: var(--sd-space-2); }
+}
+
+/* ---------- Tooltips (data-tooltip="…" on any element) ---------- */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  inset-inline-start: 50%;
+  bottom: calc(100% + 8px);
+  translate: 50% 4px;
+  z-index: 60;
+  padding: 5px 9px;
+  border-radius: var(--radius);
+  background: var(--overlay);
+  color: var(--overlay-foreground);
+  box-shadow: var(--overlay-shadow);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease, translate 0.12s ease;
+}
+[dir="ltr"] [data-tooltip]::after { translate: -50% 4px; }
+[data-tooltip]:is(:hover, :focus-visible)::after { opacity: 1; translate: 50% 0; transition-delay: 0.35s; }
+[dir="ltr"] [data-tooltip]:is(:hover, :focus-visible)::after { translate: -50% 0; }
+[data-tooltip-pos="bottom"]::after { bottom: auto; top: calc(100% + 8px); }
+
+/* ---------- Empty / status text ---------- */
+.empty-hint {
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+  padding: calc(var(--sd-card-padding) * 0.8) 8px;
+  border: 1px dashed var(--border);
+  border-radius: calc(var(--radius) * 1.5);
+  background: transparent;
+}
+.vu-error, .pp-error {
+  background: var(--danger-soft);
+  color: var(--danger-soft-foreground);
+  border-radius: calc(var(--radius) * 1.25);
+}
+
+/* ---------- React island hosts (official HeroUI Select / DatePicker) ----------
+   The native control stays in the DOM as the source of truth for app.js, but is
+   visually hidden and removed from the tab order; the island renders after it. */
+.sd-native-hidden {
+  position: absolute !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  clip-path: inset(50%) !important;
+}
+.sd-island { min-width: 0; inline-size: 100%; }
+.sd-island .select__trigger,
+.sd-island .date-input-group { min-height: var(--sd-control-height); font-size: 13px; }
+.sd-field--inline .sd-island { inline-size: auto; min-inline-size: 11rem; }
+
+/* Select trigger shows one line; long option labels truncate (full text is in the listbox) */
+.select__value { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }

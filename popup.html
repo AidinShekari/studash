@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>StuDash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<!-- Applies the saved appearance before first paint (no theme flash). -->
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles/studash.css" />
+</head>
+<body class="pp">
+  <header class="pp-header">
+    <img src="icons/icon48.png" alt="" class="pp-logo" width="32" height="32" />
+    <div class="pp-brand">
+      <h1>StuDash</h1>
+      <p>دانشگاه فردوسی · VU و پویا</p>
+    </div>
+    <div class="pp-header-actions">
+      <button type="button" id="themeCycleBtn" class="button button--ghost button--icon-only button--sm" data-tooltip="حالت نمایش" data-tooltip-pos="bottom" aria-label="تغییر حالت نمایش">
+        <span class="sd-icon sd-icon--monitor" id="themeCycleIcon" aria-hidden="true"></span>
+      </button>
+      <button type="button" id="openDashboardTopBtn" class="button button--ghost button--icon-only button--sm" data-tooltip="باز کردن داشبورد" data-tooltip-pos="bottom" aria-label="باز کردن داشبورد">
+        <span class="sd-icon sd-icon--external" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== VU: not connected ========== -->
+  <section id="loginView" class="card card--default pp-card" hidden>
+    <div class="card__header">
+      <h2 class="card__title pp-card-title"><span class="sd-icon sd-icon--grad" aria-hidden="true"></span>اتصال به VU</h2>
+      <p class="card__description">تکالیف، آزمون‌ها و مهلت‌ها خودکار در تب جدید نمایش داده می‌شوند.</p>
+    </div>
+    <form id="loginForm" class="card__content pp-form" autocomplete="on">
+      <div class="pp-field">
+        <label class="label" for="vuUsername">نام کاربری (شماره دانشجویی)</label>
+        <input id="vuUsername" class="input input--full-width" name="username" type="text" dir="ltr" autocomplete="username" required />
+      </div>
+      <div class="pp-field">
+        <label class="label" for="vuPassword">رمز عبور</label>
+        <div class="pp-pass">
+          <input id="vuPassword" class="input input--full-width" name="password" type="password" dir="ltr" autocomplete="current-password" required />
+          <button type="button" id="togglePass" class="button button--ghost button--icon-only button--sm" aria-label="نمایش رمز" data-tooltip="نمایش رمز">
+            <span class="sd-icon sd-icon--eye" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+      <p class="pp-note"><span class="sd-icon sd-icon--lock" aria-hidden="true"></span>رمز فقط روی همین کامپیوتر ذخیره می‌شود تا ورود دوباره خودکار باشد و با «قطع اتصال» پاک می‌شود.</p>
+      <p id="loginError" class="alert alert--danger pp-alert" role="alert" hidden></p>
+      <button type="submit" id="loginBtn" class="button button--primary button--md button--full-width">
+        <span class="pp-btn-label">اتصال به VU</span>
+        <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      </button>
+    </form>
+    <div id="existingSessionBox" class="pp-existing" hidden>
+      <p>در مرورگر وارد VU هستی<span id="existingName"></span>.</p>
+      <button type="button" id="useSessionBtn" class="button button--secondary button--sm button--full-width">استفاده از همین ورود (بدون ذخیره رمز)</button>
+    </div>
+    <button type="button" id="openVuLoginBtn" class="button button--ghost button--sm pp-link">ورود دستی در سایت VU <span class="sd-icon sd-icon--external" aria-hidden="true"></span></button>
+  </section>
+
+  <!-- ========== VU: connected ========== -->
+  <section id="connectedView" class="card card--default pp-card" hidden>
+    <div class="pp-account">
+      <div class="pp-avatar" aria-hidden="true"><span class="sd-icon sd-icon--grad"></span></div>
+      <div class="pp-account-text">
+        <strong id="accountName">دانشجو</strong>
+        <span id="lastSyncLabel">—</span>
+      </div>
+      <button type="button" id="syncBtn" class="button button--secondary button--icon-only button--sm" aria-label="همگام‌سازی" data-tooltip="همگام‌سازی">
+        <span class="sd-icon sd-icon--refresh" aria-hidden="true"></span>
+      </button>
+    </div>
+    <p id="syncError" class="alert alert--danger pp-alert" role="alert" hidden></p>
+
+    <div class="pp-stats" role="list">
+      <div role="listitem"><b id="statPending">۰</b><span>در انتظار</span></div>
+      <div role="listitem" class="pp-stat-hot"><b id="statUrgent">۰</b><span>تا ۳ روز</span></div>
+      <div role="listitem" class="pp-stat-ok"><b id="statSubmitted">۰</b><span>ارسال‌شده</span></div>
+    </div>
+
+    <div class="pp-list-head">
+      <h2>نزدیک‌ترین مهلت‌ها</h2>
+    </div>
+    <ul id="upcomingList" class="pp-list"></ul>
+    <p id="upcomingEmpty" class="pp-empty" hidden>🎉 تکلیف ارسال‌نشده‌ای نداری!</p>
+
+    <div class="pp-actions">
+      <button type="button" id="openDashboardBtn" class="button button--primary button--md button--full-width">باز کردن داشبورد</button>
+      <button type="button" id="disconnectBtn" class="button button--ghost button--sm pp-danger-link"><span class="sd-icon sd-icon--logout" aria-hidden="true"></span>قطع اتصال VU</button>
+    </div>
+  </section>
+
+  <!-- ========== Pooya: class schedule import ========== -->
+  <section id="pooyaSection" class="card card--default pp-card">
+    <div class="pp-pooya-head">
+      <div class="card__header">
+        <h2 class="card__title pp-card-title"><span class="sd-icon sd-icon--calendar" aria-hidden="true"></span>برنامه کلاسی از پویا</h2>
+        <p id="pooyaStatus" class="card__description">برنامه هفتگی و زوج/فرد بودن هفته را از پویا وارد کن.</p>
+      </div>
+      <span id="pooyaParityPill" class="chip chip--accent chip--sm pp-parity" hidden></span>
+    </div>
+    <p id="pooyaError" class="alert alert--danger pp-alert" role="alert" hidden></p>
+    <p id="pooyaSuccess" class="alert alert--success pp-alert" role="status" hidden></p>
+
+    <div id="pooyaConnectBox" class="pp-form">
+      <button type="button" id="pooyaUseVuBtn" class="button button--primary button--md button--full-width" hidden>
+        <span class="pp-btn-label">ورود به پویا با همین حساب و وارد کردن برنامه</span>
+        <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      </button>
+      <form id="pooyaForm" class="pp-form" hidden>
+        <div class="pp-field">
+          <label class="label" for="pooyaUsername">نام کاربری پویا</label>
+          <input id="pooyaUsername" class="input input--full-width" type="text" dir="ltr" autocomplete="username" required />
+        </div>
+        <div class="pp-field">
+          <label class="label" for="pooyaPassword">رمز عبور پویا</label>
+          <input id="pooyaPassword" class="input input--full-width" type="password" dir="ltr" autocomplete="current-password" required />
+        </div>
+        <button type="submit" id="pooyaLoginBtn" class="button button--primary button--md button--full-width">
+          <span class="pp-btn-label">ورود و وارد کردن برنامه</span>
+          <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        </button>
+      </form>
+      <button type="button" id="pooyaOtherAccountBtn" class="button button--ghost button--sm pp-link" hidden>حساب یا رمز پویا متفاوت است</button>
+    </div>
+
+    <div id="pooyaConnectedBox" class="pp-actions pp-actions--row" hidden>
+      <button type="button" id="pooyaImportBtn" class="button button--secondary button--sm">
+        <span class="sd-icon sd-icon--download" aria-hidden="true"></span>
+        <span class="pp-btn-label">به‌روزرسانی برنامه</span>
+        <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      </button>
+      <button type="button" id="pooyaDisconnectBtn" class="button button--ghost button--sm pp-danger-link">قطع اتصال پویا</button>
+    </div>
+  </section>
+
+  <script src="jalali.js"></script>
+  <script src="ui-kit.js"></script>
+  <script src="vu-client.js"></script>
+  <script src="pooya-client.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

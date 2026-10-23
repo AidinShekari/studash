@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>StuDash</title>
+<link rel="icon" type="image/png" href="icons/icon128.png" />
+<link rel="shortcut icon" href="icons/icon128.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<!-- Applies the saved appearance before first paint (no theme flash). -->
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles/studash.css" />
+</head>
+<body>
+
+  <div class="horizon-bar" id="horizonBar" aria-hidden="true"></div>
+
+  <div class="page">
+
+    <!-- UPCOMING EXAM 7-DAY REMINDER BANNER -->
+    <div id="examReminderBanner" class="exam-reminder-banner" hidden></div>
+
+    <div class="top-layout">
+      <!-- RIGHT SIDE: Calendar Panel -->
+      <aside class="sidebar-right">
+        <section class="card card--default sd-card calendar-panel" aria-labelledby="monthLabel">
+          <header class="card__header sd-card__header calendar-header">
+            <button id="prevMonth" type="button" class="nav-btn" aria-label="ماه قبل" data-tooltip="ماه قبل">›</button>
+            <div class="month-label-wrap">
+              <h2 class="card__title month-label" id="monthLabel" aria-live="polite">—</h2>
+              <p class="card__description month-sublabel" id="monthSubLabel"></p>
+            </div>
+            <button id="nextMonth" type="button" class="nav-btn" aria-label="ماه بعد" data-tooltip="ماه بعد">‹</button>
+          </header>
+          <div class="card__content">
+            <div class="sd-calendar" role="grid" aria-labelledby="monthLabel" aria-describedby="calendarHelp">
+              <div class="weekdays" role="row">
+                <span role="columnheader" aria-label="شنبه">ش</span><span role="columnheader" aria-label="یکشنبه">ی</span><span role="columnheader" aria-label="دوشنبه">د</span><span role="columnheader" aria-label="سه‌شنبه">س</span><span role="columnheader" aria-label="چهارشنبه">چ</span><span role="columnheader" aria-label="پنجشنبه">پ</span><span role="columnheader" aria-label="جمعه">ج</span>
+              </div>
+              <div class="calendar-grid" id="calendarGrid" role="rowgroup"></div>
+            </div>
+            <p id="calendarHelp" class="sr-only">با کلیدهای جهت بین روزها حرکت کن، Enter برای انتخاب روز، Page Up و Page Down برای ماه قبل و بعد.</p>
+            <ul class="cal-legend" aria-label="راهنمای نشانگرها">
+              <li><span class="cal-legend__mark cal-legend__mark--task" aria-hidden="true"></span>کار</li>
+              <li><span class="cal-legend__mark cal-legend__mark--exam" aria-hidden="true"></span>امتحان</li>
+              <li><span class="cal-legend__mark cal-legend__mark--vu" aria-hidden="true"></span>مهلت VU</li>
+            </ul>
+          </div>
+          <footer class="card__footer sd-card__footer">
+            <div class="cal-mode-toggle" id="calModeToggle" role="radiogroup" aria-label="نوع تقویم">
+              <button type="button" class="cal-mode-btn active" id="modeShamsiBtn" data-mode="shamsi" role="radio" aria-checked="true">شمسی</button>
+              <button type="button" class="cal-mode-btn" id="modeMiladiBtn" data-mode="gregorian" role="radio" aria-checked="false">میلادی</button>
+            </div>
+          </footer>
+        </section>
+      </aside>
+
+      <!-- CENTER: Clock, Greeting, Search Bar, Pinned Sites -->
+      <main class="main">
+        <div class="clock-block">
+          <div class="top-clock-header">
+            <!-- Center: Greeting & Profile / Settings Actions -->
+            <div class="greeting-wrap">
+              <div class="greeting" id="greeting">&nbsp;</div>
+              <button type="button" class="profile-edit-btn" id="profileEditBtn" title="ویرایش مشخصات دانشجو" aria-label="ویرایش مشخصات">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button type="button" class="profile-edit-btn settings-launch-btn" id="settingsLaunchBtn" title="تنظیمات داشبورد و انتخاب پوسته" aria-label="تنظیمات داشبورد">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+
+              <!-- Quick Tools Access: wrench icon -> dropdown to pin tools to main screen OR launch them directly -->
+              <div class="quick-tools-wrap" id="quickToolsWrap">
+                <button type="button" class="profile-edit-btn quick-tools-trigger-btn" id="quickToolsTriggerBtn" title="ابزارها و امکانات" aria-label="ابزارها و امکانات" aria-expanded="false">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                  </svg>
+                </button>
+
+                <div class="quick-tools-menu" id="quickToolsMenu" hidden>
+                  <div class="quick-tools-header">
+                    <strong>ابزارها و امکانات</strong>
+                    <span>روی هر ابزار بزنید تا باز شود؛ با 📌 آن را روی صفحه اصلی نگه دارید</span>
+                  </div>
+
+                  <div class="quick-tools-list">
+                    <div class="quick-tool-item" data-tool="webmail">
+                      <a href="https://webmail.um.ac.ir" target="_blank" rel="noopener noreferrer" class="quick-tool-main" id="quickToolWebmail">
+                        <span class="quick-tool-icon">✉️</span>
+                        <span class="quick-tool-label">ایمیل دانشگاهی</span>
+                      </a>
+                      <button type="button" class="quick-tool-pin-btn" data-tool="webmail" title="پین کردن در صفحه اصلی">
+                        <span class="pin-icon">📌</span>
+                      </button>
+                    </div>
+
+                    <div class="quick-tool-item" data-tool="idea">
+                      <div class="quick-tool-main" id="quickToolIdea" role="button" tabindex="0">
+                        <span class="quick-tool-icon">💡</span>
+                        <span class="quick-tool-label">آزمایشگاه ایده</span>
+                        <span class="quick-tool-badge-pill" id="quickToolIdeaBadge">0/3</span>
+                      </div>
+                      <button type="button" class="quick-tool-pin-btn" data-tool="idea" title="پین کردن در صفحه اصلی">
+                        <span class="pin-icon">📌</span>
+                      </button>
+                    </div>
+
+                    <div class="quick-tool-item" data-tool="notes">
+                      <div class="quick-tool-main" id="quickToolNotes" role="button" tabindex="0">
+                        <span class="quick-tool-icon">📝</span>
+                        <span class="quick-tool-label">یادداشت‌های سریع</span>
+                        <span class="quick-tool-badge-pill" id="quickToolNotesBadge" style="display:none">0</span>
+                      </div>
+                      <button type="button" class="quick-tool-pin-btn" data-tool="notes" title="پین کردن در صفحه اصلی">
+                        <span class="pin-icon">📌</span>
+                      </button>
+                    </div>
+
+                    <div class="quick-tool-item" data-tool="timer">
+                      <div class="quick-tool-main" id="quickToolTimer" role="button" tabindex="0">
+                        <span class="quick-tool-icon">🔥</span>
+                        <span class="quick-tool-label">تایمر مطالعه</span>
+                      </div>
+                      <button type="button" class="quick-tool-pin-btn" data-tool="timer" title="پین کردن در صفحه اصلی">
+                        <span class="pin-icon">📌</span>
+                      </button>
+                    </div>
+
+                    <div class="quick-tool-item" data-tool="report">
+                      <div class="quick-tool-main" id="quickToolReport" role="button" tabindex="0">
+                        <span class="quick-tool-icon">📊</span>
+                        <span class="quick-tool-label">گزارش مطالعه</span>
+                      </div>
+                      <button type="button" class="quick-tool-pin-btn" data-tool="report" title="پین کردن در صفحه اصلی">
+                        <span class="pin-icon">📌</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Symmetrical Balanced Arena: Buttons flanking the Clock -->
+          <div class="clock-stage">
+            <!-- Right Wing: Study & Timer -->
+            <div class="clock-wing clock-wing-right">
+              <button type="button" class="side-tool-btn focus-launch-btn" id="focusLaunchBtn" data-tool="timer" title="تایمر مطالعه و تمرکز عمیق">
+                <span class="focus-btn-flame">🔥</span>
+                <span>تایمر مطالعه</span>
+              </button>
+              <button type="button" class="side-tool-btn report-launch-btn" id="studyReportLaunchBtn" data-tool="report" title="گزارش و آمار ساعات مطالعه">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="13" width="4.2" height="7" rx="1"></rect>
+                  <rect x="10.4" y="9" width="4.2" height="11" rx="1"></rect>
+                  <rect x="16.8" y="4.5" width="4.2" height="15.5" rx="1"></rect>
+                  <path d="M5.2 11.5 11.5 7 18.9 3"></path>
+                  <circle cx="18.9" cy="3" r="1.4" fill="currentColor" stroke="none"></circle>
+                </svg>
+                <span>گزارش مطالعه</span>
+              </button>
+            </div>
+
+            <!-- Center Clock & Date -->
+            <div class="clock-core">
+              <div class="clock" id="clock">--:--</div>
+              <div class="date-today" id="dateToday">&nbsp;</div>
+              <div class="date-today-secondary" id="dateTodaySecondary" style="display: none;">&nbsp;</div>
+            </div>
+
+            <!-- Left Wing: Tools & Webmail -->
+            <div class="clock-wing clock-wing-left">
+              <a href="https://webmail.um.ac.ir" target="_blank" rel="noopener noreferrer" class="side-tool-btn webmail-btn" id="headerWebmailBtn" data-tool="webmail" title="ورود به ایمیل دانشگاهی (Webmail)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </svg>
+                <span>ایمیل دانشگاهی</span>
+              </a>
+              <button type="button" class="side-tool-btn idea-launch-btn" id="headerIdeaLabBtn" data-tool="idea" title="آزمایشگاه ایده و مسیر راه">
+                <span>💡</span>
+                <span>ایده</span>
+                <span class="side-tool-badge" id="headerIdeasBadge">0/3</span>
+              </button>
+              <button type="button" class="side-tool-btn notes-launch-btn" id="headerNotesBtn" data-tool="notes" title="یادداشت‌های من">
+                <span>📝</span>
+                <span>یادداشت</span>
+                <span class="side-tool-badge" id="headerNotesBadge" style="display:none">0</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <form class="search-form" id="searchForm" role="search">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <input id="searchInput" type="text" placeholder="جستجو در وب…" autocomplete="off" autofocus />
+        </form>
+
+        <section class="pinned-section">
+          <div class="pinned-header">
+            <h2>سایت‌های پین‌شده</h2>
+            <button id="addPinBtn" class="ghost-btn" type="button">+ افزودن سایت</button>
+          </div>
+          <div id="pinnedGrid" class="pinned-grid"></div>
+          <p id="pinnedEmpty" class="empty-hint" hidden>هنوز سایتی پین نکرده‌ای. با «افزودن سایت» شروع کن.</p>
+        </section>
+      </main>
+
+      <!-- LEFT SIDE: Unified Tasks / Assignments / Agenda Panel -->
+      <aside class="sidebar-left">
+        <section class="card card--default sd-card tasks-panel" id="tasksPanel" aria-labelledby="allTasksSelectedDateLabel">
+          <header class="card__header sd-card__header">
+            <div class="tasks-panel-tabs" role="tablist" aria-label="فیلتر کارها">
+              <button type="button" class="tasks-tab-btn active" id="tabFilterAll" data-filter="all" role="tab" aria-selected="true" aria-controls="allTasksUnifiedList">
+                <span class="tab-label">همه</span>
+                <span class="chip chip--sm chip--default tab-badge" id="badgeAllTasksCount">۰</span>
+              </button>
+              <button type="button" class="tasks-tab-btn" id="tabFilterCourse" data-filter="course" role="tab" aria-selected="false" aria-controls="allTasksUnifiedList" tabindex="-1">
+                <span class="tab-label">تکالیف</span>
+                <span class="chip chip--sm chip--default tab-badge" id="badgeCourseTasksCount">۰</span>
+              </button>
+              <button type="button" class="tasks-tab-btn" id="tabFilterDaily" data-filter="daily" role="tab" aria-selected="false" aria-controls="allTasksUnifiedList" tabindex="-1">
+                <span class="tab-label">کارها</span>
+                <span class="chip chip--sm chip--default tab-badge" id="badgeDailyTasksCount">۰</span>
+              </button>
+              <button type="button" class="tasks-tab-btn" id="tabFilterGcal" data-filter="gcal" role="tab" aria-selected="false" aria-controls="allTasksUnifiedList" tabindex="-1">
+                <span class="tab-label">تقویم</span>
+                <span class="chip chip--sm chip--default tab-badge" id="badgeGcalCount">۰</span>
+              </button>
+            </div>
+            <div class="sd-card__titlebar">
+              <h2 class="card__title" id="allTasksSelectedDateLabel">کارهای امروز</h2>
+              <button id="gcalConnectBtn" class="ghost-btn-sm gcal-sync-pill" type="button">همگام‌سازی تقویم گوگل</button>
+            </div>
+          </header>
+
+          <div class="card__content tasks-unified-view">
+            <form id="taskForm" class="task-form">
+              <label for="taskInput" class="sr-only">کار جدید برای روز انتخاب‌شده</label>
+              <input id="taskInput" type="text" placeholder="کار جدید برای این روز…" autocomplete="off" maxlength="140" />
+              <button type="submit" class="add-btn" aria-label="افزودن کار">+</button>
+            </form>
+
+            <div id="gcalStatus" class="gcal-status" role="status" hidden></div>
+
+            <div id="allTasksUnifiedList" class="all-tasks-unified-list" role="tabpanel" aria-labelledby="tabFilterAll"></div>
+
+            <p id="allTasksUnifiedEmpty" class="empty-hint" hidden>🎉 هیچ کار یا رویدادی برای این روز ثبت نشده!</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <!-- VU HOMEWORK SECTION (synced from vu.um.ac.ir) -->
+    <section class="card card--default sd-card vu-section" id="vuSection" aria-labelledby="vuTitle">
+      <header class="card__header sd-card__header sd-card__header--split">
+        <div class="sd-card__heading">
+          <h2 class="card__title" id="vuTitle">تکالیف و آزمون‌های VU</h2>
+          <p class="card__description vu-subtitle" id="vuSubtitle">سامانه آموزش مجازی دانشگاه فردوسی</p>
+        </div>
+        <div class="sd-card__actions vu-header-actions" id="vuHeaderActions" hidden>
+          <div class="vu-stats" id="vuStats" role="list" aria-label="خلاصه تکالیف"></div>
+          <button type="button" class="vu-sync-btn" id="vuSyncBtn" aria-label="همگام‌سازی با VU" data-tooltip="همگام‌سازی با VU">⟳</button>
+        </div>
+      </header>
+      <div class="card__content">
+
+      <!-- Not connected -->
+      <div class="vu-connect-empty" id="vuConnectEmpty" hidden>
+        <div class="vu-connect-icon">🎓</div>
+        <div>
+          <strong>به VU وصل شو تا تکالیفت خودکار اینجا بیاید</strong>
+          <p>تکالیف ارسال‌شده و ارسال‌نشده، مهلت‌ها، آزمون‌ها و یادآوری قبل از ددلاین.</p>
+        </div>
+        <button type="button" class="primary-btn" id="vuConnectBtn">اتصال به VU</button>
+      </div>
+
+      <!-- Connected -->
+      <div id="vuConnectedBody" hidden>
+        <div class="vu-toolbar">
+          <div class="sd-filter vu-filter-chips" id="vuFilterChips" role="radiogroup" aria-label="فیلتر وضعیت تکالیف">
+            <button type="button" class="sd-filter__option vu-chip active" data-filter="upcoming" role="radio" aria-checked="true">پیش رو</button>
+            <button type="button" class="sd-filter__option vu-chip" data-filter="submitted" role="radio" aria-checked="false" tabindex="-1">ارسال‌شده</button>
+            <button type="button" class="sd-filter__option vu-chip" data-filter="overdue" role="radio" aria-checked="false" tabindex="-1">گذشته</button>
+            <button type="button" class="sd-filter__option vu-chip" data-filter="all" role="radio" aria-checked="false" tabindex="-1">همه</button>
+          </div>
+          <div class="sd-field sd-field--inline">
+            <label class="label" for="vuCourseFilter">درس</label>
+            <select id="vuCourseFilter" class="vu-course-filter" data-placeholder="همه درس‌ها">
+              <option value="">همه درس‌ها</option>
+            </select>
+          </div>
+        </div>
+        <p class="vu-error" id="vuError" hidden></p>
+        <div class="vu-table-wrap">
+          <table class="vu-table">
+            <thead>
+              <tr>
+                <th>درس</th>
+                <th>عنوان</th>
+                <th>نوع</th>
+                <th>مهلت</th>
+                <th>زمان باقی‌مانده</th>
+                <th>وضعیت</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="vuTableBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-hint" id="vuTableEmpty" hidden></p>
+      </div>
+      </div>
+    </section>
+
+    <!-- WEEKLY SCHEDULE SECTION (DUAL-MODE: UNIVERSITY & LIFE/GCAL) -->
+    <section class="card card--default sd-card schedule-section" id="scheduleSection" aria-labelledby="scheduleTitle">
+      <h2 class="sr-only" id="scheduleTitle">برنامه هفتگی</h2>
+      <header class="card__header sd-card__header sd-card__header--split schedule-header">
+        <div class="schedule-title-group">
+          <!-- Segmented Tab Switcher -->
+          <div class="schedule-mode-toggle" id="scheduleModeToggle" role="tablist" aria-label="نوع برنامه">
+            <button type="button" class="sched-mode-btn active" id="schedModeUnivBtn" data-mode="university" role="tab" aria-selected="true" aria-controls="scheduleGrid">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>برنامه کلاسی دانشگاه</span>
+            </button>
+            <button type="button" class="sched-mode-btn" id="schedModePersonalBtn" data-mode="personal" role="tab" aria-selected="false" aria-controls="scheduleGrid" tabindex="-1">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>برنامه جامع هفتگی (Google Calendar & Routine)</span>
+            </button>
+          </div>
+          <p class="card__description schedule-subtitle" id="scheduleSubtitle">دانشگاه فردوسی مشهد • نیم‌سال دوم</p>
+        </div>
+
+        <!-- University Mode Actions -->
+        <div class="schedule-actions" id="univScheduleActions">
+          <div class="chip chip--md chip--default today-classes-badge" id="todayClassesBadge" role="status">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span class="chip__label" id="todayClassesSummary">کلاس‌های امروز: بدون کلاس</span>
+          </div>
+          <span class="chip chip--md chip--accent chip--soft week-parity-badge" id="weekParityBadge" hidden></span>
+          <button id="pooyaImportBtn" class="ghost-btn" type="button" title="وارد کردن برنامه کلاسی از سامانه پویا">📥 وارد کردن از پویا</button>
+          <button id="addClassBtn" class="primary-btn" type="button">+ افزودن کلاس</button>
+        </div>
+
+        <!-- Personal / Life Mode Actions -->
+        <div class="schedule-actions" id="personalScheduleActions" hidden>
+          <div class="chip chip--md chip--accent chip--soft today-classes-badge" id="personalWeekRangeBadge">
+            <span class="live-dot live-dot--accent" aria-hidden="true"></span>
+            <span class="chip__label" id="personalWeekRangeText">هفته جاری</span>
+          </div>
+          <button id="personalSyncGcalBtn" class="ghost-btn" type="button" title="همگام‌سازی رویدادهای Google Calendar">🔄 همگام‌سازی تقویم گوگل</button>
+        </div>
+      </header>
+
+      <div class="card__content schedule-table-wrap">
+        <div class="schedule-grid" id="scheduleGrid"></div>
+      </div>
+
+      <!-- University Footer -->
+      <footer class="card__footer sd-card__footer schedule-footer-bar" id="univScheduleFooter">
+        <span class="chip chip--lg chip--accent chip--soft">
+          <span class="chip__label">مجموع واحدهای این ترم: <strong id="scheduleTotalUnits">۰ واحد</strong></span>
+        </span>
+        <span class="chip chip--lg chip--default">
+          <span class="chip__label" id="scheduleTotalCourses">۰ عنوان درس</span>
+        </span>
+      </footer>
+
+      <!-- Personal / Life Footer -->
+      <footer class="card__footer sd-card__footer schedule-footer-bar" id="personalScheduleFooter" hidden>
+        <span class="chip chip--lg chip--accent chip--soft">
+          <span class="chip__label">رویدادهای این هفته: <strong id="personalTotalEvents">۰ رویداد</strong></span>
+        </span>
+        <span class="chip chip--lg chip--default">
+          <span class="chip__label" id="personalGcalStatusText">Google Calendar همگام است</span>
+        </span>
+      </footer>
+    </section>
+
+    <!-- APP FOOTER & COPYRIGHT -->
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <div class="footer-brand" dir="ltr">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="footer-logo">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>StuDash</span>
+        </div>
+        <div class="footer-meta" dir="ltr">
+          <span>Developed by <strong>Iliya Abdollahzadeh</strong></span>
+          <span class="footer-divider">•</span>
+          <a href="mailto:iliyaabdollahzade@gmail.com" class="footer-contact">iliyaabdollahzade@gmail.com</a>
+        </div>
+        <div class="footer-copy" dir="ltr">
+          © 2026 StuDash. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <dialog id="pinDialog" class="pin-dialog">
+    <form id="pinForm" method="dialog" class="pin-form">
+      <div class="dialog-header">
+        <h3>افزودن سایت به علاقه‌مندی‌ها</h3>
+        <button type="button" class="dialog-close-btn" id="pinDialogCloseBtn" aria-label="بستن">×</button>
+      </div>
+
+      <!-- Quick Preset Suggestions Section -->
+      <div class="pin-presets-section">
+        <span class="pin-presets-title">پیشنهادات سریع دانشجویی (کلیک برای فعال/غیرفعال کردن):</span>
+
+        <div class="preset-group">
+          <span class="chip chip--sm chip--default preset-group-tag">📦 پکیج‌ها:</span>
+          <div class="preset-chips">
+            <button type="button" class="preset-chip" data-package="google" data-title="Google Apps">+ پکیج Google Apps</button>
+            <button type="button" class="preset-chip" data-package="research" data-title="Research Hub">+ پکیج Research Hub</button>
+            <button type="button" class="preset-chip" data-package="ai" data-title="AI Hub">+ پکیج AI Hub</button>
+          </div>
+        </div>
+
+        <div class="preset-group">
+          <span class="chip chip--sm chip--default preset-group-tag">🌐 Google:</span>
+          <div class="preset-chips">
+            <button type="button" class="preset-chip" data-title="Google Calendar" data-url="https://calendar.google.com/">+ Google Calendar</button>
+            <button type="button" class="preset-chip" data-title="Gmail" data-url="https://mail.google.com/">+ Gmail</button>
+            <button type="button" class="preset-chip" data-title="Google Drive" data-url="https://drive.google.com/">+ Google Drive</button>
+            <button type="button" class="preset-chip" data-title="Google Meet" data-url="https://meet.google.com/">+ Google Meet</button>
+            <button type="button" class="preset-chip" data-title="Google Classroom" data-url="https://classroom.google.com/">+ Google Classroom</button>
+          </div>
+        </div>
+
+        <div class="preset-group">
+          <span class="chip chip--sm chip--default preset-group-tag">🎓 فردوسی:</span>
+          <div class="preset-chips">
+            <button type="button" class="preset-chip" data-title="Pooya Portal" data-url="https://pooya.um.ac.ir/">+ Pooya</button>
+            <button type="button" class="preset-chip" data-title="VU Portal" data-url="https://vu.um.ac.ir">+ VU</button>
+            <button type="button" class="preset-chip" data-title="Webmail" data-url="https://webmail.um.ac.ir">+ Webmail</button>
+            <button type="button" class="preset-chip" data-title="FUM Website" data-url="https://www.um.ac.ir">+ FUM Web</button>
+          </div>
+        </div>
+
+        <div class="preset-group">
+          <span class="chip chip--sm chip--default preset-group-tag">🤖 هوش مصنوعی:</span>
+          <div class="preset-chips">
+            <button type="button" class="preset-chip" data-title="Gemini" data-url="https://gemini.google.com/">+ Gemini</button>
+            <button type="button" class="preset-chip" data-title="Claude" data-url="https://claude.ai/">+ Claude</button>
+            <button type="button" class="preset-chip" data-title="ChatGPT" data-url="https://chatgpt.com/">+ ChatGPT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pin-divider"><span>یا وارد کردن آدرس دلخواه</span></div>
+
+      <div class="form-row">
+        <label class="form-group flex-1">
+          <span>عنوان سایت *</span>
+          <input id="pinTitle" data-initial-focus type="text" placeholder="مثلاً: GitHub یا GitLab" maxlength="30" required autocomplete="off" />
+        </label>
+        <label class="form-group flex-2">
+          <span>آدرس اینترنتی (URL) *</span>
+          <input id="pinUrl" type="text" placeholder="مثلاً: github.com یا gitlab.com" required autocomplete="off" />
+        </label>
+      </div>
+      <div class="pin-form-actions">
+        <button type="button" id="pinCancelBtn" class="ghost-btn">انصراف</button>
+        <button type="submit" class="primary-btn">افزودن سایت</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- CLASS ADD / EDIT DIALOG -->
+  <dialog id="classDialog" class="class-dialog">
+    <form id="classForm" method="dialog" class="class-form">
+      <div class="dialog-header">
+        <h3 id="classDialogTitle">افزودن درس جدید</h3>
+        <button type="button" class="dialog-close-btn" id="classDialogCloseBtn" aria-label="بستن">×</button>
+      </div>
+
+      <input type="hidden" id="classEditId" value="" />
+
+      <div class="form-row">
+        <label class="form-group flex-2">
+          <span>نام درس *</span>
+          <input id="className" data-initial-focus type="text" placeholder="مثلاً: مبانی تحقیق در عملیات یا جبر خطی" required autocomplete="off" />
+        </label>
+        <label class="form-group flex-1">
+          <span>نام استاد (اختیاری)</span>
+          <input id="classInstructor" type="text" placeholder="مثلاً: دکتر طوسیان" autocomplete="off" />
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="form-group flex-1">
+          <span>تعداد واحد</span>
+          <select id="classUnits">
+            <option value="3" selected>۳ واحد</option>
+            <option value="2">۲ واحد</option>
+            <option value="1">۱ واحد</option>
+          </select>
+        </label>
+        <label class="form-group flex-1">
+          <span>تناوب برگزاری</span>
+          <select id="classWeekType">
+            <option value="all">همه هفته‌ها (عادی)</option>
+            <option value="odd">فقط هفته‌های فرد</option>
+            <option value="even">فقط هفته‌های زوج</option>
+          </select>
+        </label>
+        <div class="form-group flex-1">
+          <span>رنگ تم کارت</span>
+          <div class="color-palette" id="colorPalette">
+            <label class="color-option"><input type="radio" name="classColor" value="#f2a65a" checked /><span style="background: #f2a65a;"></span></label>
+            <label class="color-option"><input type="radio" name="classColor" value="#6fc8f2" /><span style="background: #6fc8f2;"></span></label>
+            <label class="color-option"><input type="radio" name="classColor" value="#6fcf97" /><span style="background: #6fcf97;"></span></label>
+            <label class="color-option"><input type="radio" name="classColor" value="#bb6bd9" /><span style="background: #bb6bd9;"></span></label>
+            <label class="color-option"><input type="radio" name="classColor" value="#e8735a" /><span style="background: #e8735a;"></span></label>
+            <label class="color-option"><input type="radio" name="classColor" value="#ffd166" /><span style="background: #ffd166;"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- SESSIONS CONTAINER -->
+      <div class="sessions-section">
+        <div class="sessions-header">
+          <span>جلسات هفتگی این درس (روز، ساعت و کلاس) *</span>
+          <button type="button" id="addSessionBtn" class="ghost-btn-sm">+ افزودن جلسه دیگر</button>
+        </div>
+
+        <div id="sessionsList" class="sessions-list">
+          <!-- Dynamic Session Items will be injected here -->
+        </div>
+        <p id="sessionsError" class="field-error" hidden>حداقل یک جلسه باید برای این درس ثبت شود.</p>
+      </div>
+
+      <div class="class-form-actions">
+        <button type="button" id="classCancelBtn" class="ghost-btn">انصراف</button>
+        <button type="submit" id="classSubmitBtn" class="primary-btn">ذخیره درس</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ONBOARDING WELCOME DIALOG -->
+  <dialog id="onboardDialog" class="onboard-dialog">
+    <div class="onboard-card">
+      <div class="onboard-header">
+        <div class="chip chip--md chip--accent chip--soft onboard-badge">🎓 StuDash | داشبورد دانشجویی</div>
+        <h2>سلام! خیلی خوش اومدی 👋</h2>
+        <p class="onboard-desc">برای شخصی‌سازی داشبورد، مشخصاتت رو وارد کن:</p>
+      </div>
+
+      <form id="onboardForm" method="dialog" class="onboard-form">
+        <div class="form-group">
+          <span>اسمت چیه؟ *</span>
+          <input id="onboardName" data-initial-focus type="text" placeholder="مثلاً: ایلیا" required autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <span>رشته تحصیلیت چیه؟ *</span>
+          <input id="onboardMajor" type="text" list="majorsList" placeholder="مثلاً: مهندسی برق، صنایع، کامپیوتر..." required autocomplete="off" />
+          <datalist id="majorsList">
+            <option value="مهندسی برق"></option>
+            <option value="مهندسی صنایع"></option>
+            <option value="مهندسی کامپیوتر"></option>
+            <option value="مهندسی مکانیک"></option>
+            <option value="مهندسی عمران"></option>
+            <option value="مهندسی شیمی"></option>
+            <option value="طراحی صنعتی"></option>
+            <option value="علوم آزمایشگاهی"></option>
+            <option value="مهندسی مواد و متالورژی"></option>
+            <option value="علوم کامپیوتر"></option>
+            <option value="پزشکی"></option>
+            <option value="دندانپزشکی"></option>
+            <option value="داروسازی"></option>
+            <option value="ریاضی"></option>
+            <option value="فیزیک"></option>
+            <option value="شیمی"></option>
+            <option value="زیست‌شناسی"></option>
+            <option value="اقتصاد"></option>
+            <option value="مدیریت"></option>
+            <option value="حسابداری"></option>
+            <option value="حقوق"></option>
+            <option value="روانشناسی"></option>
+            <option value="دامپزشکی"></option>
+            <option value="معماری"></option>
+          </datalist>
+        </div>
+
+        <!-- Quick Feature Highlights -->
+        <div class="onboard-features">
+          <div class="onboard-feat-item">
+            <span class="feat-icon">📅</span>
+            <div>
+              <strong>تقویم جامع و برنامه کلاسی هفتگی</strong>
+              <p>نمایش تقویم شمسی/میلادی، Google Calendar و جدول کلاس‌های دانشگاه</p>
+            </div>
+          </div>
+          <div class="onboard-feat-item">
+            <span class="feat-icon">📚</span>
+            <div>
+              <strong>مدیریت درس‌ها و تکالیف</strong>
+              <p>ثبت تکالیف، جزوات خودکار، ردیاب غیبت و یادآور هوشمند آزمون‌ها</p>
+            </div>
+          </div>
+          <div class="onboard-feat-item">
+            <span class="feat-icon">🔥</span>
+            <div>
+              <strong>تایمر تمرکز و تحلیل ساعت مطالعه</strong>
+              <p>پارت‌های مطالعه عمیق همراه با نمودار هفتگی و محاسبه استریک</p>
+            </div>
+          </div>
+          <div class="onboard-feat-item">
+            <span class="feat-icon">💡</span>
+            <div>
+              <strong>ابزارهای هوشمند (ایده، یادداشت و AI)</strong>
+              <p>آزمایشگاه ایده با هوش مصنوعی، یادداشت‌های سریع و هاب ابزارهای AI</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="onboard-actions">
+          <button type="submit" id="onboardSubmitBtn" class="primary-btn onboard-btn">ورود و شروع به کار 🚀</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- FEATURE TOUR & BETA NOTICE DIALOG -->
+  <dialog id="featureTourDialog" class="feature-tour-dialog">
+    <div class="feature-tour-container">
+      <header class="feature-tour-header">
+        <div class="chip chip--md chip--accent chip--soft tour-badge">🚀 راهنمای جامع قابلیت‌های StuDash</div>
+        <h2><span id="tourUserName">دوست من</span>، به StuDash خوش اومدی! 🎉</h2>
+        <p class="tour-subtitle">مروری بر قابلیت‌های کلیدی داشبورد به ترتیب اولویت و کارایی برای یک ترم تحصیلی پرانرژی:</p>
+      </header>
+
+      <div class="tour-features-grid">
+        <!-- 1. Dual-Mode Weekly Schedule -->
+        <div class="tour-card">
+          <div class="tour-icon">🗓️</div>
+          <div class="tour-info">
+            <strong>سیستم دوگانه برنامه هفتگی</strong>
+            <p>سوییچ کپسولی بین «برنامه کلاسی دانشگاه» و «برنامه جامع هفتگی (Google Calendar & Routine)» با تفکیک روزها و ساعات کلاسی.</p>
+          </div>
+        </div>
+
+        <!-- 2. Smart Unified Agenda & Fast Filters -->
+        <div class="tour-card">
+          <div class="tour-icon">🌟</div>
+          <div class="tour-info">
+            <strong>فید یکپارچه کارها و تقویم دوزبانه</strong>
+            <p>تجمیع هوشمند آزمون‌ها، تقویم گوگل، کارهای روزانه و تکالیف دروس با تقویم شمسی/میلادی و فیلترهای سریع ۴گانه.</p>
+          </div>
+        </div>
+
+        <!-- 3. Exam & Quiz Tracker -->
+        <div class="tour-card">
+          <div class="tour-icon">🎯</div>
+          <div class="tour-info">
+            <strong>مدیریت هوشمند آزمون‌ها و هشدار ۷ روزه</strong>
+            <p>ثبت میان‌ترم، پایان‌ترم و کوئیز با ساعت و سرفصل، علامت‌گذاری روز امتحان در تقویم و بنر هشدار روزهای مانده با امکان Snooze.</p>
+          </div>
+        </div>
+
+        <!-- 4. Course Workspace & Hub -->
+        <div class="tour-card">
+          <div class="tour-icon">📚</div>
+          <div class="tour-info">
+            <strong>هاب درس‌ها و ردیاب غیبت کلاسی</strong>
+            <p>دفترچه جزوه با ذخیره خودکار، ردیاب سقف غیبت کلاسی (قانون ۳/۱۶ دانشگاه)، مدیریت تکالیف هر درس و لینک‌های مهم.</p>
+          </div>
+        </div>
+
+        <!-- 5. Deep Work & Focus Timer -->
+        <div class="tour-card">
+          <div class="tour-icon">🔥</div>
+          <div class="tour-info">
+            <strong>تایمر تمرکز عمیق (Deep Work)</strong>
+            <p>پارت‌های مطالعه ۴۵، ۶۰ و ۹۰ دقیقه‌ای، اتصال پارت به دروس ترم، صدای زنگ اتمام، و ویجت شناور در تمام صفحات وب.</p>
+          </div>
+        </div>
+
+        <!-- 6. AI Hub Suite -->
+        <div class="tour-card">
+          <div class="tour-icon">🤖</div>
+          <div class="tour-info">
+            <strong>هاب ابزارهای هوش مصنوعی (AI Suite)</strong>
+            <p>دسترسی مستقیم به ۱۶ مدل و ابزار برتر هوش مصنوعی (ChatGPT, Claude, Gemini, DeepSeek, MS Copilot, Perplexity, v0, Hugging Face و...).</p>
+          </div>
+        </div>
+
+        <!-- 7. Research Hub & Google Apps -->
+        <div class="tour-card">
+          <div class="tour-icon">🌐</div>
+          <div class="tour-info">
+            <strong>پکیج Google Apps و مراجع پژوهشی</strong>
+            <p>دسترسی یکپارچه به ۱۵ سرویس گوگل (Drive, Gmail, Meet, Scholar...)، پایگاه‌های علمی (IEEE, Scopus, IranDoc) و ایمیل دانشگاهی.</p>
+          </div>
+        </div>
+
+        <!-- 8. Study Analytics & Reports -->
+        <div class="tour-card">
+          <div class="tour-icon">📊</div>
+          <div class="tour-info">
+            <strong>گزارش و تحلیل ساعات مطالعه</strong>
+            <p>نمودار ستونی ۷ روز اخیر، محاسبه خودکار استریک روزهای فعال، پایش دقیق دقایق مطالعه به تفکیک هر درس و میانگین روزانه.</p>
+          </div>
+        </div>
+
+        <!-- 9. Idea & Project Lab with AI -->
+        <div class="tour-card">
+          <div class="tour-icon">💡</div>
+          <div class="tour-info">
+            <strong>آزمایشگاه ایده و مسیر راه با AI</strong>
+            <p>ثبت ایده‌های پژوهشی و استارتاپی، تفکیک کانون تمرکز و بانک آرشیو، تولید پرامپت هوشمند برای شکستن ایده به گام‌های اجرایی و نوار پیشرفت تا ۱۰۰٪.</p>
+          </div>
+        </div>
+
+        <!-- 10. Quick Notes & Scratchpad -->
+        <div class="tour-card">
+          <div class="tour-icon">📝</div>
+          <div class="tour-info">
+            <strong>یادداشت‌های سریع و برچسب‌های رنگی</strong>
+            <p>ثبت آنی جرقه‌های ذهنی و نکات درسی، دسته‌بندی رنگی، جستجوی بلادرنگ در متن‌ها و کپی یک‌کلیکه بدون خروج از صفحه.</p>
+          </div>
+        </div>
+
+        <!-- 11. Multi-Theme Customization -->
+        <div class="tour-card">
+          <div class="tour-icon">🎨</div>
+          <div class="tour-info">
+            <strong>۴ تم ظاهری و شخصی‌سازی کامل</strong>
+            <p>پوسته‌های نیمه‌شب، مینیمال سیاه و سفید (B&W)، روشن مدرن (Light Modern)، و مشکی مطلق اولد (OLED) با انیمیشن‌های روان.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beta Feedback Card -->
+      <div class="tour-beta-box">
+        <div class="beta-box-header">
+          <span class="beta-box-icon">🛠️</span>
+          <div>
+            <strong>توجه: این یک نسخه آزمایشی (Beta) است</strong>
+            <p>داشبورد StuDash مدام در حال توسعه و بهبود است. در صورت مشاهده هرگونه مشکل، باگ یا داشتن پیشنهاد و ایده برای امکانات جدید، خوشحال می‌شویم آن را با ما در میان بگذارید:</p>
+          </div>
+        </div>
+        <div class="beta-email-pill">
+          <span class="beta-email-label">📩 ایمیل گزارش باگ و پیشنهادات:</span>
+          <a href="mailto:iliyaabdollahzade@gmail.com" class="beta-email-link" dir="ltr">iliyaabdollahzade@gmail.com</a>
+        </div>
+      </div>
+
+      <div class="tour-actions">
+        <button type="button" id="tourStartBtn" class="primary-btn tour-btn">متوجه شدم، ورود به داشبورد 🚀</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- SETTINGS & THEME DIALOG -->
+  <dialog id="settingsDialog" class="settings-dialog">
+    <div class="settings-container">
+      <header class="settings-header">
+        <div class="settings-title-group">
+          <h2>⚙️ تنظیمات داشبورد</h2>
+          <span class="settings-subtitle">ظاهر، حساب دانشگاه، ابزارها و پروفایل</span>
+        </div>
+        <button type="button" class="dialog-close-btn" id="settingsCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <div class="settings-body">
+        <!-- Section: Appearance (HeroUI v3 theming — see theme.js / appearance.js) -->
+        <section class="settings-section sd-appearance" id="appearanceSection" aria-labelledby="appearanceTitle">
+          <div class="sd-appearance-head">
+            <div>
+              <h3 id="appearanceTitle" class="sd-section-title"><span class="sd-icon sd-icon--palette" aria-hidden="true"></span>ظاهر</h3>
+              <p class="sd-subtle">حالت روشن یا تیره، پوسته، رنگ اصلی، تراکم و گوشه‌ها. تغییرات همان لحظه روی تب جدید و پاپ‌آپ اعمال و ذخیره می‌شود.</p>
+            </div>
+            <button type="button" class="ghost-btn-sm" id="appearanceResetBtn"><span class="sd-icon sd-icon--rotate" aria-hidden="true"></span>بازگشت به پیش‌فرض</button>
+          </div>
+
+          <div class="sd-setting-row">
+            <div class="sd-setting-label" id="appearanceModeLabel">
+              <strong>حالت نمایش</strong>
+              <span>«سیستم» از تنظیم روشن/تیره سیستم‌عامل پیروی می‌کند.</span>
+            </div>
+            <div class="sd-segmented" role="radiogroup" aria-labelledby="appearanceModeLabel" id="appearanceMode">
+              <button type="button" role="radio" data-value="light"><span class="sd-icon sd-icon--sun" aria-hidden="true"></span>روشن</button>
+              <button type="button" role="radio" data-value="dark"><span class="sd-icon sd-icon--moon" aria-hidden="true"></span>تیره</button>
+              <button type="button" role="radio" data-value="system"><span class="sd-icon sd-icon--monitor" aria-hidden="true"></span>سیستم</button>
+            </div>
+          </div>
+
+          <div class="sd-setting-block">
+            <div class="sd-setting-label" id="appearancePresetLabel">
+              <strong>پوسته</strong>
+              <span>هر پوسته یک نسخه روشن و یک نسخه تیره دارد.</span>
+            </div>
+            <div class="sd-preset-grid" role="radiogroup" aria-labelledby="appearancePresetLabel" id="appearancePresets"></div>
+          </div>
+
+          <div class="sd-setting-row">
+            <div class="sd-setting-label" id="appearanceAccentLabel">
+              <strong>رنگ اصلی</strong>
+              <span id="appearanceAccentName">رنگ پوسته</span>
+            </div>
+            <div class="sd-swatches" role="radiogroup" aria-labelledby="appearanceAccentLabel" id="appearanceAccents"></div>
+          </div>
+
+          <div class="sd-setting-row">
+            <div class="sd-setting-label" id="appearanceDensityLabel">
+              <strong>تراکم</strong>
+              <span>فاصله‌ها و اندازه کنترل‌ها</span>
+            </div>
+            <div class="sd-segmented" role="radiogroup" aria-labelledby="appearanceDensityLabel" id="appearanceDensity">
+              <button type="button" role="radio" data-value="compact">فشرده</button>
+              <button type="button" role="radio" data-value="comfortable">متعادل</button>
+              <button type="button" role="radio" data-value="spacious">جادار</button>
+            </div>
+          </div>
+
+          <div class="sd-setting-row">
+            <div class="sd-setting-label" id="appearanceRadiusLabel">
+              <strong>گوشه‌ها</strong>
+              <span>گردی کارت‌ها، دکمه‌ها و فیلدها</span>
+            </div>
+            <div class="sd-segmented" role="radiogroup" aria-labelledby="appearanceRadiusLabel" id="appearanceRadius">
+              <button type="button" role="radio" data-value="sharp"><span class="sd-corner sd-corner--sharp" aria-hidden="true"></span>تیز</button>
+              <button type="button" role="radio" data-value="rounded"><span class="sd-corner sd-corner--rounded" aria-hidden="true"></span>گرد</button>
+              <button type="button" role="radio" data-value="soft"><span class="sd-corner sd-corner--soft" aria-hidden="true"></span>نرم</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Pinned Tools on Main Screen -->
+        <section class="settings-section">
+          <div class="settings-section-header">
+            <h3>⚡ دکمه‌های ابزار در صفحه اصلی (کنار ساعت)</h3>
+            <span class="settings-header-hint">دکمه‌هایی که می‌خواهید مستقیماً روی صفحه اصلی و کنار ساعت نمایش داده شوند را انتخاب کنید:</span>
+          </div>
+          <div class="settings-tools-toggles-grid">
+            <label class="settings-tool-toggle-item">
+              <input type="checkbox" class="tool-pin-toggle-input" data-tool="webmail" checked />
+              <span class="tool-toggle-custom-box"></span>
+              <span class="tool-toggle-icon">✉️</span>
+              <div class="tool-toggle-text">
+                <strong>ایمیل دانشگاهی</strong>
+                <span>Webmail</span>
+              </div>
+            </label>
+
+            <label class="settings-tool-toggle-item">
+              <input type="checkbox" class="tool-pin-toggle-input" data-tool="idea" checked />
+              <span class="tool-toggle-custom-box"></span>
+              <span class="tool-toggle-icon">💡</span>
+              <div class="tool-toggle-text">
+                <strong>آزمایشگاه ایده</strong>
+                <span>Idea Lab</span>
+              </div>
+            </label>
+
+            <label class="settings-tool-toggle-item">
+              <input type="checkbox" class="tool-pin-toggle-input" data-tool="notes" checked />
+              <span class="tool-toggle-custom-box"></span>
+              <span class="tool-toggle-icon">📝</span>
+              <div class="tool-toggle-text">
+                <strong>یادداشت‌های سریع</strong>
+                <span>Quick Notes</span>
+              </div>
+            </label>
+
+            <label class="settings-tool-toggle-item">
+              <input type="checkbox" class="tool-pin-toggle-input" data-tool="timer" checked />
+              <span class="tool-toggle-custom-box"></span>
+              <span class="tool-toggle-icon">🔥</span>
+              <div class="tool-toggle-text">
+                <strong>تایمر مطالعه</strong>
+                <span>Study Timer</span>
+              </div>
+            </label>
+
+            <label class="settings-tool-toggle-item">
+              <input type="checkbox" class="tool-pin-toggle-input" data-tool="report" checked />
+              <span class="tool-toggle-custom-box"></span>
+              <span class="tool-toggle-icon">📊</span>
+              <div class="tool-toggle-text">
+                <strong>گزارش مطالعه</strong>
+                <span>Study Report</span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Section: VU Account -->
+        <section class="settings-section">
+          <div class="settings-section-header">
+            <h3>🎓 حساب دانشگاه (VU و پویا)</h3>
+            <p>همگام‌سازی خودکار تکالیف و آزمون‌ها از vu.um.ac.ir</p>
+          </div>
+          <div class="settings-profile-row">
+            <div class="settings-profile-info">
+              <span id="vuSettingsStatus">وضعیت: متصل نیست</span>
+              <span id="vuSettingsLastSync" class="settings-subtext"></span>
+            </div>
+            <button type="button" class="ghost-btn-sm" id="vuSettingsActionBtn">اتصال</button>
+          </div>
+          <div class="vu-settings-grid">
+            <label class="vu-settings-item">
+              <span>فاصله همگام‌سازی خودکار</span>
+              <select id="vuSettingsInterval">
+                <option value="15">هر ۱۵ دقیقه</option>
+                <option value="30">هر ۳۰ دقیقه</option>
+                <option value="60">هر ۱ ساعت</option>
+                <option value="180">هر ۳ ساعت</option>
+              </select>
+            </label>
+            <label class="vu-settings-item">
+              <span>هفته جاری (برای کلاس‌های یک هفته در میان)</span>
+              <select id="weekParitySelect">
+                <option value="">نامشخص</option>
+                <option value="even">این هفته زوج است</option>
+                <option value="odd">این هفته فرد است</option>
+              </select>
+            </label>
+            <div class="settings-profile-row">
+              <div class="settings-profile-info">
+                <span id="pooyaSettingsStatus">پویا: متصل نیست</span>
+                <span id="pooyaSettingsSub" class="settings-subtext"></span>
+              </div>
+              <button type="button" class="ghost-btn-sm" id="pooyaSettingsBtn">📥 وارد کردن از پویا</button>
+            </div>
+            <label class="vu-settings-item vu-settings-check">
+              <input type="checkbox" id="vuSettingsNotify" />
+              <span>اعلان تکلیف جدید و یادآوری ۲۴ و ۳ ساعت قبل از مهلت</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Section 3: Student Profile Shortcut -->
+        <section class="settings-section">
+          <div class="settings-section-header">
+            <h3>👤 مشخصات و رشته تحصیلی</h3>
+          </div>
+          <div class="settings-profile-row">
+            <div class="settings-profile-info">
+              <span id="settingsCurrentName">دانشجو: بارگذاری…</span>
+              <span id="settingsCurrentMajor" class="settings-subtext">رشته: بارگذاری…</span>
+            </div>
+            <button type="button" class="ghost-btn-sm" id="settingsEditProfileBtn">✏️ ویرایش نام و رشته</button>
+          </div>
+        </section>
+
+        <!-- Section 4: App Info & Bug Report -->
+        <section class="settings-section settings-footer-section">
+          <div class="settings-app-info">
+            <div class="sd-row-between">
+              <span class="settings-app-version" dir="ltr">StuDash v1.0 (Beta) — Academic Workspace for Students</span>
+              <button type="button" class="ghost-btn-sm" id="settingsOpenTourBtn">🚀 راهنمای قابلیت‌های جدید</button>
+            </div>
+            <div class="settings-support-link">
+              <span>ایمیل پشتیبانی و گزارش بازخورد: </span>
+              <a href="mailto:iliyaabdollahzade@gmail.com" class="beta-email-link" dir="ltr">iliyaabdollahzade@gmail.com</a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- COURSE WORKSPACE / HUB DIALOG -->
+  <dialog id="courseHubDialog" class="course-hub-dialog">
+    <div class="course-hub-container">
+      <header class="course-hub-header">
+        <div class="course-hub-title-group">
+          <div class="course-hub-color-bar" id="hubColorBar"></div>
+          <div>
+            <h2 id="hubCourseTitle">نام درس</h2>
+            <div class="course-hub-meta" id="hubCourseMeta">
+              <span id="hubUnitsBadge" class="chip chip--sm chip--default hub-units-badge">📚 ۳ واحد</span>
+              <span id="hubInstructor">👨‍🏫 دکتر ...</span>
+              <span id="hubSessionsInfo">📍 شنبه ۱۴:۰۰ (کلاس B-25)</span>
+              <span id="hubStudyTimeBadge" class="chip chip--sm chip--success chip--soft hub-study-badge">⏱️ ۰ دقیقه مطالعه ثبت‌شده</span>
+            </div>
+          </div>
+        </div>
+        <div class="course-hub-header-actions">
+          <button type="button" class="ghost-btn-sm" id="hubEditClassBtn">✏️ ویرایش درس</button>
+          <button type="button" class="dialog-close-btn" id="hubCloseBtn" aria-label="بستن">×</button>
+        </div>
+      </header>
+
+      <!-- Navigation Tabs inside Course Hub -->
+      <nav class="course-hub-nav" role="tablist" aria-label="بخش‌های درس">
+        <button type="button" class="hub-tab-btn active" data-tab="tasks" role="tab" id="hubTab-tasks" aria-controls="tabContentTasks" aria-selected="true">📋 تکالیف (<span id="hubTasksCount">۰</span>)</button>
+        <button type="button" class="hub-tab-btn" data-tab="exams" role="tab" id="hubTab-exams" aria-controls="tabContentExams" aria-selected="false" tabindex="-1">🎯 آزمون و کوئیز (<span id="hubExamsCount">۰</span>)</button>
+        <button type="button" class="hub-tab-btn" data-tab="notes" role="tab" id="hubTab-notes" aria-controls="tabContentNotes" aria-selected="false" tabindex="-1">📝 جزوات و یادداشت‌ها</button>
+        <button type="button" class="hub-tab-btn" data-tab="links" role="tab" id="hubTab-links" aria-controls="tabContentLinks" aria-selected="false" tabindex="-1">🔗 لینک‌ها (<span id="hubLinksCount">۰</span>)</button>
+        <button type="button" class="hub-tab-btn" data-tab="absences" role="tab" id="hubTab-absences" aria-controls="tabContentAbsences" aria-selected="false" tabindex="-1">⚠️ غیبت‌ها (<span id="hubAbsenceCount">۰/۵</span>)</button>
+      </nav>
+
+      <!-- Tab 1: Tasks & Assignments -->
+      <section class="hub-tab-content active" id="tabContentTasks" role="tabpanel" aria-labelledby="hubTab-tasks">
+        <form id="hubTaskForm" class="hub-task-form">
+          <div class="form-row">
+            <input type="text" id="hubTaskTitle" placeholder="عنوان تکلیف، تمرین یا پروژه جدید…" required autocomplete="off" class="flex-2" />
+            <select id="hubTaskType" class="flex-1">
+              <option value="assignment">📝 تمرین / حل‌تمرین</option>
+              <option value="project">💻 پروژه / فاز</option>
+              <option value="quiz">🎯 کوئیز / آزمونک</option>
+              <option value="report">📄 گزارش آزمایشگاه</option>
+              <option value="other">📌 سایر موارد</option>
+            </select>
+            <input type="date" id="hubTaskDueDate" class="flex-1" title="تاریخ تحویل" />
+            <button type="submit" class="primary-btn">+ ثبت تکلیف</button>
+          </div>
+        </form>
+
+        <ul class="hub-tasks-list" id="hubTasksList">
+          <!-- Dynamic tasks rendered here -->
+        </ul>
+        <p class="empty-hint" id="hubTasksEmpty" hidden>هیچ تکلیفی برای این درس ثبت نشده است.</p>
+      </section>
+
+      <!-- Tab: Exams & Quizzes -->
+      <section class="hub-tab-content" id="tabContentExams" role="tabpanel" aria-labelledby="hubTab-exams">
+        <form id="hubExamForm" class="hub-exam-form">
+          <div class="form-row">
+            <label class="form-group flex-1">
+              <span>نوع ارزیابی *</span>
+              <select id="hubExamType">
+                <option value="midterm" selected>📝 امتحان میان‌ترم</option>
+                <option value="final">🎓 امتحان پایان‌ترم</option>
+                <option value="quiz">🎯 کوییز / آزمونک کلاسی</option>
+                <option value="lab">🧪 آزمون آزمایشگاه / عملی</option>
+                <option value="other">📌 سایر موارد</option>
+              </select>
+            </label>
+            <label class="form-group flex-2">
+              <span>عنوان آزمون (قابل ویرایش) *</span>
+              <input type="text" id="hubExamTitle" value="امتحان میان‌ترم" placeholder="مثلاً: امتحان میان‌ترم فصل ۱ تا ۳" required autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-group flex-1">
+              <span>تاریخ آزمون *</span>
+              <input type="date" id="hubExamDate" required />
+            </label>
+            <label class="form-group flex-1">
+              <span>ساعت برگزاری (۲۴ ساعته)</span>
+              <select id="hubExamTime">
+                <option value="" selected>بدون ساعت مشخص</option>
+                <option value="08:00">۰۸:۰۰ صبح</option>
+                <option value="08:30">۰۸:۳۰ صبح</option>
+                <option value="09:00">۰۹:۰۰ صبح</option>
+                <option value="09:30">۰۹:۳۰ صبح</option>
+                <option value="10:00">۱۰:۰۰ صبح</option>
+                <option value="10:30">۱۰:۳۰ صبح</option>
+                <option value="11:00">۱۱:۰۰ صبح</option>
+                <option value="11:30">۱۱:۳۰ صبح</option>
+                <option value="12:00">۱۲:۰۰ ظهر</option>
+                <option value="13:00">۱۳:۰۰ بعدازظهر</option>
+                <option value="13:30">۱۳:۳۰ بعدازظهر</option>
+                <option value="14:00">۱۴:۰۰ بعدازظهر</option>
+                <option value="14:30">۱۴:۳۰ بعدازظهر</option>
+                <option value="15:00">۱۵:۰۰ بعدازظهر</option>
+                <option value="15:30">۱۵:۳۰ بعدازظهر</option>
+                <option value="16:00">۱۶:۰۰ عصر</option>
+                <option value="16:30">۱۶:۳۰ عصر</option>
+                <option value="17:00">۱۷:۰۰ عصر</option>
+                <option value="18:00">۱۸:۰۰ عصر</option>
+                <option value="19:00">۱۹:۰۰ شب</option>
+                <option value="20:00">۲۰:۰۰ شب</option>
+              </select>
+            </label>
+            <label class="form-group flex-1">
+              <span>محل / شماره صندلی (اختیاری)</span>
+              <input type="text" id="hubExamLocation" placeholder="مثلاً: تالار خیام - صندلی ۴۲" autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-group flex-3">
+              <span>سرفصل‌ها و مباحث امتحانی (اختیاری)</span>
+              <input type="text" id="hubExamSyllabus" placeholder="مثلاً: فصل ۱ و ۲ کتاب، جزوه جلسات ۳ تا ۶" autocomplete="off" />
+            </label>
+            <div class="form-group flex-1 sd-form-submit">
+              <button type="submit" class="primary-btn">+ ثبت آزمون</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="hub-exams-list" id="hubExamsList">
+          <!-- Dynamic exams rendered here -->
+        </div>
+        <p class="empty-hint" id="hubExamsEmpty" hidden>هیچ امتحان یا کوئیزی برای این درس ثبت نشده است.</p>
+      </section>
+
+      <!-- Tab 2: Notes & Syllabus -->
+      <section class="hub-tab-content" id="tabContentNotes" role="tabpanel" aria-labelledby="hubTab-notes">
+        <div class="hub-notes-wrap">
+          <div class="hub-notes-header">
+            <span>نکات کلیدی، سرفصل‌ها و منابع معرفی‌شده توسط استاد:</span>
+            <span class="hub-save-status" id="hubNotesStatus">ذخیره خودکار ✓</span>
+          </div>
+          <textarea id="hubNotesTextarea" placeholder="مثلاً:
+• بارم‌بندی: میان‌ترم ۶ نمره، پایان‌ترم ۱۰ نمره، تمرین‌ها ۴ نمره
+• منبع اصلی: کتاب اوگاتا ویرایش پنجم
+• ایمیل استاد / دستیار آموزشی: ta@um.ac.ir
+• تاریخ تحویل گزارش‌ها: پایان هر هفته"></textarea>
+        </div>
+      </section>
+
+      <!-- Tab 3: Quick Links -->
+      <section class="hub-tab-content" id="tabContentLinks" role="tabpanel" aria-labelledby="hubTab-links">
+        <form id="hubLinkForm" class="hub-link-form">
+          <div class="form-row">
+            <input type="text" id="hubLinkTitle" placeholder="عنوان لینک (مثلاً: گروه تلگرام یا درایو جزوه)" required autocomplete="off" class="flex-1" />
+            <input type="text" id="hubLinkUrl" placeholder="https://t.me/... یا drive.google.com/..." required autocomplete="off" class="flex-2" />
+            <button type="submit" class="primary-btn">+ افزودن لینک</button>
+          </div>
+        </form>
+
+        <div class="hub-links-grid" id="hubLinksGrid">
+          <!-- Dynamic links rendered here -->
+        </div>
+        <p class="empty-hint" id="hubLinksEmpty" hidden>هنوز لینکی برای این درس ثبت نکرده‌ای.</p>
+      </section>
+
+      <!-- Tab 4: Absence Tracker -->
+      <section class="hub-tab-content" id="tabContentAbsences" role="tabpanel" aria-labelledby="hubTab-absences">
+        <div class="hub-absence-box">
+          <div class="absence-counter-card">
+            <div class="absence-indicator" id="absenceIndicator">
+              <span class="absence-big-num" id="absenceBigNum">۰</span>
+              <span class="absence-max" id="absenceMaxLabel">از ۵ جلسه غیبت مجاز</span>
+            </div>
+            <div class="absence-dots" id="absenceDots">
+              <!-- Dynamically populated based on course units -->
+            </div>
+            <div class="absence-actions">
+              <button type="button" class="absence-btn btn-minus" id="absenceMinusBtn" title="کاهش غیبت">−</button>
+              <button type="button" class="absence-btn btn-plus" id="absencePlusBtn" title="افزودن ۱ جلسه غیبت">+</button>
+            </div>
+          </div>
+          <div class="absence-alert" id="absenceAlert" hidden>
+            ⚠️ <strong>هشدار غیبت:</strong> به سقف غیبت مجاز این درس رسیده‌ای! غیبت بیشتر موجب حذف ماده درسی خواهد شد.
+          </div>
+        </div>
+      </section>
+    </div>
+  </dialog>
+
+  <!-- FOCUS TIMER MODAL / DIALOG -->
+  <dialog id="focusModal" class="focus-modal-dialog">
+    <div class="focus-modal-container">
+      <header class="focus-modal-header">
+        <div class="focus-modal-title-group">
+          <div class="focus-icon-title">
+            <span class="focus-flame-icon">🔥</span>
+            <h2>تایمر مطالعه مهندسی (Deep Work)</h2>
+          </div>
+          <span class="focus-stats-badge" id="focusTodayStatsBadge">امروز: ۰ پارت مطالعه (۰ دقیقه)</span>
+        </div>
+        <button type="button" class="dialog-close-btn" id="focusModalCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <!-- Focus Presets Bar -->
+      <div class="focus-presets-bar" id="focusPresetsBar">
+        <button type="button" class="focus-preset-btn active" data-preset="45_10" data-study="45" data-break="10" title="۴۵ دقیقه مطالعه / ۱۰ دقیقه استراحت">
+          <span dir="ltr" class="preset-num">45 / 10</span>
+        </button>
+        <button type="button" class="focus-preset-btn" data-preset="60_15" data-study="60" data-break="15" title="۶۰ دقیقه مطالعه / ۱۵ دقیقه استراحت">
+          <span dir="ltr" class="preset-num">60 / 15</span>
+        </button>
+        <button type="button" class="focus-preset-btn" data-preset="90_20" data-study="90" data-break="20" title="۹۰ دقیقه مطالعه / ۲۰ دقیقه استراحت">
+          <span dir="ltr" class="preset-num">90 / 20</span>
+        </button>
+        <button type="button" class="focus-preset-btn" data-preset="custom" title="تنظیم دستی دقایق مطالعه و استراحت">
+          <span>سفارشی</span>
+        </button>
+        <button type="button" class="focus-preset-btn" data-preset="stopwatch" title="کرنومتر آزاد بدون محدودیت زمانی">
+          <span>آزاد</span>
+        </button>
+      </div>
+
+      <div class="focus-main-content">
+        <!-- Left: Circular SVG Progress Ring -->
+        <div class="focus-ring-wrap">
+          <svg class="focus-ring-svg" viewBox="0 0 160 160">
+            <circle class="focus-ring-bg" cx="80" cy="80" r="70"></circle>
+            <circle class="focus-ring-progress" id="focusRingProgress" cx="80" cy="80" r="70"></circle>
+          </svg>
+          <div class="focus-ring-inner">
+            <span class="chip chip--sm chip--accent chip--soft focus-mode-badge" id="focusModeBadge">🎯 پارت مطالعه</span>
+            <div class="focus-time-display" id="focusTimeDisplay" dir="ltr">45:00</div>
+            <span class="focus-sub-status" id="focusSubStatus">آماده برای شروع</span>
+          </div>
+        </div>
+
+        <!-- Right: Subject Selector & Controls -->
+        <div class="focus-details-wrap">
+          <div class="focus-subject-controls">
+            <div class="focus-input-row">
+              <label class="focus-label flex-2">
+                <span>موضوع مطالعه یا کار *</span>
+                <input type="text" id="focusSubjectInput" placeholder="مثلاً: مطالعه آزاد، حل تمرین، کدنویسی..." value="مطالعه آزاد" />
+              </label>
+              <label class="focus-label flex-1">
+                <span>اتصال به درس (اختیاری)</span>
+                <select id="focusCourseSelect">
+                  <option value="">-- مطالعه آزاد / بدون درس --</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- Custom minutes panel (shown only when custom preset is selected) -->
+            <div class="focus-custom-row" id="focusCustomRow">
+              <label class="focus-custom-item">
+                <span>دقایق مطالعه:</span>
+                <input type="number" id="focusCustomStudyMin" min="1" max="240" value="45" />
+              </label>
+              <label class="focus-custom-item">
+                <span>دقایق استراحت:</span>
+                <input type="number" id="focusCustomBreakMin" min="1" max="60" value="10" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Main Action Controls -->
+          <div class="focus-actions-row">
+            <button type="button" class="primary-btn focus-action-main-btn" id="focusMainBtn">
+              <span id="focusMainBtnIcon">▶️</span>
+              <span id="focusMainBtnText">شروع پارت مطالعه</span>
+            </button>
+            <button type="button" class="ghost-btn" id="focusPauseBtn" hidden>⏸️ توقف</button>
+            <button type="button" class="ghost-btn" id="focusResetBtn">🔄 ریست</button>
+            <button type="button" class="ghost-btn" id="focusSkipBtn" title="رفتن به پارت بعدی">⏭️ پارت بعدی</button>
+          </div>
+
+          <!-- Extra Toggles -->
+          <div class="focus-toggles-row">
+            <label class="focus-toggle-label">
+              <input type="checkbox" id="focusFloatingWidgetToggle" checked />
+              <span>🌐 نمایش ویجت شناور در سایر صفحات وب</span>
+            </label>
+            <label class="focus-toggle-label">
+              <input type="checkbox" id="focusSoundToggle" checked />
+              <span>🔔 پخش زنگوله صوتی پایان زمان</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- STUDY REPORT MODAL / DIALOG (Weekly Study Stats) -->
+  <dialog id="studyReportModal" class="focus-modal-dialog report-modal-dialog">
+    <div class="focus-modal-container report-modal-container">
+      <header class="focus-modal-header">
+        <div class="focus-modal-title-group">
+          <div class="focus-icon-title">
+            <svg class="focus-flame-icon report-title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="13" width="4.2" height="7" rx="1"></rect>
+              <rect x="10.4" y="9" width="4.2" height="11" rx="1"></rect>
+              <rect x="16.8" y="4.5" width="4.2" height="15.5" rx="1"></rect>
+              <path d="M5.2 11.5 11.5 7 18.9 3"></path>
+              <circle cx="18.9" cy="3" r="1.4" fill="currentColor" stroke="none"></circle>
+            </svg>
+            <h2>گزارش مطالعه هفتگی</h2>
+          </div>
+          <span class="focus-stats-badge" id="reportStreakBadge">🔥 هنوز استریکی نداری</span>
+        </div>
+        <button type="button" class="dialog-close-btn" id="studyReportCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <!-- Summary Cards -->
+      <div class="report-summary-row" role="list">
+        <div class="card card--secondary sd-card sd-stat-card report-summary-card">
+          <p class="card__description report-summary-label">امروز</p>
+          <p class="card__title report-summary-value" id="reportTodayValue">۰ دقیقه</p>
+        </div>
+        <div class="card card--secondary sd-card sd-stat-card report-summary-card">
+          <p class="card__description report-summary-label">مجموع این هفته</p>
+          <p class="card__title report-summary-value" id="reportWeekValue">۰ دقیقه</p>
+        </div>
+        <div class="card card--secondary sd-card sd-stat-card report-summary-card">
+          <p class="card__description report-summary-label">میانگین روزهای فعال</p>
+          <p class="card__title report-summary-value" id="reportAvgValue">۰ دقیقه</p>
+        </div>
+      </div>
+
+      <!-- Weekly Bar Chart -->
+      <div class="report-chart-wrap">
+        <h3>مطالعه ۷ روز اخیر</h3>
+        <div class="report-chart-bars" id="reportChartBars">
+          <!-- Dynamically populated: 7 bar columns -->
+        </div>
+      </div>
+
+      <!-- Top Courses This Week -->
+      <div class="report-courses-section">
+        <h3>پرمطالعه‌ترین درس‌های این هفته</h3>
+        <div class="report-courses-list" id="reportCoursesList">
+          <!-- Dynamically populated -->
+        </div>
+        <p class="empty-hint" id="reportCoursesEmpty" hidden>هنوز داده‌ای برای این هفته ثبت نشده. یک پارت مطالعه رو با تایمر شروع کن تا اینجا نمایش داده بشه.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- GOOGLE APPS SUITE DIALOG -->
+  <dialog id="googleAppsDialog" class="google-apps-dialog">
+    <div class="google-apps-container">
+      <header class="google-apps-header">
+        <div class="google-apps-title-group">
+          <div class="google-header-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <h2>Google Apps</h2>
+          </div>
+          <span class="google-apps-subtitle">سرویس‌های ابری، تحصیلی و ارتباطی گوگل</span>
+        </div>
+        <button type="button" class="dialog-close-btn" id="googleAppsCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <div class="google-apps-grid">
+        <!-- 1. Google Search -->
+        <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+          </div>
+          <span class="google-app-name">Google Search</span>
+        </a>
+
+        <!-- 2. Gmail -->
+        <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4caf50" d="M45,16.2l-5,2.75l-5,4.75L35,40h7c1.657,0,3-1.343,3-3V16.2z"/><path fill="#1e88e5" d="M3,16.2l3.65,2.01L13,23.7V40H6c-1.657,0-3-1.343-3-3V16.2z"/><polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/><path fill="#c62828" d="M3,12.298V16.2l10,7.5V11.2L4.676,5.172C3.654,4.406,3,3.22,3,1.902V12.298z"/><path fill="#fbc02d" d="M45,12.298V16.2l-10,7.5V11.2l8.324-6.028C44.346,4.406,45,3.22,45,1.902V12.298z"/></svg>
+          </div>
+          <span class="google-app-name">Gmail</span>
+        </a>
+
+        <!-- 3. Google Calendar -->
+        <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="38" height="38" x="5" y="5" fill="#fff" rx="6"/><path fill="#1a73e8" d="M37 5H11A6 6 0 0 0 5 11v5h38v-5a6 6 0 0 0-6-6z"/><path fill="#ea4335" d="M35 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6zM13 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/><text x="24" y="36" font-family="'Vazirmatn', sans-serif" font-size="18" font-weight="bold" fill="#1a73e8" text-anchor="middle">31</text></svg>
+          </div>
+          <span class="google-app-name">Google Calendar</span>
+        </a>
+
+        <!-- 4. Google Drive -->
+        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#FFC107" d="M17 6L31 6 45 30 31 30z"/><path fill="#2196F3" d="M31 30L45 30 38 42 10 42z"/><path fill="#4CAF50" d="M17 6L3 30 10 42 24 18z"/></svg>
+          </div>
+          <span class="google-app-name">Google Drive</span>
+        </a>
+
+        <!-- 5. Google Meet -->
+        <a href="https://meet.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="26" height="26" x="4" y="11" fill="#00832d" rx="4"/><polygon fill="#0066da" points="30,19 44,11 44,37 30,29"/><polygon fill="#2684fc" points="30,19 37,24 30,29"/><rect width="22" height="22" x="6" y="13" fill="#00ac47" rx="3"/><path fill="#ffba00" d="M28 15v18h-4V15z"/><path fill="#ea4335" d="M6 13h18v4H6z"/></svg>
+          </div>
+          <span class="google-app-name">Google Meet</span>
+        </a>
+
+        <!-- 6. Google Scholar -->
+        <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 6L2 18l22 12 18-9.82V34h4V18L24 6z"/><polygon fill="#34A853" points="14,24.5 14,35 24,40.5 34,35 34,24.5 24,30"/></svg>
+          </div>
+          <span class="google-app-name">Google Scholar</span>
+        </a>
+
+        <!-- 7. Google Docs -->
+        <a href="https://docs.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M30 4H12A4 4 0 0 0 8 8v32a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V14z"/><path fill="#A1C2FA" d="M30 4l10 10H30z"/><path fill="#fff" d="M16 22h16v2.5H16zm0 6h16v2.5H16zm0 6h10v2.5H16z"/></svg>
+          </div>
+          <span class="google-app-name">Google Docs</span>
+        </a>
+
+        <!-- 8. Google Sheets -->
+        <a href="https://sheets.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#0F9D58" d="M30 4H12A4 4 0 0 0 8 8v32a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V14z"/><path fill="#87CEAC" d="M30 4l10 10H30z"/><path fill="#fff" d="M16 22h16v16H16zm2 2v3h5v-3zm7 0v3h5v-3zm-7 5v3h5v-3zm7 0v3h5v-3zm-7 5v4h5v-4zm7 0v4h5v-4z"/></svg>
+          </div>
+          <span class="google-app-name">Google Sheets</span>
+        </a>
+
+        <!-- 9. Google Slides -->
+        <a href="https://slides.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#F4B400" d="M30 4H12A4 4 0 0 0 8 8v32a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V14z"/><path fill="#FCD770" d="M30 4l10 10H30z"/><rect width="18" height="13" x="15" y="22" fill="#fff" rx="1.5"/></svg>
+          </div>
+          <span class="google-app-name">Google Slides</span>
+        </a>
+
+        <!-- 10. Google Classroom -->
+        <a href="https://classroom.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="40" height="30" x="4" y="9" fill="#0f9d58" rx="4"/><rect width="36" height="26" x="6" y="11" fill="#137333" rx="3"/><path fill="#f4b400" d="M24 16a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-8 14c0-3 5.33-4.5 8-4.5s8 1.5 8 4.5v1.5H16z"/></svg>
+          </div>
+          <span class="google-app-name">Google Classroom</span>
+        </a>
+
+        <!-- 11. Google Translate -->
+        <a href="https://translate.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M4 10h22v28H4z" rx="3"/><path fill="#E8F0FE" d="M22 14h22v28H22z" rx="3"/><path fill="#1A73E8" d="M33 22h-8v-2h3.5v-2h2v2H34v2h-1zm-4 8a6 6 0 0 1-5-3h2.2a4 4 0 0 0 2.8 1.8l2.2-2.3-1.4-3.5h2.2l.8 2 2.2-2.5 1.5 1.5-3.5 4a6 6 0 0 1-4 1.5z"/><text x="15" y="28" font-family="'Vazirmatn', sans-serif" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">G</text></svg>
+          </div>
+          <span class="google-app-name">Google Translate</span>
+        </a>
+
+        <!-- 12. Google Keep -->
+        <a href="https://keep.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#FBBC04" d="M12 6h24a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z"/><path fill="#fff" d="M24 13a7 7 0 0 0-4 12.7V29a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3.3A7 7 0 0 0 24 13zm-2 19h4v1.5h-4z"/></svg>
+          </div>
+          <span class="google-app-name">Google Keep</span>
+        </a>
+
+        <!-- 13. YouTube -->
+        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#FF0000" d="M43.2 14.8c-.5-1.9-2-3.4-3.9-3.9C35.8 10 24 10 24 10s-11.8 0-15.3.9c-1.9.5-3.4 2-3.9 3.9C4 18.3 4 24 4 24s0 5.7.8 9.2c.5 1.9 2 3.4 3.9 3.9 3.5.9 15.3.9 15.3.9s11.8 0 15.3-.9c1.9-.5 3.4-2 3.9-3.9.8-3.5.8-9.2.8-9.2s0-5.7-.8-9.2z"/><polygon fill="#fff" points="20,18 30,24 20,30"/></svg>
+          </div>
+          <span class="google-app-name">YouTube</span>
+        </a>
+
+        <!-- 14. Google Maps -->
+        <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4385F4" d="M24 4C15.2 4 8 11.2 8 20c0 11.5 14 23.2 15 24 .6.5 1.4.5 2 0 1-.8 15-12.5 15-24 0-8.8-7.2-16-16-16z"/><circle cx="24" cy="20" r="7" fill="#fff"/><circle cx="24" cy="20" r="5" fill="#EA4335"/></svg>
+          </div>
+          <span class="google-app-name">Google Maps</span>
+        </a>
+
+        <!-- 15. Gemini -->
+        <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 24 24"><path fill="url(#gemini-grad-apps)" d="M12 0C12 6.627 6.627 12 0 12c6.627 0 12 5.373 12 12 0-6.627 5.373-12 12-12-6.627 0-12-5.373-12-12z"/><defs><linearGradient id="gemini-grad-apps" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#4E93FF"/><stop offset=".5" stop-color="#9965FF"/><stop offset="1" stop-color="#E273FF"/></linearGradient></defs></svg>
+          </div>
+          <span class="google-app-name">Gemini</span>
+        </a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- RESEARCH & PAPER HUB DIALOG -->
+  <dialog id="researchHubDialog" class="google-apps-dialog research-hub-dialog">
+    <div class="google-apps-container research-hub-container">
+      <header class="google-apps-header">
+        <div class="google-apps-title-group">
+          <div class="google-header-logo research-header-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6fc8f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            <h2>Research & Paper Hub</h2>
+          </div>
+          <span class="google-apps-subtitle">پایگاه‌های بین‌المللی و داخلی مقالات، ژورنال‌ها و مراجع علمی</span>
+        </div>
+        <button type="button" class="dialog-close-btn" id="researchHubCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <div class="google-apps-grid">
+        <!-- 1. IEEE Xplore -->
+        <a href="https://ieeexplore.ieee.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#00629B" rx="8"/><path fill="#fff" d="M14 12h20v4H14zm0 8h20v4H14zm0 8h20v4H14zm0 8h12v4H14z"/><path fill="#6fc8f2" d="M30 28l6 6-6 6V28z"/></svg>
+          </div>
+          <span class="google-app-name">IEEE Xplore</span>
+        </a>
+
+        <!-- 2. Google Scholar -->
+        <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 6L2 18l22 12 18-9.82V34h4V18L24 6z"/><polygon fill="#34A853" points="14,24.5 14,35 24,40.5 34,35 34,24.5 24,30"/></svg>
+          </div>
+          <span class="google-app-name">Google Scholar</span>
+        </a>
+
+        <!-- 3. ScienceDirect -->
+        <a href="https://www.sciencedirect.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#FF6C00" rx="8"/><path fill="#fff" d="M12 14h24v4H12zm0 8h24v4H12zm0 8h16v4H12z"/></svg>
+          </div>
+          <span class="google-app-name">ScienceDirect</span>
+        </a>
+
+        <!-- 4. arXiv.org -->
+        <a href="https://arxiv.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#B31B1B" rx="8"/><text x="24" y="31" font-family="'Courier New', monospace" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">arXiv</text></svg>
+          </div>
+          <span class="google-app-name">arXiv.org</span>
+        </a>
+
+        <!-- 5. ResearchGate -->
+        <a href="https://www.researchgate.net" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#00CCBB" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="22" font-weight="900" fill="#fff" text-anchor="middle">RG</text></svg>
+          </div>
+          <span class="google-app-name">ResearchGate</span>
+        </a>
+
+        <!-- 6. SpringerLink -->
+        <a href="https://link.springer.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#013B7B" rx="8"/><path fill="#FFA500" d="M24 10l9 16H15z"/><path fill="#fff" d="M18 28h12v10H18z"/></svg>
+          </div>
+          <span class="google-app-name">SpringerLink</span>
+        </a>
+
+        <!-- 7. ACM Digital Library -->
+        <a href="https://dl.acm.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#005A9C" rx="8"/><polygon fill="#6fc8f2" points="24,10 38,24 24,38 10,24"/><text x="24" y="29" font-family="sans-serif" font-size="12" font-weight="900" fill="#fff" text-anchor="middle">ACM</text></svg>
+          </div>
+          <span class="google-app-name">ACM DL</span>
+        </a>
+
+        <!-- 8. Semantic Scholar -->
+        <a href="https://www.semanticscholar.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#1C3D5A" rx="8"/><path fill="#2E90FA" d="M14 16h20v4H14zm6 8h14v4H20zm-6 8h20v4H14z"/></svg>
+          </div>
+          <span class="google-app-name">Semantic Scholar</span>
+        </a>
+
+        <!-- 9. Scopus -->
+        <a href="https://www.scopus.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#E9711C" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Sc</text></svg>
+          </div>
+          <span class="google-app-name">Scopus</span>
+        </a>
+
+        <!-- 10. Web of Science -->
+        <a href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#5E2750" rx="8"/><circle cx="24" cy="24" r="14" fill="#fff"/><circle cx="24" cy="24" r="10" fill="#5E2750"/></svg>
+          </div>
+          <span class="google-app-name">Web of Science</span>
+        </a>
+
+        <!-- 11. Wiley Online Library -->
+        <a href="https://onlinelibrary.wiley.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#000" rx="8"/><text x="24" y="33" font-family="'Times New Roman', serif" font-size="24" font-weight="bold" fill="#fff" text-anchor="middle">W</text></svg>
+          </div>
+          <span class="google-app-name">Wiley</span>
+        </a>
+
+        <!-- 12. Sci-Hub -->
+        <a href="https://sci-hub.se" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#8B0000" rx="8"/><path fill="#FFD700" d="M24 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-2 10h4v14h-4z"/></svg>
+          </div>
+          <span class="google-app-name">Sci-Hub</span>
+        </a>
+
+        <!-- 13. Civilica (سیویلیکا) -->
+        <a href="https://civilica.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#205493" rx="8"/><text x="24" y="30" font-family="'Vazirmatn', sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">سیویلیکا</text></svg>
+          </div>
+          <span class="google-app-name">Civilica</span>
+        </a>
+
+        <!-- 14. IranDoc (ایران‌داک) -->
+        <a href="https://irandoc.ac.ir" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#008080" rx="8"/><text x="24" y="30" font-family="'Vazirmatn', sans-serif" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">ایران‌داک</text></svg>
+          </div>
+          <span class="google-app-name">IranDoc</span>
+        </a>
+
+        <!-- 15. SID (جهاد دانشگاهی) -->
+        <a href="https://www.sid.ir" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#1B4D3E" rx="8"/><text x="24" y="31" font-family="sans-serif" font-size="18" font-weight="900" fill="#fff" text-anchor="middle">SID</text></svg>
+          </div>
+          <span class="google-app-name">SID.ir</span>
+        </a>
+
+        <!-- 16. PubMed -->
+        <a href="https://pubmed.ncbi.nlm.nih.gov" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#205493" rx="8"/><path fill="#fff" d="M16 16h16v16H16z"/><path fill="#205493" d="M20 20h8v8h-8z"/></svg>
+          </div>
+          <span class="google-app-name">PubMed</span>
+        </a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- AI HUB / SUITE DIALOG -->
+  <dialog id="aiHubDialog" class="google-apps-dialog">
+    <div class="google-apps-container">
+      <header class="google-apps-header">
+        <div class="google-apps-title-group">
+          <div class="google-apps-icon-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hub-header-icon" style="color: #a855f7;">
+              <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+            </svg>
+            <h2>AI Suite & Tools Hub</h2>
+          </div>
+          <span class="google-apps-subtitle">برترین ابزارها و مدل‌های هوش مصنوعی برای مطالعه، کدنویسی و تحقیق</span>
+        </div>
+        <button type="button" class="dialog-close-btn" id="aiHubCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <div class="google-apps-grid">
+        <!-- 1. ChatGPT -->
+        <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="8" fill="#10A37F" />
+              <path d="M26.2 14.8a4.4 4.4 0 0 0-.4-3.6 4.5 4.5 0 0 0-4.8-2.2 4.5 4.5 0 0 0-4.6-2 4.4 4.4 0 0 0-3 2.1 4.5 4.5 0 0 0 .5 5.2 4.4 4.4 0 0 0 .4 3.6 4.5 4.5 0 0 0 4.8 2.2 4.4 4.4 0 0 0 4.6 2 4.4 4.4 0 0 0 3-2.1 4.5 4.5 0 0 0-.5-5.2zm-6.6 9.3a3.3 3.3 0 0 1-2.1-.8l.1-.1 3.5-2a.6.6 0 0 0 .3-.5v-4.9l1.5.9a.1.1 0 0 1 0 0v4.1a3.3 3.3 0 0 1-3.3 3.3zm-6.5-2.7a3.3 3.3 0 0 1-.5-2.2v-.1l3.5 2a.6.6 0 0 0 .6 0l4.2-2.5v1.7a.1.1 0 0 1 0 .1l-3.6 2.1a3.3 3.3 0 0 1-4.2-1.1zm-1.8-6.6a3.3 3.3 0 0 1 1.6-1.5l-.1.1v4.1a.6.6 0 0 0 .3.5l4.2 2.5-1.5.9a.1.1 0 0 1-.1 0l-3.6-2.1a3.3 3.3 0 0 1-.9-4.5zm11.5-1.4l-4.2 2.5-1.5-.9a.1.1 0 0 1 0-.1l3.6-2.1a3.3 3.3 0 0 1 4.2 1.1 3.3 3.3 0 0 1 .5 2.2v.1l-3.5-2a.6.6 0 0 0-.6 0zm2.7 4.9a3.3 3.3 0 0 1-1.6 1.5l.1-.1v-4.1a.6.6 0 0 0-.3-.5l-4.2-2.5 1.5-.9a.1.1 0 0 1 .1 0l3.6 2.1a3.3 3.3 0 0 1 .9 4.5zm-8.4-.7l1.9-1.1 1.9 1.1v2.2l-1.9 1.1-1.9-1.1v-2.2z" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          <span class="google-app-name">ChatGPT</span>
+        </a>
+
+        <!-- 2. Claude -->
+        <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="8" fill="#D97706" />
+              <path d="M19.8 8.2l1.8 5.7 5.7-1.8-3.5 5 5 3.5-5.7-1.8 1.8 5.7-5-3.5-1.8 5.7-1.8-5.7-5 3.5 1.8-5.7-5.7 1.8 5-3.5-3.5-5 5.7 1.8-1.8-5.7 5 3.5z" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          <span class="google-app-name">Claude</span>
+        </a>
+
+        <!-- 3. Google Gemini -->
+        <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="8" fill="#0F172A" />
+              <path d="M18 6C18 12.6 12.6 18 6 18C12.6 18 18 23.4 18 30C18 23.4 23.4 18 30 18C23.4 18 18 12.6 18 6Z" fill="url(#geminiGradAI)"/>
+              <defs>
+                <linearGradient id="geminiGradAI" x1="6" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38BDF8"/>
+                  <stop offset="0.5" stop-color="#818CF8"/>
+                  <stop offset="1" stop-color="#F472B6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="google-app-name">Gemini</span>
+        </a>
+
+        <!-- 4. Microsoft Copilot -->
+        <a href="https://copilot.microsoft.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#0078D4" rx="8"/><circle cx="20" cy="24" r="7" fill="#00BCF2"/><circle cx="28" cy="24" r="7" fill="#FFB900" fill-opacity="0.9"/><path d="M20 17a7 7 0 0 1 8 7 7 7 0 0 1-8 7z" fill="#0078D4"/></svg>
+          </div>
+          <span class="google-app-name">MS Copilot</span>
+        </a>
+
+        <!-- 5. Perplexity AI -->
+        <a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#13343B" rx="8"/><path fill="#22B8CD" d="M24 10v28M14 16l20 16M34 16L14 32" stroke="#22B8CD" stroke-width="4" stroke-linecap="round"/></svg>
+          </div>
+          <span class="google-app-name">Perplexity</span>
+        </a>
+
+        <!-- 6. DeepSeek -->
+        <a href="https://chat.deepseek.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#0284C7" rx="8"/><path fill="#fff" d="M24 12c-6.6 0-12 5.4-12 12s5.4 12 12 12c4.4 0 8.3-2.4 10.4-6h-4.6c-1.6 1.8-3.9 3-6.4 3-4.8 0-8.8-3.7-9-8.4h21.4c.1-.5.2-1.1.2-1.6 0-6.6-5.4-12-12-12zm-8.8 9.5c.5-3.8 3.8-6.7 7.8-6.7s7.3 2.9 7.8 6.7H15.2z"/></svg>
+          </div>
+          <span class="google-app-name">DeepSeek</span>
+        </a>
+
+        <!-- 7. v0 by Vercel -->
+        <a href="https://v0.dev" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#000000" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">v0</text></svg>
+          </div>
+          <span class="google-app-name">v0 (UI Dev)</span>
+        </a>
+
+        <!-- 8. Hugging Face -->
+        <a href="https://huggingface.co" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#FFD21E" rx="8"/><text x="24" y="32" font-size="22" text-anchor="middle">🤗</text></svg>
+          </div>
+          <span class="google-app-name">Hugging Face</span>
+        </a>
+
+        <!-- 9. Phind -->
+        <a href="https://www.phind.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#6366F1" rx="8"/><path fill="#fff" d="M16 14h10c4.4 0 8 3.6 8 8s-3.6 8-8 8H20v6h-4V14zm4 12h6c2.2 0 4-1.8 4-4s-1.8-4-4-4h-6v8z"/></svg>
+          </div>
+          <span class="google-app-name">Phind (Code)</span>
+        </a>
+
+        <!-- 10. Leonardo.Ai -->
+        <a href="https://leonardo.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#8B5CF6" rx="8"/><path fill="#F43F5E" d="M24 10l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z"/></svg>
+          </div>
+          <span class="google-app-name">Leonardo.Ai</span>
+        </a>
+
+        <!-- 11. Grok (xAI) -->
+        <a href="https://x.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#14171A" rx="8"/><text x="24" y="32" font-family="'Segoe UI', sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Grok</text></svg>
+          </div>
+          <span class="google-app-name">Grok (xAI)</span>
+        </a>
+
+        <!-- 12. Consensus AI -->
+        <a href="https://consensus.app" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#0D9488" rx="8"/><path fill="#fff" d="M16 24a8 8 0 1 1 16 0 8 8 0 0 1-16 0zm8-5a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <span class="google-app-name">Consensus</span>
+        </a>
+
+        <!-- 13. Elicit -->
+        <a href="https://elicit.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#BE185D" rx="8"/><path fill="#fff" d="M14 16h20v4H14zm0 6h14v4H14zm0 6h18v4H14z"/></svg>
+          </div>
+          <span class="google-app-name">Elicit (Papers)</span>
+        </a>
+
+        <!-- 14. QuillBot -->
+        <a href="https://quillbot.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#499557" rx="8"/><path fill="#fff" d="M30 14c-4 0-7 2-9 5l-7 13 4 2 6-11c1-2 3-3 6-3 3 0 5 2 5 5v1h4v-1c0-5-4-8-9-8z"/></svg>
+          </div>
+          <span class="google-app-name">QuillBot</span>
+        </a>
+
+        <!-- 15. Poe (Quora) -->
+        <a href="https://poe.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#8E24AA" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Poe</text></svg>
+          </div>
+          <span class="google-app-name">Poe</span>
+        </a>
+
+        <!-- 16. Gamma App -->
+        <a href="https://gamma.app" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
+          <div class="google-app-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#E11D48" rx="8"/><polygon fill="#fff" points="24,12 36,34 12,34"/></svg>
+          </div>
+          <span class="google-app-name">Gamma (Slides)</span>
+        </a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- IDEA & RESEARCH LAB DIALOG -->
+  <dialog id="ideaLabDialog" class="idea-lab-dialog">
+    <div class="idea-lab-container">
+      <header class="idea-lab-header">
+        <div class="idea-lab-title-group">
+          <div class="idea-lab-icon-badge">💡</div>
+          <div>
+            <h2>آزمایشگاه ایده و مسیر راه (Idea & Project Lab)</h2>
+            <span class="idea-lab-subtitle">مدیریت ایده‌ها، تبدیل به گام‌های عملیاتی با هوش مصنوعی و پیگیری پیشرفت</span>
+          </div>
+        </div>
+        <button type="button" class="dialog-close-btn" id="ideaLabCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <!-- Sub Navigation: Active Ideas vs Archive Vault -->
+      <div class="idea-lab-tabs">
+        <button type="button" class="idea-tab-btn active" id="tabIdeasActive" data-tab="active">
+          <span>🎯 ۳ ایده در کانون تمرکز</span>
+          <span class="idea-tab-badge" id="labActiveCount">۰/۳</span>
+        </button>
+        <button type="button" class="idea-tab-btn" id="tabIdeasArchive" data-tab="archive">
+          <span>📦 بانک آرشیو ایده‌ها</span>
+          <span class="idea-tab-badge" id="labArchiveCount">۰</span>
+        </button>
+      </div>
+
+      <!-- Interactive Visual Guide Box -->
+      <div class="idea-guide-card">
+        <div class="idea-guide-header" id="ideaGuideToggleBtn" title="کلیک برای باز/بسته کردن راهنما">
+          <div class="idea-guide-header-left">
+            <span class="idea-guide-spark">🧭</span>
+            <strong>راهنمای کاربردی: سیستم پایش ایده و مسیر راه چگونه کار می‌کند؟</strong>
+          </div>
+          <span class="idea-guide-toggle-icon" id="ideaGuideIcon">▼</span>
+        </div>
+        <div class="idea-guide-body" id="ideaGuideBody">
+          <div class="idea-guide-steps">
+            <div class="idea-guide-step">
+              <div class="guide-step-num">۱</div>
+              <div class="guide-step-text">
+                <strong>ثبت جرقه‌های ذهنی</strong>
+                <p>عنوان ایده پژوهشی یا پروژه خود را وارد کنید. حداکثر ۳ ایده در کانون تمرکز قرار می‌گیرند و بقیه برای جلوگیری از سردرگمی در آرشیو پارک می‌شوند.</p>
+              </div>
+            </div>
+            <div class="idea-guide-step">
+              <div class="guide-step-num">۲</div>
+              <div class="guide-step-text">
+                <strong>گفتگو و تدوین مسیر راه با AI</strong>
+                <p>دکمه «🤖 کپی پرامپت AI» را بزنید و در ChatGPT یا Claude بفرستید. هوش مصنوعی با شما گفتگو می‌کند و خروجی تمیز نهایی را در بخش «ایمپورت یکپارچه» پیست کنید.</p>
+              </div>
+            </div>
+            <div class="idea-guide-step">
+              <div class="guide-step-num">۳</div>
+              <div class="guide-step-text">
+                <strong>پایش زنده و پیشرفت تا ۱۰۰٪</strong>
+                <p>با انجام هر مرحله، تیک آن را بزنید تا درصد نوار پیشرفت رشد کند و پروژه قدم‌به‌قدم به سرانجام برسد!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 1: Active Ideas -->
+      <div class="idea-tab-content active" id="contentIdeasActive">
+        <!-- New Idea Quick Creator Box -->
+        <div class="idea-creator-box">
+          <form id="ideaCreateForm" class="idea-create-form">
+            <div class="form-row">
+              <input type="text" id="newIdeaTitle" placeholder="عنوان ایده یا پروژه جدید… (مثلاً: طراحی شبیه‌ساز مدار منطقی)" required autocomplete="off" class="flex-2" />
+              <select id="newIdeaCategory" class="flex-1">
+                <option value="research">🔬 پژوهشی / مقاله</option>
+                <option value="academic">📚 درسی / پروژه دانشگاه</option>
+                <option value="startup">🚀 استارتاپ / محصول</option>
+                <option value="personal">💡 شخصی / مهارت</option>
+              </select>
+              <button type="submit" class="primary-btn" id="createIdeaBtn">+ ثبت ایده</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="activeIdeasGrid" class="active-ideas-grid">
+          <!-- Dynamically injected active idea cards -->
+        </div>
+        <p id="activeIdeasEmpty" class="empty-hint" hidden>💡 هنوز هیچ ایده‌ای در ۳ تمرکز اصلی قرار نداری. با فرم بالا اولین ایده‌ات رو ثبت کن!</p>
+      </div>
+
+      <!-- Tab Content 2: Archive Vault -->
+      <div class="idea-tab-content" id="contentIdeasArchive">
+        <div class="archive-header-notice">
+          <span>💡 ایده‌های پارک‌شده برای جلوگیری از تشتت ذهنی در این بخش نگهداری می‌شوند. هر زمان یکی از ۳ ایده اصلی‌ات به اتمام رسید، می‌توانید یکی از ایده‌های این بخش را فعال کنید.</span>
+        </div>
+        <div id="archivedIdeasGrid" class="archived-ideas-grid">
+          <!-- Dynamically injected archived idea cards -->
+        </div>
+        <p id="archivedIdeasEmpty" class="empty-hint" hidden>📭 هیچ ایده‌ای در آرشیو وجود ندارد.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- NOTES DIALOG -->
+  <dialog id="notesDialog" class="notes-dialog">
+    <div class="notes-container">
+      <header class="notes-header">
+        <div class="notes-title-group">
+          <span class="notes-icon-badge">📝</span>
+          <div>
+            <h2>یادداشت‌های من</h2>
+            <span class="notes-subtitle">یادداشت سریع، ایده، یا هر چیزی که در ذهنت هست</span>
+          </div>
+        </div>
+        <button type="button" class="dialog-close-btn" id="notesCloseBtn" aria-label="بستن">×</button>
+      </header>
+
+      <!-- Quick Add Form -->
+      <form id="noteCreateForm" class="note-create-form">
+        <input type="text" id="noteTitleInput" placeholder="عنوان یادداشت (اختیاری)…" autocomplete="off" class="note-title-input" />
+        <textarea id="noteBodyInput" placeholder="محتوای یادداشت را اینجا بنویس…" rows="3" class="note-body-input" required></textarea>
+        <div class="note-form-row">
+          <select id="noteColorPicker" class="note-color-select">
+            <option value="default">🗒️ پیش‌فرض</option>
+            <option value="yellow">🟡 زرد</option>
+            <option value="blue">🔵 آبی</option>
+            <option value="green">🟢 سبز</option>
+            <option value="red">🔴 قرمز</option>
+            <option value="purple">🟣 بنفش</option>
+          </select>
+          <button type="submit" class="note-add-btn">+ افزودن یادداشت</button>
+        </div>
+      </form>
+
+      <!-- Search Bar -->
+      <div class="notes-search-bar">
+        <span class="notes-search-icon">🔍</span>
+        <input type="text" id="notesSearchInput" placeholder="جستجو در یادداشت‌ها…" autocomplete="off" />
+      </div>
+
+      <!-- Notes Grid -->
+      <div id="notesGrid" class="notes-grid"></div>
+      <p id="notesEmpty" class="empty-hint" hidden>📭 هنوز یادداشتی ثبت نکرده‌ای. اولین یادداشتت را بنویس!</p>
+    </div>
+  </dialog>
+
+  <!-- VU LOGIN DIALOG -->
+  <dialog id="vuLoginDialog" class="pin-dialog vu-login-dialog">
+    <form id="vuLoginForm" class="pin-form" autocomplete="on">
+      <div class="dialog-header">
+        <h3>🎓 اتصال به سامانه VU</h3>
+        <button type="button" class="dialog-close-btn" id="vuLoginCloseBtn" aria-label="بستن">×</button>
+      </div>
+      <label class="vu-field">
+        <span>نام کاربری (شماره دانشجویی)</span>
+        <input id="vuLoginUsername" data-initial-focus type="text" dir="ltr" autocomplete="username" required />
+      </label>
+      <label class="vu-field">
+        <span>رمز عبور</span>
+        <input id="vuLoginPassword" type="password" dir="ltr" autocomplete="current-password" required />
+      </label>
+      <p class="vu-note">🔒 رمز فقط روی همین کامپیوتر ذخیره می‌شود تا ورود دوباره خودکار باشد. از تنظیمات یا پاپ‌آپ اکستنشن می‌توانی اتصال را قطع و آن را پاک کنی.</p>
+      <p class="vu-error" id="vuLoginError" hidden></p>
+      <div class="vu-dialog-actions">
+        <button type="button" class="ghost-btn" id="vuUseSessionBtn" hidden>استفاده از ورود فعلی مرورگر</button>
+        <button type="submit" class="primary-btn" id="vuLoginSubmit">اتصال</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- POOYA LOGIN / IMPORT DIALOG -->
+  <dialog id="pooyaDialog" class="pin-dialog vu-login-dialog">
+    <form id="pooyaDialogForm" class="pin-form" autocomplete="on">
+      <div class="dialog-header">
+        <h3>📥 وارد کردن برنامه کلاسی از پویا</h3>
+        <button type="button" class="dialog-close-btn" id="pooyaDialogCloseBtn" aria-label="بستن">×</button>
+      </div>
+      <p class="vu-note">ورود پویا همان حساب دانشگاه (oauth.um.ac.ir) است. بعد از ورود، برنامه هفتگی و زوج یا فرد بودن هفته جاری از پویا خوانده و در جدول برنامه کلاسی وارد می‌شود. درس‌هایی که قبلاً دستی اضافه کرده‌ای حفظ می‌شوند.</p>
+      <button type="button" class="primary-btn" id="pooyaDialogUseVuBtn" hidden>ورود با حساب VU و وارد کردن برنامه</button>
+      <label class="vu-field">
+        <span>نام کاربری (شماره دانشجویی)</span>
+        <input id="pooyaDialogUsername" data-initial-focus type="text" dir="ltr" autocomplete="username" required />
+      </label>
+      <label class="vu-field">
+        <span>رمز عبور</span>
+        <input id="pooyaDialogPassword" type="password" dir="ltr" autocomplete="current-password" required />
+      </label>
+      <p class="vu-error" id="pooyaDialogError" hidden></p>
+      <div class="vu-dialog-actions">
+        <button type="submit" class="primary-btn" id="pooyaDialogSubmit">ورود و وارد کردن</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="jalali.js"></script>
+  <script src="ui-kit.js"></script>
+  <script src="vu-client.js"></script>
+  <script src="pooya-client.js"></script>
+  <script src="vu-dashboard.js"></script>
+  <script src="app.js"></script>
+  <script src="appearance.js"></script>
+  <!-- HeroUI Select + Persian DatePicker (React island, built from islands/src) -->
+  <script src="islands/islands.js"></script>
+</body>
+</html>

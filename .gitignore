@@ -1,0 +1,30 @@
+# Dependencies and local tooling
+node_modules/
+.cache/
+.npm/
+coverage/
+test-results/
+playwright-report/
+
+# Local configuration and signing material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crx
+
+# Release archives and temporary output
+dist/
+build/
+*.zip
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Keep styles/studash.css and islands/islands.js tracked: Chrome loads them.

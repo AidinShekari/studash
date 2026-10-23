@@ -1,0 +1,287 @@
+/* ===============================================================
+   StuDash theme presets — HeroUI v3 custom themes.
+
+   Every themed element carries BOTH a mode class and a preset:
+     <html class="dark" data-theme="studash-dark">
+   The `.light` / `.dark` blocks from @heroui/styles supply the full
+   variable set (including calculated hover/soft/border colours, which
+   are color-mix() of the values below), and these blocks override the
+   base colours for each preset. Previews in the Appearance settings use
+   the same attributes on a small element, so they render with the real
+   tokens.
+
+   Per-user overrides (accent colour, density, corner style) are applied
+   on <html> by theme.js / theme-boot.js — see the bottom of this file.
+   =============================================================== */
+
+/* ---------- StuDash (default): warm amber accent, calm indigo-neutral surfaces ---------- */
+[data-theme="studash-light"] {
+  color-scheme: light;
+  --background: oklch(0.975 0.004 85);
+  --foreground: oklch(0.23 0.012 270);
+  --surface: oklch(1 0 0);
+  --surface-secondary: oklch(0.962 0.005 85);
+  --surface-tertiary: oklch(0.945 0.006 85);
+  --overlay: oklch(1 0 0);
+  --muted: oklch(0.5 0.018 270);
+  --default: oklch(0.945 0.006 85);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(1 0 0);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.9 0.008 85);
+  --separator: oklch(0.925 0.006 85);
+  --accent: oklch(0.74 0.15 62);
+  --accent-foreground: oklch(0.24 0.04 50);
+  --focus: oklch(0.62 0.16 55);
+}
+[data-theme="studash-dark"] {
+  color-scheme: dark;
+  --background: oklch(0.165 0.014 275);
+  --foreground: oklch(0.955 0.008 85);
+  --surface: oklch(0.205 0.016 275);
+  --surface-secondary: oklch(0.24 0.016 275);
+  --surface-tertiary: oklch(0.27 0.016 275);
+  --overlay: oklch(0.225 0.016 275);
+  --muted: oklch(0.71 0.022 275);
+  --default: oklch(0.27 0.016 275);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(0.235 0.016 275);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.305 0.016 275);
+  --separator: oklch(0.275 0.016 275);
+  --accent: oklch(0.79 0.13 65);
+  --accent-foreground: oklch(0.24 0.04 50);
+  --focus: oklch(0.79 0.13 65);
+}
+
+/* ---------- Ocean: clear blue, cool slate ---------- */
+[data-theme="ocean-light"] {
+  color-scheme: light;
+  --background: oklch(0.975 0.005 240);
+  --foreground: oklch(0.24 0.02 250);
+  --surface: oklch(1 0 0);
+  --surface-secondary: oklch(0.96 0.007 240);
+  --surface-tertiary: oklch(0.942 0.009 240);
+  --overlay: oklch(1 0 0);
+  --muted: oklch(0.5 0.025 250);
+  --default: oklch(0.942 0.009 240);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(1 0 0);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.9 0.01 240);
+  --separator: oklch(0.925 0.008 240);
+  --accent: oklch(0.56 0.17 252);
+  --accent-foreground: oklch(0.99 0 0);
+  --focus: oklch(0.56 0.17 252);
+}
+[data-theme="ocean-dark"] {
+  color-scheme: dark;
+  --background: oklch(0.16 0.018 250);
+  --foreground: oklch(0.96 0.006 240);
+  --surface: oklch(0.205 0.02 250);
+  --surface-secondary: oklch(0.24 0.02 250);
+  --surface-tertiary: oklch(0.27 0.02 250);
+  --overlay: oklch(0.225 0.02 250);
+  --muted: oklch(0.72 0.025 245);
+  --default: oklch(0.27 0.02 250);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(0.235 0.02 250);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.31 0.022 250);
+  --separator: oklch(0.275 0.02 250);
+  --accent: oklch(0.7 0.15 245);
+  --accent-foreground: oklch(0.18 0.03 250);
+  --focus: oklch(0.7 0.15 245);
+}
+
+/* ---------- Forest: quiet green, warm neutrals ---------- */
+[data-theme="forest-light"] {
+  color-scheme: light;
+  --background: oklch(0.974 0.006 130);
+  --foreground: oklch(0.24 0.015 150);
+  --surface: oklch(1 0 0);
+  --surface-secondary: oklch(0.96 0.008 130);
+  --surface-tertiary: oklch(0.942 0.01 130);
+  --overlay: oklch(1 0 0);
+  --muted: oklch(0.5 0.02 150);
+  --default: oklch(0.942 0.01 130);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(1 0 0);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.9 0.012 130);
+  --separator: oklch(0.925 0.01 130);
+  --accent: oklch(0.52 0.12 155);
+  --accent-foreground: oklch(0.99 0 0);
+  --focus: oklch(0.52 0.12 155);
+}
+[data-theme="forest-dark"] {
+  color-scheme: dark;
+  --background: oklch(0.16 0.01 160);
+  --foreground: oklch(0.955 0.008 130);
+  --surface: oklch(0.2 0.012 160);
+  --surface-secondary: oklch(0.235 0.012 160);
+  --surface-tertiary: oklch(0.265 0.012 160);
+  --overlay: oklch(0.22 0.012 160);
+  --muted: oklch(0.71 0.02 150);
+  --default: oklch(0.265 0.012 160);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(0.23 0.012 160);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.3 0.014 160);
+  --separator: oklch(0.27 0.012 160);
+  --accent: oklch(0.74 0.13 155);
+  --accent-foreground: oklch(0.2 0.03 155);
+  --focus: oklch(0.74 0.13 155);
+}
+
+/* ---------- Lavender: soft violet ---------- */
+[data-theme="lavender-light"] {
+  color-scheme: light;
+  --background: oklch(0.975 0.006 300);
+  --foreground: oklch(0.24 0.02 295);
+  --surface: oklch(1 0 0);
+  --surface-secondary: oklch(0.96 0.008 300);
+  --surface-tertiary: oklch(0.942 0.011 300);
+  --overlay: oklch(1 0 0);
+  --muted: oklch(0.5 0.025 295);
+  --default: oklch(0.942 0.011 300);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(1 0 0);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.9 0.012 300);
+  --separator: oklch(0.925 0.01 300);
+  --accent: oklch(0.55 0.19 295);
+  --accent-foreground: oklch(0.99 0 0);
+  --focus: oklch(0.55 0.19 295);
+}
+[data-theme="lavender-dark"] {
+  color-scheme: dark;
+  --background: oklch(0.165 0.02 295);
+  --foreground: oklch(0.96 0.008 300);
+  --surface: oklch(0.205 0.022 295);
+  --surface-secondary: oklch(0.24 0.022 295);
+  --surface-tertiary: oklch(0.27 0.022 295);
+  --overlay: oklch(0.225 0.022 295);
+  --muted: oklch(0.72 0.03 295);
+  --default: oklch(0.27 0.022 295);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(0.235 0.022 295);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.31 0.024 295);
+  --separator: oklch(0.275 0.022 295);
+  --accent: oklch(0.74 0.14 295);
+  --accent-foreground: oklch(0.2 0.04 295);
+  --focus: oklch(0.74 0.14 295);
+}
+
+/* ---------- Graphite: monochrome; dark mode is near-black (OLED friendly) ---------- */
+[data-theme="graphite-light"] {
+  color-scheme: light;
+  --background: oklch(0.972 0 0);
+  --foreground: oklch(0.2 0 0);
+  --surface: oklch(1 0 0);
+  --surface-secondary: oklch(0.958 0 0);
+  --surface-tertiary: oklch(0.94 0 0);
+  --overlay: oklch(1 0 0);
+  --muted: oklch(0.5 0 0);
+  --default: oklch(0.94 0 0);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(1 0 0);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.9 0 0);
+  --separator: oklch(0.925 0 0);
+  --accent: oklch(0.26 0 0);
+  --accent-foreground: oklch(0.99 0 0);
+  --focus: oklch(0.26 0 0);
+}
+[data-theme="graphite-dark"] {
+  color-scheme: dark;
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.95 0 0);
+  --surface: oklch(0.155 0 0);
+  --surface-secondary: oklch(0.195 0 0);
+  --surface-tertiary: oklch(0.225 0 0);
+  --overlay: oklch(0.18 0 0);
+  --muted: oklch(0.7 0 0);
+  --default: oklch(0.225 0 0);
+  --default-foreground: var(--foreground);
+  --field-background: oklch(0.18 0 0);
+  --field-foreground: var(--foreground);
+  --border: oklch(0.27 0 0);
+  --separator: oklch(0.23 0 0);
+  --accent: oklch(0.93 0 0);
+  --accent-foreground: oklch(0.16 0 0);
+  --focus: oklch(0.93 0 0);
+}
+
+/* ---------- Shared: warmer, softer shadows in dark themes ---------- */
+.dark[data-theme] {
+  --surface-shadow: 0 1px 0 0 color-mix(in oklab, var(--foreground) 4%, transparent) inset, 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --overlay-shadow: 0 0 0 1px var(--border), 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+  --field-shadow: none;
+}
+.light[data-theme] {
+  --field-border: var(--border);
+  --field-border-width: 1px;
+  /* Accent-coloured text on light surfaces: a little more foreground for AA contrast */
+  --accent-soft-foreground: color-mix(in oklab, var(--accent) 60%, var(--foreground) 40%);
+}
+
+/* ===============================================================
+   User customisation (set on <html>)
+   =============================================================== */
+
+/* ===============================================================
+   Spacing scale — one source of truth: HeroUI's --spacing unit.
+   Every StuDash gap/padding is a multiple of it, and density only changes
+   --spacing, so HeroUI components and StuDash layout scale together.
+   Pixel values below are for "comfortable" (--spacing = 0.25rem).
+   =============================================================== */
+:root {
+  --sd-space-1: calc(var(--spacing) * 1);     /*  4px */
+  --sd-space-1-5: calc(var(--spacing) * 1.5); /*  6px */
+  --sd-space-2: calc(var(--spacing) * 2);     /*  8px */
+  --sd-space-3: calc(var(--spacing) * 3);     /* 12px */
+  --sd-space-4: calc(var(--spacing) * 4);     /* 16px */
+  --sd-space-5: calc(var(--spacing) * 5);     /* 20px */
+  --sd-space-6: calc(var(--spacing) * 6);     /* 24px */
+  --sd-space-8: calc(var(--spacing) * 8);     /* 32px */
+
+  --sd-card-padding: var(--sd-space-4);      /* inside cards */
+  --sd-card-gap: var(--sd-space-3);          /* card header ↔ content ↔ footer */
+  --sd-heading-gap: var(--sd-space-1);       /* title ↔ description */
+  --sd-field-gap: var(--sd-space-1-5);       /* label ↔ control ↔ message */
+  --sd-stack-gap: var(--sd-space-3);         /* between fields, rows, list items */
+  --sd-section-gap: var(--sd-space-4);       /* between cards and page sections */
+  --sd-modal-padding: var(--sd-space-6);     /* modal header / body / footer inline padding */
+  --sd-control-height: calc(var(--spacing) * 9);     /* 36px: buttons, inputs, selects */
+  --sd-control-height-sm: calc(var(--spacing) * 7.5); /* 30px: small buttons, filters */
+
+  /* Page-level rhythm (between the dashboard's big blocks) */
+  --sd-page-gap: var(--sd-space-8);          /* 32px between top row, VU card, schedule */
+  --sd-page-padding-block: var(--sd-space-8);
+  --sd-page-padding-inline: var(--sd-space-6);
+
+  /* Inline gaps between an icon and its text (buttons, chips, titles) */
+  --sd-icon-gap: var(--sd-space-1-5);
+
+  /* ---------- Typography scale (fixed sizes; density changes spacing only) ----------
+     page title > modal title > card title > section title > body > label > caption */
+  --sd-text-page: 20px;          /* hero titles (onboarding, feature tour) */
+  --sd-text-modal-title: 17px;   /* .modal__heading */
+  --sd-text-card-title: 15px;    /* .card__title */
+  --sd-text-section: 14px;       /* section headings inside cards / modals */
+  --sd-text-body: 13.5px;
+  --sd-text-label: 12.5px;       /* field labels */
+  --sd-text-caption: 12px;       /* descriptions, helper and error text */
+  --sd-text-micro: 11px;         /* chips, counters */
+  --sd-leading-heading: 1.45;    /* Persian headings need more than Latin 1.2–1.3 */
+  --sd-leading-body: 1.7;
+}
+[data-density="compact"] { --spacing: 0.2rem; }   /* 80%  */
+[data-density="spacious"] { --spacing: 0.3rem; }  /* 120% */
+
+/* Corner style: drives HeroUI --radius (fields, buttons, cards derive from it) */
+[data-radius="sharp"] { --radius: 0.25rem; }
+[data-radius="rounded"] { --radius: 0.5rem; }
+[data-radius="soft"] { --radius: 0.875rem; }

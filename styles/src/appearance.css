@@ -1,0 +1,157 @@
+/* ===============================================================
+   Appearance settings: mode, presets (live previews), accent swatches,
+   density and corner style. Previews render with the real theme tokens
+   via data-theme on each half (see themes.css).
+   =============================================================== */
+
+.sd-appearance { display: flex; flex-direction: column; gap: 4px; }
+
+.sd-appearance-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.sd-appearance-head p { margin: 4px 0 0; }
+
+.sd-setting-row,
+.sd-setting-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--sd-space-3) 0;
+  border-top: 1px solid var(--separator);
+}
+.sd-setting-block { flex-direction: column; align-items: stretch; }
+.sd-setting-label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sd-setting-label strong { font-size: 13.5px; font-weight: 600; color: var(--foreground); }
+.sd-setting-label span { font-size: 12px; color: var(--muted); }
+
+.sd-appearance .sd-segmented { flex: none; }
+.sd-appearance .sd-segmented > button { flex: 0 0 auto; min-width: 72px; }
+
+/* Corner style glyphs */
+.sd-corner {
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid currentColor;
+  border-inline-start: 2px solid currentColor;
+}
+.sd-corner--sharp { border-start-start-radius: 1px; }
+.sd-corner--rounded { border-start-start-radius: 5px; }
+.sd-corner--soft { border-start-start-radius: 10px; }
+
+/* ---------- Preset cards ---------- */
+.sd-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.sd-preset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 1.75);
+  background: var(--surface);
+  color: var(--foreground);
+  font-family: inherit;
+  text-align: start;
+  cursor: var(--cursor-interactive);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.sd-preset:hover { border-color: var(--border-secondary); background: var(--surface-hover); }
+.sd-preset[aria-checked="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.sd-preset__frame {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 64px;
+  overflow: hidden;
+  border-radius: calc(var(--radius) * 1.25);
+  border: 1px solid var(--separator);
+}
+.sd-preset__meta { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 6px; padding: 0 2px; }
+.sd-preset__name { font-size: 13px; font-weight: 650; direction: ltr; text-align: start; }
+.sd-preset__desc { grid-column: 1; font-size: 11px; color: var(--muted); }
+.sd-preset__check {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.sd-preset[aria-checked="true"] .sd-preset__check { opacity: 1; transform: none; }
+
+/* Mini UI inside each preview half — every colour is a theme token */
+.sd-preview {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  background: var(--background);
+  color: var(--foreground);
+}
+.sd-preview__side { background: var(--surface-secondary); border-inline-end: 1px solid var(--separator); }
+.sd-preview__main { display: flex; flex-direction: column; gap: 5px; padding: 7px; }
+.sd-preview__card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.sd-preview__line { display: block; height: 3px; border-radius: 2px; background: var(--foreground); opacity: 0.55; }
+.sd-preview__line.short { width: 60%; opacity: 0.3; }
+.sd-preview__btn { display: block; width: 22px; height: 6px; border-radius: 3px; background: var(--accent); }
+.sd-preview__chips { display: flex; gap: 3px; }
+.sd-preview__chips span { width: 14px; height: 5px; border-radius: 3px; background: var(--accent-soft); }
+
+/* ---------- Accent swatches ---------- */
+.sd-swatches { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.sd-swatch {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: var(--cursor-interactive);
+}
+.sd-swatch__dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--swatch-light);
+}
+.dark .sd-swatch__dot { background: var(--swatch-dark); }
+.sd-swatch--auto .sd-swatch__dot {
+  background: conic-gradient(from 0deg, oklch(0.74 0.15 62), oklch(0.56 0.17 252), oklch(0.52 0.12 155), oklch(0.55 0.19 295), oklch(0.74 0.15 62));
+}
+.sd-swatch__check {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  color: white;
+  opacity: 0;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+}
+.sd-swatch[aria-checked="true"] { border-color: var(--foreground); box-shadow: 0 0 0 1px var(--foreground); }
+.sd-swatch[aria-checked="true"] .sd-swatch__check { opacity: 1; }
+.sd-swatch:hover { border-color: var(--border-tertiary); }
+
+@media (max-width: 640px) {
+  .sd-setting-row { flex-direction: column; align-items: stretch; }
+  .sd-swatches { justify-content: flex-start; }
+}

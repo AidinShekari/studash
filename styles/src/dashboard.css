@@ -1,0 +1,130 @@
+/* ===============================================================
+   New-tab dashboard — screen-level refinements on top of foundation.
+   =============================================================== */
+
+/* Brand line: thin and static instead of a thick animated gradient */
+.horizon-bar {
+  height: 2px;
+  background: var(--accent);
+  animation: none;
+  opacity: 1;
+}
+
+.vu-subtitle, .schedule-subtitle, .settings-section-header p, .settings-subtitle { color: var(--muted); }
+
+/* ---------- Clock + greeting ---------- */
+.clock {
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--foreground);
+}
+
+/* ---------- Search: one field, focus ring on the container ---------- */
+.search-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2.5);
+  padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 4.5);
+  box-shadow: var(--surface-shadow);
+}
+.search-form:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.search-form input,
+.search-form input:hover,
+.search-form input:focus {
+  min-height: 0;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 15px;
+}
+
+/* ---------- Pinned site tiles ---------- */
+.pin-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 1.75);
+  box-shadow: var(--surface-shadow);
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+.pin-tile:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--surface-shadow);
+}
+
+/* ---------- Sidebar task list ---------- */
+.sidebar-course-task-item, .task-item, .gcal-event, .sidebar-day-exam-card {
+  border-radius: calc(var(--radius) * 1.25);
+}
+.unified-group-title { color: var(--muted); font-size: 12px; font-weight: 600; }
+
+/* ---------- Weekly schedule ---------- */
+.schedule-grid-container { border-radius: calc(var(--radius) * 1.5); }
+.class-card {
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+/* ---------- VU homework table ---------- */
+.vu-table th { color: var(--muted); font-weight: 600; }
+.vu-table tbody tr:hover { background: var(--surface-secondary); }
+.vu-connect-empty { border-radius: calc(var(--radius) * 1.75); background: var(--surface-secondary); }
+
+
+/* Small layout helpers that replaced inline styles */
+.sd-row-between { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sd-space-3); inline-size: 100%; }
+.sd-form-submit { justify-content: flex-end; }
+.live-dot--accent { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* Chips inside the schedule header / footer keep their own row rhythm */
+.schedule-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sd-space-2); }
+.schedule-footer-bar { justify-content: space-between; }
+.today-classes-badge .live-dot { margin-inline-end: var(--sd-space-1); }
+
+/* ---------- Persian calendar (ARIA date grid) ----------
+   States are distinguishable without colour alone: today = ring, selected = filled,
+   outside month = dimmed; markers differ in shape (task ●, exam ◆, VU deadline ■). */
+.calendar-panel .calendar-header { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--sd-space-2); }
+.month-label-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--sd-heading-gap); text-align: center; min-width: 0; }
+/* Cap the grid so cells stay day-sized when the card spans the full width (stacked layout) */
+.sd-calendar { display: flex; flex-direction: column; gap: var(--sd-space-1); inline-size: 100%; max-inline-size: 24rem; margin-inline: auto; }
+.weekdays, .cal-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sd-space-1); }
+.weekdays span { text-align: center; font-size: var(--sd-text-micro); font-weight: 600; color: var(--muted); padding-block: var(--sd-space-1); }
+.calendar-grid { display: flex; flex-direction: column; gap: var(--sd-space-1); }
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--foreground);
+  font: 500 var(--sd-text-label)/1 var(--font-sans);
+  cursor: var(--cursor-interactive);
+}
+.cal-day:hover { background: var(--default); }
+.cal-day:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; z-index: 1; }
+.cal-day.outside { color: var(--muted); opacity: 0.5; }
+.cal-day.today { border-color: var(--accent); color: var(--accent-soft-foreground); font-weight: 700; }
+.cal-day.has-exam:not(.selected) .cal-day__num { color: var(--danger); font-weight: 700; }
+.cal-day.selected { background: var(--accent); border-color: transparent; color: var(--accent-foreground); font-weight: 700; }
+.cal-day.today.selected { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+.cal-day__marks { position: absolute; inset-inline: 0; bottom: 3px; display: flex; justify-content: center; gap: 3px; }
+.cal-mark, .cal-legend__mark { display: inline-block; width: 5px; height: 5px; flex: none; }
+.cal-mark--task, .cal-legend__mark--task { border-radius: 50%; background: var(--success); }
+.cal-mark--exam, .cal-legend__mark--exam { background: var(--danger); transform: rotate(45deg); }
+.cal-mark--vu, .cal-legend__mark--vu { background: var(--warning); }
+.cal-day.selected .cal-mark { background: var(--accent-foreground); }
+.cal-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sd-space-3); margin: 0; padding: 0; list-style: none; font-size: var(--sd-text-micro); color: var(--muted); }
+.cal-legend li { display: inline-flex; align-items: center; gap: var(--sd-space-1-5); }
+.calendar-panel .card__footer { justify-content: center; }
+.calendar-panel .cal-mode-toggle { inline-size: 100%; max-inline-size: 24rem; }

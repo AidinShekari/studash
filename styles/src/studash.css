@@ -1,0 +1,64 @@
+/* ===============================================================
+   StuDash stylesheet entry — built with the Tailwind v4 CLI into
+   styles/studash.css (run `npm run build:css`). The extension loads
+   only the built file; nothing here is fetched at runtime.
+
+   Cascade layers, lowest → highest priority:
+     theme, base          Tailwind + HeroUI theme/base (tokens, preflight)
+     base-restore         browser defaults the legacy CSS relied on
+     studash-theme        StuDash presets + density/radius overrides
+     components           HeroUI v3 component classes (.button, .card, …)
+     legacy               the original dashboard CSS, now token-based
+     studash              StuDash redesign layer (shared patterns, screens)
+     utilities            Tailwind utilities
+   =============================================================== */
+@layer theme, base, base-restore, studash-theme, components, legacy, studash, utilities;
+
+@import "tailwindcss";
+@import "tw-animate-css"; /* animation utilities used by HeroUI modal/popover CSS (same as @heroui/styles index) */
+
+/* HeroUI v3 — selective import (only what StuDash uses keeps the file small).
+   See https://heroui.com/docs/react/getting-started/theming#import-strategies */
+@import "@heroui/styles/base" layer(base);
+@import "@heroui/styles/themes/shared/theme.css" layer(theme);
+@import "@heroui/styles/themes/default/variables.css" layer(theme);
+@import "@heroui/styles/components/button.css" layer(components);
+@import "@heroui/styles/components/card.css" layer(components);
+@import "@heroui/styles/components/chip.css" layer(components);
+@import "@heroui/styles/components/input.css" layer(components);
+@import "@heroui/styles/components/label.css" layer(components);
+@import "@heroui/styles/components/alert.css" layer(components);
+@import "@heroui/styles/components/spinner.css" layer(components);
+@import "@heroui/styles/components/modal.css" layer(components);
+@import "@heroui/styles/components/close-button.css" layer(components);
+@import "@heroui/styles/components/field-error.css" layer(components);
+@import "@heroui/styles/components/description.css" layer(components);
+/* Used by the React island (islands/islands.js): Select + Persian DatePicker */
+@import "@heroui/styles/components/select.css" layer(components);
+@import "@heroui/styles/components/list-box.css" layer(components);
+@import "@heroui/styles/components/list-box-item.css" layer(components);
+@import "@heroui/styles/components/popover.css" layer(components);
+@import "@heroui/styles/components/date-picker.css" layer(components);
+@import "@heroui/styles/components/date-field.css" layer(components);
+@import "@heroui/styles/components/date-input-group.css" layer(components);
+@import "@heroui/styles/components/calendar.css" layer(components);
+@import "@heroui/styles/components/calendar-year-picker.css" layer(components);
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/variants";
+
+@import "./base-restore.css" layer(base-restore);
+@import "./themes.css" layer(studash-theme);
+@import "./legacy.css" layer(legacy);
+@import "./foundation.css" layer(studash);
+@import "./dashboard.css" layer(studash);
+@import "./appearance.css" layer(studash);
+@import "./popup.css" layer(studash);
+
+@source "../../newtab.html";
+@source "../../popup.html";
+@source "../../*.js";
+@source "../../islands/islands.js";
+
+@theme {
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+}

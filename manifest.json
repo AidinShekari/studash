@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "StuDash - Student Dashboard (Beta)",
+  "short_name": "StuDash",
+  "version": "1.0.0",
+  "description": "داشبورد جامع دانشجویی در تب جدید کروم: تقویم شمسی/میلادی، تسک روزانه، تایمر مطالعه، یادداشت سریع و سایت‌های پرکاربرد دانشگاه.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1C/kP6VAFlV9IufqwJXeLrRKSbXKQC6Z8K+Lhmhgb32mC0JSe4/C8Eb+Q9n0R+YoT/NVXYE8U2FKSvIUHoILS2jPRPBFqDh2/6KhkY4d7eqLIhQo/3+Ms1RxlFycfBRNJhedUgBefdeZZV/35v4MZyHE+X8soJviJxigtwmuWI2mEXxGN01RIAM5qxUnMVWLwwLg/UKu4TznIZ6eyDg/4UvlUpAGGLIyM+FEkp7vk0A0lbUpLjO4Oub88N6rK9QiA0rMrko+r76lIb2bbZTsEeMAmz5S5qPK2m/+oILnyVCckuUELcrWoffCoYUGYPEoeww8tSJ8pXQdR2MyjHapXQIDAQAB",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": [
+    "storage",
+    "identity",
+    "alarms",
+    "notifications",
+    "offscreen",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "https://vu.um.ac.ir/*",
+    "https://oauth.um.ac.ir/*",
+    "https://pooya.um.ac.ir/*",
+    "https://www.googleapis.com/*"
+  ],
+  "action": {
+    "default_title": "StuDash",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content_script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

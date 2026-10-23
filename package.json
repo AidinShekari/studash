@@ -1,0 +1,28 @@
+{
+  "name": "studash",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StuDash Chrome extension \u2014 build tooling (CSS + the small React island for HeroUI Select/DatePicker). The extension ships only built files.",
+  "scripts": {
+    "build:css": "tailwindcss -i styles/src/studash.css -o styles/studash.css --minify",
+    "watch:css": "tailwindcss -i styles/src/studash.css -o styles/studash.css --watch",
+    "test": "node --test tests/*.test.js",
+    "build": "npm run build:css && npm run build:islands",
+    "build:islands": "esbuild islands/src/index.jsx --bundle --minify --format=iife --target=chrome120 --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --legal-comments=linked --outfile=islands/islands.js",
+    "test:browser": "node tests/browser/run.mjs"
+  },
+  "devDependencies": {
+    "@heroui/react": "^3.2.6",
+    "@heroui/styles": "^3.2.6",
+    "@internationalized/date": "^3.12.4",
+    "@react-aria/ssr": "^3.10.1",
+    "@react-aria/utils": "^3.34.1",
+    "@tailwindcss/cli": "^4.3.3",
+    "esbuild": "^0.28.2",
+    "react": "^19.3.1",
+    "react-aria": "^3.53.1",
+    "react-aria-components": "^1.22.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.3"
+  }
+}
