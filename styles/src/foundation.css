@@ -21,6 +21,12 @@ body {
   line-height: var(--sd-leading-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "kern";
+}
+
+/* Numbers that update or line up (clock, dates, counters, countdowns): equal-width digits */
+.clock, .date-today, .stat-value, .sd-num, .vu-stat b, .pp-stats b, .cal-day__num, .vu-left, .countdown, time {
+  font-variant-numeric: tabular-nums;
 }
 
 ::selection {
@@ -33,7 +39,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   color: var(--foreground);
-  font-weight: 650;
+  font-weight: var(--sd-weight-heading);
   letter-spacing: 0;
   line-height: var(--sd-leading-heading);
   overflow-wrap: break-word; /* break only words that can't fit alone; never mid-word otherwise */
@@ -99,6 +105,18 @@ a { color: inherit; }
 .sd-icon--logout { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9'/%3E%3C/svg%3E"); }
 .sd-icon--eye { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E"); }
 .sd-icon--lock { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='11' x='3' y='11' rx='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E"); }
+.sd-icon--square { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='4'/%3E%3C/svg%3E"); }
+.sd-icon--sparkle { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z'/%3E%3Cpath d='M19 15v4M17 17h4'/%3E%3C/svg%3E"); }
+.sd-icon--chevron-down { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+.sd-icon--clock { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
+.sd-icon--tasks { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 6 2 2 4-4M3 14l2 2 4-4M13 6h8M13 14h8M13 20h8'/%3E%3C/svg%3E"); }
+.sd-icon--table { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2'/%3E%3Cpath d='M3 9h18M3 15h18M9 3v18'/%3E%3C/svg%3E"); }
+
+/* Reset button: brief "done" state (text swap, announced via #appearanceResetStatus) */
+.sd-reset-btn .sd-reset-btn__done { display: none; align-items: center; gap: var(--sd-icon-gap); color: var(--success); }
+.sd-reset-btn.is-done .sd-reset-btn__done { display: inline-flex; }
+.sd-reset-btn.is-done .sd-reset-btn__label,
+.sd-reset-btn.is-done > .sd-icon--rotate { display: none; }
 
 /* ---------- Card: official HeroUI .card / .card__header / __title / __description /
    __content / __footer (+ --default|secondary|tertiary|transparent). The official CSS
@@ -108,11 +126,10 @@ a { color: inherit; }
   min-width: 0;
   padding: var(--sd-card-padding);
   gap: var(--sd-card-gap);
-  border: 1px solid var(--border);
-  color: var(--surface-foreground);
+  color: var(--surface-foreground); /* border, radius, shadow: surfaces.css */
 }
 .sd-card > .card__header { gap: var(--sd-heading-gap); min-width: 0; }
-.sd-card .card__title { font-size: var(--sd-text-card-title); font-weight: 650; line-height: var(--sd-leading-heading); }
+.sd-card .card__title { font-size: var(--sd-text-card-title); font-weight: var(--sd-weight-title); line-height: var(--sd-leading-heading); }
 .sd-card .card__description { font-size: var(--sd-text-caption); line-height: 1.6; }
 .sd-card > .card__content { gap: var(--sd-stack-gap); min-width: 0; }
 .sd-card > .card__footer {
@@ -151,7 +168,7 @@ a { color: inherit; }
   align-items: center;
   gap: var(--sd-icon-gap);
   font-size: var(--sd-text-section);
-  font-weight: 650;
+  font-weight: var(--sd-weight-heading);
 }
 .sd-section-title .sd-icon { color: var(--accent-soft-foreground); }
 .sd-subtle { color: var(--muted); font-size: var(--sd-text-caption); line-height: 1.6; }
@@ -170,7 +187,7 @@ a { color: inherit; }
 /* Section headings inside cards, modals and the settings dialog */
 .settings-section-header h3, .pinned-header h2, .report-chart-wrap h3, .report-courses-section h3 {
   font-size: var(--sd-text-section);
-  font-weight: 650;
+  font-weight: var(--sd-weight-heading);
 }
 
 /* Settings: one section = header group + content, stacked with the shared gap.
@@ -255,7 +272,7 @@ a { color: inherit; }
 }
 
 /* Icon-only buttons */
-.dialog-close-btn, .nav-btn, .class-action-btn, .note-action-btn, .side-tool-btn, .quick-tools-trigger-btn,
+.dialog-close-btn, .nav-btn, .class-action-btn, .note-action-btn, .quick-tools-trigger-btn,
 .vu-sync-btn, .session-remove-btn, .hub-exam-delete-btn, .profile-edit-btn, .task-remove, .quick-tool-pin-btn {
   display: inline-grid;
   place-items: center;
@@ -274,7 +291,7 @@ a { color: inherit; }
   box-shadow: none;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
-:is(.dialog-close-btn, .nav-btn, .class-action-btn, .note-action-btn, .side-tool-btn, .quick-tools-trigger-btn,
+:is(.dialog-close-btn, .nav-btn, .class-action-btn, .note-action-btn, .quick-tools-trigger-btn,
     .vu-sync-btn, .session-remove-btn, .hub-exam-delete-btn, .profile-edit-btn, .task-remove, .quick-tool-pin-btn):hover {
   background: var(--default);
   color: var(--foreground);
@@ -496,6 +513,9 @@ dialog.sd-modal {
 /* The official .modal__dialog sets display:flex, which would override the browser's
    display:none for closed <dialog>s — keep closed dialogs hidden explicitly. */
 dialog.sd-modal:not([open]) { display: none; }
+/* It also sets position:relative, which the top layer computes as absolute — the modal
+   would then move with the page scroll. Modal dialogs stay pinned to the viewport. */
+dialog.sd-modal:modal { position: fixed; }
 dialog.sd-modal[open] { display: flex; flex-direction: column; animation: sd-dialog-in 0.18s ease-out; }
 dialog.sd-modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4px); }
 @keyframes sd-dialog-in {
@@ -536,7 +556,7 @@ dialog.sd-modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4
 }
 .sd-modal .onboard-header.sd-modal__header > :first-child,
 .sd-modal .feature-tour-header.sd-modal__header > :first-child { flex: none; }
-.sd-modal .modal__heading { font-size: var(--sd-text-modal-title); font-weight: 650; line-height: var(--sd-leading-heading); }
+.sd-modal .modal__heading { font-size: var(--sd-text-modal-title); font-weight: var(--sd-weight-title); line-height: var(--sd-leading-heading); }
 .sd-modal :is(.onboard-header, .feature-tour-header) .modal__heading { font-size: var(--sd-text-page); }
 .sd-modal .modal__heading:focus { outline: none; }
 /* Close button: vertically centred on the first line of the title, inside its own lane. */
@@ -594,7 +614,7 @@ dialog.sd-modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4
   padding: var(--sd-space-4) var(--sd-modal-padding);
   border-block-start: 1px solid var(--separator);
 }
-.sd-modal .sd-modal__footer :is(.primary-btn, [type="submit"]) { order: 2; }
+.sd-modal .sd-modal__footer :is(.primary-btn, [type="submit"], .button--primary-action) { order: 2; }
 @media (max-height: 560px), (max-width: 520px) {
   .sd-modal { --sd-modal-padding: var(--sd-space-4); }
   .sd-modal .sd-modal__header { padding-block: var(--sd-space-3); }
@@ -627,6 +647,10 @@ dialog.sd-modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4
 [data-tooltip]:is(:hover, :focus-visible)::after { opacity: 1; translate: 50% 0; transition-delay: 0.35s; }
 [dir="ltr"] [data-tooltip]:is(:hover, :focus-visible)::after { translate: -50% 0; }
 [data-tooltip-pos="bottom"]::after { bottom: auto; top: calc(100% + 8px); }
+/* Near the inline-end edge (e.g. popup header actions): grow inward instead of centring,
+   so the bubble never runs past the window edge. */
+[data-tooltip-align="end"]::after { inset-inline-start: auto; inset-inline-end: 0; translate: 0 4px; }
+[data-tooltip-align="end"]:is(:hover, :focus-visible)::after { translate: 0 0; }
 
 /* ---------- Empty / status text ---------- */
 .empty-hint {
@@ -658,10 +682,16 @@ dialog.sd-modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4
   pointer-events: none !important;
   clip-path: inset(50%) !important;
 }
-.sd-island { min-width: 0; inline-size: 100%; }
+.sd-island { min-width: 0; inline-size: 100%; contain: layout; } /* React Aria's visually-hidden native control is position:fixed; keep it inside the island so it never widens the page in RTL */
 .sd-island .select__trigger,
 .sd-island .date-input-group { min-height: var(--sd-control-height); font-size: 13px; }
 .sd-field--inline .sd-island { inline-size: auto; min-inline-size: 11rem; }
 
 /* Select trigger shows one line; long option labels truncate (full text is in the listbox) */
 .select__value { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ---------- Choice modal (SDUI.choose) ---------- */
+.sd-choice .sd-choice__message { margin: 0; white-space: pre-line; color: var(--foreground); font-size: var(--sd-text-body); line-height: var(--sd-leading-body); }
+.sd-choice .sd-choice__check { display: flex; align-items: center; gap: var(--sd-space-2); font-size: var(--sd-text-label); color: var(--muted); cursor: var(--cursor-interactive); }
+.sd-choice .sd-choice__check input { inline-size: 1rem; block-size: 1rem; flex: none; }
+.sd-choice .sd-choice__actions { flex-wrap: wrap; }

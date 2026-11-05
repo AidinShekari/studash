@@ -11,7 +11,9 @@ const vuState = {
   filter: "upcoming", // "upcoming" | "submitted" | "overdue" | "all"
   course: "",
   syncing: false,
+  page: 1,
 };
+const VU_PAGE_SIZE = 5;
 
 const VU_AUTO_SYNC_AGE = 15 * 60 * 1000;
 
@@ -136,6 +138,45 @@ function vuEl(tag, className, text) {
   return el;
 }
 
+// One VU item as a compact row: [course dot] title / course · deadline [badge] [calendar]
+function vuBuildListRow(item, now = Date.now()) {
+  const info = vuStatusInfo(item);
+  const li = vuEl("li", `vu-item vu-item--${info.status}`);
+  li.style.setProperty("--course-color", vuCourseColor(item));
+
+  li.appendChild(vuEl("span", "vu-item__dot"));
+
+  const main = vuEl("div", "vu-item__main");
+  const link = vuEl("a", "vu-item__title", item.title);
+  link.href = item.url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.title = item.title;
+  const meta = vuEl("div", "vu-item__meta");
+  meta.append(vuEl("span", "vu-item__course", item.courseName || ""));
+  const due = vuEl("span", "vu-item__due", item.due ? vuFormatDue(item.due) : item.dueText || "بدون مهلت");
+  meta.append(due);
+  if (item.type === "quiz") meta.append(vuEl("span", "vu-item__type", "آزمون"));
+  main.append(link, meta);
+
+  const side = vuEl("div", "vu-item__side");
+  // One restrained badge: done / overdue / time left
+  if (info.status === "submitted" || info.status === "overdue") side.appendChild(vuStatusChip(info));
+  else side.appendChild(vuLeftChip(item, now));
+  const gcal = VU.googleCalendarUrl(item);
+  if (gcal && info.status !== "submitted" && item.due >= now) {
+    const a = vuEl("a", "vu-item__action", "📅");
+    a.href = gcal;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.title = "افزودن به Google Calendar";
+    a.setAttribute("aria-label", `افزودن «${item.title}» به Google Calendar`);
+    side.appendChild(a);
+  }
+  li.append(main, side);
+  return li;
+}
+
 function renderVuSection() {
   const section = document.getElementById("vuSection");
   if (!section) return;
@@ -166,10 +207,10 @@ function renderVuSection() {
   stats.innerHTML = "";
   for (const [label, count, color] of [
     ["در انتظار", pending.length, "accent"],
-    ["تا ۳ روز", urgent.length, urgent.length ? "danger" : "default"],
+    ["تا 3 روز", urgent.length, urgent.length ? "danger" : "default"],
     ["ارسال‌شده", submitted.length, "success"],
   ]) {
-    const chip = SDUI.chip(`${faDigits(count)} ${label}`, { color, size: "md" });
+    const chip = SDUI.chip(`${faDigits(count)} ${label}`, { color });
     chip.setAttribute("role", "listitem");
     stats.appendChild(chip);
   }
@@ -192,54 +233,51 @@ function renderVuSection() {
 
   SDUI.setSelected(document.querySelectorAll("#vuFilterChips .vu-chip"), (opt) => opt.dataset.filter === vuState.filter);
 
-  // Table
-  const tbody = document.getElementById("vuTableBody");
+  // Filter and sort the complete collection before selecting the current page.
+  const list = document.getElementById("vuTaskList");
   const empty = document.getElementById("vuTableEmpty");
-  tbody.innerHTML = "";
+  list.replaceChildren();
   const rows = vuFilteredItems();
+  const pageCount = Math.max(1, Math.ceil(rows.length / VU_PAGE_SIZE));
+  vuState.page = Math.max(1, Math.min(vuState.page, pageCount));
+  const offset = (vuState.page - 1) * VU_PAGE_SIZE;
 
-  for (const item of rows) {
+  for (const item of rows.slice(offset, offset + VU_PAGE_SIZE)) {
     const info = vuStatusInfo(item);
-    const left = VU.formatTimeLeft(item.due, now);
-    const tr = vuEl("tr", `vu-row vu-row-${info.status}`);
-    tr.style.setProperty("--course-color", vuCourseColor(item));
-
-    const tdCourse = vuEl("td", "vu-td-course");
-    tdCourse.append(vuEl("span", "vu-course-dot"), vuEl("span", "", item.courseName));
-
-    const tdTitle = vuEl("td", "vu-td-title");
-    const link = vuEl("a", "", item.title);
+    const row = vuEl("li", `vu-task-row vu-task-row--${info.status}`);
+    row.style.setProperty("--course-color", vuCourseColor(item));
+    const heading = vuEl("div", "vu-task-heading");
+    const link = vuEl("a", "vu-task-title");
+    const courseName = item.courseName || "درس نامشخص";
+    const course = vuEl("span", "vu-task-course", courseName);
+    course.title = courseName;
+    link.append(course, vuEl("span", "vu-task-name", item.title));
+    link.title = `${courseName} — ${item.title}`;
     link.href = item.url;
     link.target = "_blank";
     link.rel = "noopener";
-    tdTitle.appendChild(link);
+    heading.append(link, vuTypeChip(item));
 
-    const tdType = vuEl("td");
-    tdType.appendChild(vuTypeChip(item));
-
-    const tdDue = vuEl("td", "vu-td-due", vuFormatDue(item.due));
-    if (!item.due && item.dueText) tdDue.textContent = item.dueText;
-
-    const tdLeft = vuEl("td");
-    tdLeft.appendChild(vuLeftChip(item, now));
-
-    const tdStatus = vuEl("td");
-    tdStatus.appendChild(vuStatusChip(info));
-
-    const tdActions = vuEl("td", "vu-td-actions");
+    const due = vuEl("div", "vu-task-due", `مهلت: ${!item.due && item.dueText ? item.dueText : vuFormatDue(item.due)}`);
+    const footer = vuEl("div", "vu-task-footer");
+    footer.append(vuLeftChip(item, now), vuStatusChip(info));
     const gcal = VU.googleCalendarUrl(item);
     if (gcal && info.status !== "submitted" && item.due >= now) {
-      const a = vuEl("a", "vu-icon-link", "📅");
-      a.href = gcal;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.title = "افزودن به Google Calendar";
-      tdActions.appendChild(a);
+      const action = vuEl("a", "vu-calendar-link", "افزودن به تقویم");
+      action.href = gcal;
+      action.target = "_blank";
+      action.rel = "noopener";
+      action.setAttribute("aria-label", `افزودن ${item.title} به Google Calendar`);
+      footer.appendChild(action);
     }
-
-    tr.append(tdCourse, tdTitle, tdType, tdDue, tdLeft, tdStatus, tdActions);
-    tbody.appendChild(tr);
+    row.append(heading, due, footer);
+    list.appendChild(row);
   }
+
+  document.getElementById("vuPagination").hidden = rows.length <= VU_PAGE_SIZE;
+  document.getElementById("vuPrevPage").disabled = vuState.page === 1;
+  document.getElementById("vuNextPage").disabled = vuState.page === pageCount;
+  document.getElementById("vuPageSummary").textContent = `صفحه ${faDigits(vuState.page)} از ${faDigits(pageCount)} · ${faDigits(rows.length)} مورد`;
 
   const emptyText = {
     upcoming: "🎉 تکلیف یا آزمون پیش رویی نداری!",
@@ -270,15 +308,33 @@ function vuItemsDueOn(date) {
     .sort((a, b) => a.due - b.due);
 }
 
-function vuBuildScheduleDeadlines(dayIndex) {
+// End-of-day Moodle deadlines are list entries, so they do not widen the timetable.
+function vuIsMidnightDeadline(item) {
+  if (!item.due) return false;
+  const due = new Date(item.due);
+  return (due.getHours() === 0 && due.getMinutes() === 0)
+    || (due.getHours() === 23 && due.getMinutes() === 59);
+}
+
+function vuBuildScheduleDeadlines(dayIndex, range) {
   if (!vuIsConnected()) return null;
   const items = vuItemsDueOn(vuDateForScheduleDay(dayIndex));
   if (!items.length) return null;
 
   const wrap = vuEl("div", "vu-sched-deadlines");
+  const midnightList = vuEl("div", "vu-sched-night-list");
+  midnightList.setAttribute("role", "group");
+  midnightList.setAttribute("aria-label", "مهلت‌های نیمه‌شب");
   for (const item of items) {
     const info = vuStatusInfo(item);
     const chip = vuEl("a", `vu-sched-chip vu-sched-${info.status}`);
+    const midnight = vuIsMidnightDeadline(item);
+    if (!midnight) {
+      const due = new Date(item.due);
+      const start = due.getHours() + due.getMinutes() / 60;
+      const { startCol, endCol } = StudashSchedule.span({ start, end: Math.min(24, start + 1 / 60) }, range);
+      chip.style.gridColumn = `${startCol} / ${endCol}`;
+    }
     chip.href = item.url;
     chip.target = "_blank";
     chip.rel = "noopener";
@@ -291,7 +347,11 @@ function vuBuildScheduleDeadlines(dayIndex) {
       vuEl("span", "vu-sched-time", `مهلت ${vuTimeOfDay(item.due)}`)
     );
     chip.addEventListener("click", (e) => e.stopPropagation());
-    wrap.appendChild(chip);
+    (midnight ? midnightList : wrap).appendChild(chip);
+  }
+  if (midnightList.children.length) {
+    midnightList.prepend(vuEl("span", "vu-sched-night-label", "مهلت‌های نیمه‌شب"));
+    wrap.appendChild(midnightList);
   }
   return wrap;
 }
@@ -432,9 +492,63 @@ function renderWeekInfo() {
     document.getElementById("pooyaSettingsSub").textContent =
       t && t.importedAt ? `آخرین وارد کردن برنامه: ${VU.relativeTime(t.importedAt)}` : "";
   }
+  renderTodayStrip();
 }
 
 const pooyaMessage = (err) => VU.errorMessage(err).replace(/VU/g, "پویا");
+
+// ---------------------------------------------------------------
+// Today strip under the clock (class now / nearest deadline / week parity)
+// ---------------------------------------------------------------
+function renderTodayStrip() {
+  const set = (id, text) => {
+    const el = document.getElementById(id);
+    if (el && el.textContent !== text) el.textContent = text;
+  };
+  if (!document.getElementById("todayStrip")) return;
+
+  // Class: current, else next today, else a friendly state
+  let state = null;
+  try { state = getTodayClassState(); } catch (e) {}
+  const classCell = document.getElementById("todayCellClass");
+  if (!state || state.todayIdx === 6) {
+    set("todayClassValue", state ? "جمعه، تعطیل" : "—");
+    set("todayClassMeta", "");
+  } else if (state.current) {
+    set("todayClassValue", state.current.course.title);
+    set("todayClassMeta", `الان سر کلاسی · تا ${formatHourFraction(state.current.end)}`);
+  } else if (state.next) {
+    set("todayClassValue", state.next.course.title);
+    set("todayClassMeta", `کلاس بعدی · ساعت ${formatHourFraction(state.next.start)}`);
+  } else {
+    set("todayClassValue", "شما کلاس ندارید");
+    set("todayClassMeta", state.sessions.length ? "کلاس‌های امروز تمام شد" : "امروز کلاسی در برنامه نیست");
+  }
+  if (classCell) classCell.dataset.state = state && state.current ? "live" : "idle";
+
+  // Deadline: nearest unsubmitted VU item that is still open
+  const now = Date.now();
+  const next = vuItems()
+    .filter((it) => !it.submitted && it.due && it.due >= now)
+    .sort((a, b) => a.due - b.due)[0];
+  const dlCell = document.getElementById("todayCellDeadline");
+  if (next) {
+    set("todayDeadlineValue", next.title);
+    const left = VU.formatTimeLeft(next.due, now);
+    set("todayDeadlineMeta", next.courseName ? `${left.text} · ${next.courseName}` : left.text);
+    if (dlCell) dlCell.dataset.state = left.level === "urgent" || left.level === "soon" ? "urgent" : "idle";
+  } else {
+    set("todayDeadlineValue", vuIsConnected() ? "مهلت بازی نداری 🎉" : "VU وصل نیست");
+    set("todayDeadlineMeta", vuIsConnected() ? "همه چیز ارسال شده" : "از تنظیمات یا آیکون افزونه وصل شو");
+    if (dlCell) dlCell.dataset.state = "idle";
+  }
+
+  // Week parity from Pooya (even / odd)
+  const parity = scheduleParityForDay(0);
+  const isFriday = state && state.todayIdx === 6;
+  set("todayWeekValue", parity ? `هفته ${PARITY_LABEL[parity]}` : "نامشخص");
+  set("todayWeekMeta", parity ? (isFriday ? "برای هفته آینده" : "طبق تقویم پویا") : "برنامه را از پویا وارد کن");
+}
 
 function pooyaImportSummary(r) {
   let msg = `✅ برنامه کلاسی از پویا وارد شد: ${faDigits(r.courses)} درس (${faDigits(r.added)} جدید، ${faDigits(r.updated)} به‌روز).`;
@@ -449,16 +563,40 @@ async function vuReloadScheduleFromStorage() {
   try { updateFocusCourseSelectOptions(); } catch (e) {}
 }
 
+// Shared by the new tab: asks replace / merge / cancel when classes already exist.
+// Resolves to "replace" | "merge" | null (cancelled). No prompt when the schedule is empty.
+async function askPooyaImportMode() {
+  const { scheduleClasses: existing } = await chrome.storage.local.get("scheduleClasses");
+  const count = (existing || []).length;
+  if (!count) return "merge";
+  const { value } = await SDUI.choose({
+    title: "برنامه کلاسی فعلی را چه کنیم؟",
+    message: `الان ${faDigits(count)} درس در برنامه هفتگی‌ات هست.\n«جایگزینی» برنامه فعلی را با برنامه پویا عوض می‌کند تا درس تکراری نماند؛ «ادغام» درس‌های پویا را کنار درس‌های فعلی اضافه یا به‌روز می‌کند.`,
+    actions: [
+      { value: null, label: "انصراف", variant: "ghost" },
+      { value: "merge", label: "ادغام", variant: "secondary" },
+      { value: "replace", label: "جایگزینی", variant: "primary" },
+    ],
+  });
+  return value;
+}
+
 async function runPooyaImportHere(connectFn) {
   const btn = document.getElementById("pooyaImportBtn");
   const label = btn ? btn.textContent : "";
+
+  // If a schedule already exists, ask whether Pooya should replace it or merge into it.
+  const mode = await askPooyaImportMode();
+  if (!mode) return null;
+  const replaceExisting = mode === "replace";
+
   if (btn) {
     btn.disabled = true;
     btn.textContent = "⏳ در حال وارد کردن…";
   }
   try {
     if (connectFn) await connectFn();
-    const r = await Pooya.importSchedule();
+    const r = await Pooya.importSchedule({ replaceExisting });
     await loadVuState();
     await vuReloadScheduleFromStorage();
     renderWeekInfo();
@@ -512,7 +650,8 @@ function initPooyaUI() {
     try {
       const u = document.getElementById("pooyaDialogUsername").value;
       const pw = document.getElementById("pooyaDialogPassword").value;
-      await runPooyaImportHere(() => Pooya.connect(u, pw));
+      const r = await runPooyaImportHere(() => Pooya.connect(u, pw));
+      if (!r) return; // cancelled the replace/merge choice: keep the login dialog open
       document.getElementById("pooyaDialogPassword").value = "";
       dialog.close();
     } catch (err) {
@@ -524,8 +663,8 @@ function initPooyaUI() {
   document.getElementById("pooyaDialogUseVuBtn").addEventListener("click", async () => {
     busy(true);
     try {
-      await runPooyaImportHere(() => Pooya.connect(vuState.creds.username, vuState.creds.password));
-      dialog.close();
+      const r = await runPooyaImportHere(() => Pooya.connect(vuState.creds.username, vuState.creds.password));
+      if (r) dialog.close();
     } catch (err) {
       showDialogError(err);
     } finally {
@@ -616,16 +755,18 @@ async function updateVuSettingsUI() {
 
 function vuRefreshAll() {
   renderVuSection();
+  renderTodayStrip();
   updateVuSettingsUI();
   try { renderScheduleTable(); } catch (e) {} // also re-renders the sidebar
   try { renderCalendar(); } catch (e) {}
 }
 
-async function initVuDashboard() {
+function initVuListControls() {
   // Filters
   document.querySelectorAll("#vuFilterChips .vu-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       vuState.filter = chip.dataset.filter;
+      vuState.page = 1;
       try { localStorage.setItem("vuFilter", vuState.filter); } catch (e) {}
       renderVuSection();
     });
@@ -633,9 +774,23 @@ async function initVuDashboard() {
   try { vuState.filter = localStorage.getItem("vuFilter") || "upcoming"; } catch (e) {}
   document.getElementById("vuCourseFilter").addEventListener("change", (e) => {
     vuState.course = e.target.value;
+    vuState.page = 1;
     renderVuSection();
   });
 
+  document.getElementById("vuPrevPage").addEventListener("click", () => {
+    vuState.page = Math.max(1, vuState.page - 1);
+    renderVuSection();
+  });
+  document.getElementById("vuNextPage").addEventListener("click", () => {
+    vuState.page += 1;
+    renderVuSection();
+  });
+
+}
+
+async function initVuDashboard() {
+  initVuListControls();
   document.getElementById("vuSyncBtn").addEventListener("click", () => vuSyncNow());
   document.getElementById("vuConnectBtn").addEventListener("click", openVuLoginDialog);
 
@@ -677,7 +832,16 @@ async function initVuDashboard() {
   // Settings
   document.getElementById("vuSettingsActionBtn").addEventListener("click", async () => {
     if (vuIsConnected()) {
-      if (!confirm("اتصال VU قطع شود؟ نام کاربری، رمز و اطلاعات ذخیره‌شده پاک می‌شوند.")) return;
+      const { value } = await SDUI.choose({
+        title: "قطع اتصال VU",
+        message: "نام کاربری، رمز و اطلاعات ذخیره‌شدهٔ VU از این کامپیوتر پاک می‌شوند.",
+        tone: "danger",
+        actions: [
+          { value: null, label: "انصراف", variant: "ghost" },
+          { value: "ok", label: "قطع اتصال", variant: "danger" },
+        ],
+      });
+      if (value !== "ok") return;
       await VU.disconnect();
     } else {
       openVuLoginDialog();

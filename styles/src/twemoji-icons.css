@@ -1,0 +1,49 @@
+/* Twemoji is bundled locally; these symbols share the same artwork as text emoji. */
+.sd-icon, .twemoji-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 1.2em;
+  block-size: 1.2em;
+  vertical-align: -0.18em;
+  background: none;
+  mask: none;
+  -webkit-mask: none;
+  font-family: "Twemoji", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  text-indent: 0;
+}
+.sd-icon::before { content: var(--sd-emoji); }
+.google-app-icon-wrap .twemoji-icon, .pin-favicon .twemoji-icon { font-size: 30px; }
+.google-header-logo .twemoji-icon { font-size: 24px; }
+.profile-edit-btn, .settings-launch-btn, .quick-tools-trigger-btn { opacity: 0.85; }
+.sd-icon--sun { --sd-emoji: "☀️"; }
+.sd-icon--moon { --sd-emoji: "🌙"; }
+.sd-icon--monitor { --sd-emoji: "🖥️"; }
+.sd-icon--palette { --sd-emoji: "🎨"; }
+.sd-icon--refresh { --sd-emoji: "🔄"; }
+.sd-icon--rotate { --sd-emoji: "🔄"; }
+.sd-icon--book { --sd-emoji: "📘"; }
+.sd-icon--calendar { --sd-emoji: "📅"; }
+.sd-icon--download { --sd-emoji: "📥"; }
+.sd-icon--grad { --sd-emoji: "🎓"; }
+.sd-icon--check { --sd-emoji: "✅"; }
+.sd-icon--external { --sd-emoji: "↗️"; }
+.sd-icon--logout { --sd-emoji: "🚪"; }
+.sd-icon--eye { --sd-emoji: "👁️"; }
+.sd-icon--lock { --sd-emoji: "🔒"; }
+.sd-icon--square { --sd-emoji: "⬜"; }
+.sd-icon--sparkle { --sd-emoji: "✨"; }
+.sd-icon--chevron-down { --sd-emoji: "🔽"; }
+.sd-icon--clock { --sd-emoji: "🕒"; }
+.sd-icon--tasks { --sd-emoji: "📋"; }
+.sd-icon--table { --sd-emoji: "🗓️"; }
+
+.hub-link-favicon .twemoji-icon { font-size: 18px; }
+.dialog-close-btn .twemoji-icon { font-size: 12px; }
+.twemoji-icon.pp-spinner { animation: sd-twemoji-spin 1s linear infinite; }
+@keyframes sd-twemoji-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .twemoji-icon.pp-spinner { animation: none; } }

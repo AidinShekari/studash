@@ -3,9 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>StuDash</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preload" href="fonts/estedad/estedad-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="light dark" />
 <!-- Applies the saved appearance before first paint (no theme flash). -->
@@ -20,10 +18,10 @@
       <p>دانشگاه فردوسی · VU و پویا</p>
     </div>
     <div class="pp-header-actions">
-      <button type="button" id="themeCycleBtn" class="button button--ghost button--icon-only button--sm" data-tooltip="حالت نمایش" data-tooltip-pos="bottom" aria-label="تغییر حالت نمایش">
+      <button type="button" id="themeCycleBtn" class="button button--ghost button--icon-only button--sm" data-tooltip="حالت نمایش" data-tooltip-pos="bottom" data-tooltip-align="end" aria-label="تغییر حالت نمایش">
         <span class="sd-icon sd-icon--monitor" id="themeCycleIcon" aria-hidden="true"></span>
       </button>
-      <button type="button" id="openDashboardTopBtn" class="button button--ghost button--icon-only button--sm" data-tooltip="باز کردن داشبورد" data-tooltip-pos="bottom" aria-label="باز کردن داشبورد">
+      <button type="button" id="openDashboardTopBtn" class="button button--ghost button--icon-only button--sm" data-tooltip="باز کردن داشبورد" data-tooltip-pos="bottom" data-tooltip-align="end" aria-label="باز کردن داشبورد">
         <span class="sd-icon sd-icon--external" aria-hidden="true"></span>
       </button>
     </div>
@@ -53,7 +51,7 @@
       <p id="loginError" class="alert alert--danger pp-alert" role="alert" hidden></p>
       <button type="submit" id="loginBtn" class="button button--primary button--md button--full-width">
         <span class="pp-btn-label">اتصال به VU</span>
-        <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <span class="twemoji-icon spinner spinner--sm pp-spinner" hidden aria-hidden="true">🔄</span>
       </button>
     </form>
     <div id="existingSessionBox" class="pp-existing" hidden>
@@ -110,7 +108,7 @@
     <div id="pooyaConnectBox" class="pp-form">
       <button type="button" id="pooyaUseVuBtn" class="button button--primary button--md button--full-width" hidden>
         <span class="pp-btn-label">ورود به پویا با همین حساب و وارد کردن برنامه</span>
-        <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <span class="twemoji-icon spinner spinner--sm pp-spinner" hidden aria-hidden="true">🔄</span>
       </button>
       <form id="pooyaForm" class="pp-form" hidden>
         <div class="pp-field">
@@ -123,7 +121,7 @@
         </div>
         <button type="submit" id="pooyaLoginBtn" class="button button--primary button--md button--full-width">
           <span class="pp-btn-label">ورود و وارد کردن برنامه</span>
-          <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <span class="twemoji-icon spinner spinner--sm pp-spinner" hidden aria-hidden="true">🔄</span>
         </button>
       </form>
       <button type="button" id="pooyaOtherAccountBtn" class="button button--ghost button--sm pp-link" hidden>حساب یا رمز پویا متفاوت است</button>
@@ -133,7 +131,7 @@
       <button type="button" id="pooyaImportBtn" class="button button--secondary button--sm">
         <span class="sd-icon sd-icon--download" aria-hidden="true"></span>
         <span class="pp-btn-label">به‌روزرسانی برنامه</span>
-        <svg class="spinner spinner--sm spinner--current pp-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <span class="twemoji-icon spinner spinner--sm pp-spinner" hidden aria-hidden="true">🔄</span>
       </button>
       <button type="button" id="pooyaDisconnectBtn" class="button button--ghost button--sm pp-danger-link">قطع اتصال پویا</button>
     </div>

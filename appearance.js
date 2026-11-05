@@ -12,6 +12,8 @@
   const presetGroup = $("appearancePresets");
   const accentGroup = $("appearanceAccents");
   const densityGroup = $("appearanceDensity");
+  const scaleGroup = $("appearanceScale");
+  const surfaceGroup = $("appearanceSurface");
   const radiusGroup = $("appearanceRadius");
   if (!modeGroup || !presetGroup) return;
 
@@ -108,6 +110,8 @@
     for (const btn of group.querySelectorAll('[role="radio"]')) {
       const on = btn.dataset.value === value;
       btn.setAttribute("aria-checked", on ? "true" : "false");
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.classList.toggle("active", on);
       btn.tabIndex = on ? 0 : -1;
     }
   }
@@ -117,11 +121,12 @@
     syncGroup(presetGroup, a.preset);
     syncGroup(accentGroup, a.accent);
     syncGroup(densityGroup, a.density);
+    syncGroup(scaleGroup, a.scale);
+    syncGroup(surfaceGroup, a.surface);
     syncGroup(radiusGroup, a.radius);
     const accent = T.ACCENTS.find((x) => x.id === a.accent);
     $("appearanceAccentName").textContent = accent ? accent.name : "رنگ پیش‌فرض پوسته";
-    const isDefault = JSON.stringify(a) === JSON.stringify(T.DEFAULTS);
-    $("appearanceResetBtn").disabled = isDefault;
+    // Reset also restores the pinned clock shortcuts, so it stays available.
   }
 
   renderPresets();
@@ -130,9 +135,30 @@
   setupGroup(presetGroup, "preset");
   setupGroup(accentGroup, "accent");
   setupGroup(densityGroup, "density");
+  setupGroup(scaleGroup, "scale");
+  setupGroup(surfaceGroup, "surface");
   setupGroup(radiusGroup, "radius");
 
-  $("appearanceResetBtn").addEventListener("click", () => T.reset());
+  // Reset: appearance + pinned clock shortcuts, with a short confirmation
+  // shown on the button and announced to screen readers.
+  const resetBtn = $("appearanceResetBtn");
+  const resetStatus = $("appearanceResetStatus");
+  let resetTimer = 0;
+  resetBtn.addEventListener("click", async () => {
+    T.reset();
+    if (typeof window.resetPinnedTools === "function") {
+      try {
+        await window.resetPinnedTools();
+      } catch (e) {}
+    }
+    resetBtn.classList.add("is-done");
+    if (resetStatus) resetStatus.textContent = "تنظیمات ظاهر و میان‌برها به حالت پیش‌فرض برگشت.";
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => {
+      resetBtn.classList.remove("is-done");
+      if (resetStatus) resetStatus.textContent = "";
+    }, 1800);
+  });
 
   T.onChange(sync);
   sync(T.get());

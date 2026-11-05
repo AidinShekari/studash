@@ -95,7 +95,9 @@ function renderConnected(creds, data) {
 async function renderLogin() {
   connectedView.hidden = true;
   loginView.hidden = false;
-  $("vuUsername").focus();
+  try {
+    $("vuUsername")?.focus();
+  } catch (e) {}
 
   // Offer the session the browser already has, if any.
   try {
@@ -108,9 +110,14 @@ async function renderLogin() {
 }
 
 async function render() {
-  const creds = await VU.getCredentials();
-  if (!creds) return renderLogin();
-  renderConnected(creds, await VU.getData());
+  try {
+    const creds = await VU.getCredentials();
+    if (!creds) return renderLogin();
+    renderConnected(creds, await VU.getData());
+  } catch (err) {
+    console.error("Popup render error:", err);
+    renderLogin();
+  }
 }
 
 $("loginForm").addEventListener("submit", async (e) => {
@@ -188,7 +195,16 @@ $("openDashboardBtn").addEventListener("click", () => {
 });
 
 $("disconnectBtn").addEventListener("click", async () => {
-  if (!confirm("اتصال VU قطع شود؟ نام کاربری، رمز و اطلاعات ذخیره‌شده پاک می‌شوند.")) return;
+  const { value } = await SDUI.choose({
+    title: "قطع اتصال VU",
+    message: "نام کاربری، رمز و اطلاعات ذخیره‌شدهٔ VU از این کامپیوتر پاک می‌شوند.",
+    tone: "danger",
+    actions: [
+      { value: null, label: "انصراف", variant: "ghost" },
+      { value: "ok", label: "قطع اتصال", variant: "danger" },
+    ],
+  });
+  if (value !== "ok") return;
   await VU.disconnect();
   await render();
 });
@@ -206,53 +222,76 @@ function pooyaSetLoading(btn, loading) {
 }
 
 async function renderPooya() {
-  const data = await chrome.storage.local.get(["pooyaCredentials", "pooyaTerm", "weekParityRef", "vuCredentials", "scheduleClasses"]);
-  const connected = Boolean(data.pooyaCredentials);
-  $("pooyaConnectBox").hidden = connected;
-  $("pooyaConnectedBox").hidden = !connected;
+  try {
+    const data = await chrome.storage.local.get(["pooyaCredentials", "pooyaTerm", "weekParityRef", "vuCredentials", "scheduleClasses"]);
+    const connected = Boolean(data.pooyaCredentials);
+    $("pooyaConnectBox").hidden = connected;
+    $("pooyaConnectedBox").hidden = !connected;
 
-  const parity = Pooya.parityForDate(data.weekParityRef);
-  $("pooyaParityPill").hidden = !parity;
-  if (parity) $("pooyaParityPill").textContent = `این هفته: ${PARITY_LABEL[parity]}`;
+    const parity = Pooya.parityForDate(data.weekParityRef);
+    $("pooyaParityPill").hidden = !parity;
+    if (parity) $("pooyaParityPill").textContent = `این هفته: ${PARITY_LABEL[parity]}`;
 
-  if (connected) {
-    const t = data.pooyaTerm || {};
-    const count = (data.scheduleClasses || []).filter((c) => c.importedFrom === "pooya").length;
-    const term = t.semester ? `نیمسال ${t.semester} ${VU.faNum(t.year || "")}` : "برنامه وارد شده";
-    $("pooyaStatus").textContent = `${term} • ${VU.faNum(count)} درس • ${VU.relativeTime(t.importedAt)}`;
-    return;
-  }
+    if (connected) {
+      const t = data.pooyaTerm || {};
+      const count = (data.scheduleClasses || []).filter((c) => c.importedFrom === "pooya").length;
+      const term = t.semester ? `نیمسال ${t.semester} ${VU.faNum(t.year || "")}` : "برنامه وارد شده";
+      $("pooyaStatus").textContent = `${term} • ${VU.faNum(count)} درس • ${VU.relativeTime(t.importedAt)}`;
+      return;
+    }
 
-  const vu = data.vuCredentials;
-  const canReuseVu = Boolean(vu && vu.password);
-  if (pooyaMode === "vu" && !canReuseVu) pooyaMode = "form";
-  if (pooyaMode === "form" && !$("pooyaUsername").value && vu && vu.username) $("pooyaUsername").value = vu.username;
+    const vu = data.vuCredentials;
+    const canReuseVu = Boolean(vu && vu.password);
+    if (pooyaMode === "vu" && !canReuseVu) pooyaMode = "form";
+    if (pooyaMode === "form" && !$("pooyaUsername").value && vu && vu.username) $("pooyaUsername").value = vu.username;
 
-  $("pooyaUseVuBtn").hidden = pooyaMode === "form";
-  $("pooyaForm").hidden = pooyaMode !== "form";
-  $("pooyaOtherAccountBtn").hidden = pooyaMode === "form";
+    $("pooyaUseVuBtn").hidden = pooyaMode === "form";
+    $("pooyaForm").hidden = pooyaMode !== "form";
+    $("pooyaOtherAccountBtn").hidden = pooyaMode === "form";
 
-  // A Pooya session that the browser already has can be used without a password.
-  if (pooyaMode === "form" || !canReuseVu) {
-    try {
-      if (await Pooya.checkSession()) {
-        pooyaMode = "session";
-        $("pooyaUseVuBtn").hidden = false;
-        $("pooyaUseVuBtn").querySelector(".pp-btn-label").textContent = "وارد کردن برنامه از ورود فعلی پویا";
-        $("pooyaForm").hidden = true;
-        $("pooyaOtherAccountBtn").hidden = false;
-      }
-    } catch (e) {}
+    // A Pooya session that the browser already has can be used without a password.
+    if (pooyaMode === "form" || !canReuseVu) {
+      try {
+        if (await Pooya.checkSession()) {
+          pooyaMode = "session";
+          $("pooyaUseVuBtn").hidden = false;
+          $("pooyaUseVuBtn").querySelector(".pp-btn-label").textContent = "وارد کردن برنامه از ورود فعلی پویا";
+          $("pooyaForm").hidden = true;
+          $("pooyaOtherAccountBtn").hidden = false;
+        }
+      } catch (e) {}
+    }
+  } catch (err) {
+    console.error("renderPooya error:", err);
   }
 }
 
 async function runPooyaImport(btn, connectFn) {
   showError($("pooyaError"), "");
   $("pooyaSuccess").hidden = true;
+
+  // Existing schedule: ask whether Pooya replaces it or merges into it.
+  let replaceExisting = false;
+  const { scheduleClasses: existing } = await chrome.storage.local.get("scheduleClasses");
+  const existingCount = (existing || []).length;
+  if (existingCount > 0) {
+    const { value } = await SDUI.choose({
+      title: "برنامه کلاسی فعلی را چه کنیم؟",
+      message: `الان ${VU.faNum(existingCount)} درس در برنامه هفتگی‌ات هست.\n«جایگزینی» برنامه فعلی را با برنامه پویا عوض می‌کند؛ «ادغام» درس‌های پویا را کنار درس‌های فعلی اضافه یا به‌روز می‌کند.`,
+      actions: [
+        { value: null, label: "انصراف", variant: "ghost" },
+        { value: "merge", label: "ادغام", variant: "secondary" },
+        { value: "replace", label: "جایگزینی", variant: "primary" },
+      ],
+    });
+    if (!value) return;
+    replaceExisting = value === "replace";
+  }
+
   pooyaSetLoading(btn, true);
   try {
     if (connectFn) await connectFn();
-    const r = await Pooya.importSchedule();
+    const r = await Pooya.importSchedule({ replaceExisting });
     const parts = [`${VU.faNum(r.courses)} درس وارد شد`];
     if (r.added || r.updated) parts.push(`(${VU.faNum(r.added)} جدید، ${VU.faNum(r.updated)} به‌روز)`);
     if (r.parity) parts.push(`• این هفته ${PARITY_LABEL[r.parity]} است`);
@@ -293,8 +332,19 @@ $("pooyaOtherAccountBtn").addEventListener("click", () => {
 $("pooyaImportBtn").addEventListener("click", () => runPooyaImport($("pooyaImportBtn")));
 
 $("pooyaDisconnectBtn").addEventListener("click", async () => {
-  if (!confirm("اتصال پویا قطع شود؟ برنامه کلاسی واردشده باقی می‌ماند.")) return;
+  const { value, checked } = await SDUI.choose({
+    title: "قطع اتصال پویا",
+    message: "اطلاعات ورود پویا از این کامپیوتر پاک می‌شود.",
+    tone: "danger",
+    checkbox: { label: "درس‌هایی که از پویا وارد شده‌اند هم از برنامه هفتگی حذف شوند", checked: false },
+    actions: [
+      { value: null, label: "انصراف", variant: "ghost" },
+      { value: "ok", label: "قطع اتصال", variant: "danger" },
+    ],
+  });
+  if (value !== "ok") return;
   await Pooya.disconnect();
+  if (checked) await Pooya.removeImportedClasses();
   pooyaMode = "vu";
   renderPooya();
 });

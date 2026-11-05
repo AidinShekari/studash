@@ -1,0 +1,30 @@
+/* Compact month picker, inspired by Google Calendar's mini calendar. */
+.page .calendar-panel .calendar-header { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; }
+.page .calendar-panel .month-label-wrap { flex: 1; min-width: 0; align-items: flex-start; text-align: start; gap: 2px; }
+.page .calendar-panel .month-label { font-size: 14px; line-height: 1.7; }
+.page .calendar-panel .month-sublabel { width: 100%; font-size: 10px; line-height: 1.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-navigation { display: flex; align-items: center; gap: 2px; flex: none; }
+.page .calendar-panel .nav-btn { inline-size: 28px; block-size: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; font-size: 11px; }
+.page .calendar-panel .nav-btn:hover { background: var(--surface-tertiary); }
+.cal-today-btn { min-height: 28px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 8px; color: var(--foreground); background: transparent; font: 500 11px/1.5 var(--font-sans); cursor: pointer; }
+.cal-today-btn:hover { background: var(--surface-secondary); }
+.cal-today-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.page .calendar-panel .sd-calendar { max-inline-size: 22rem; gap: 4px; }
+.page .calendar-panel :is(.weekdays, .cal-row) { gap: 2px; }
+.page .calendar-panel .calendar-grid { gap: 2px; }
+.page .calendar-panel .weekdays span { padding-block: 4px; font-size: 10px; font-weight: 500; }
+.page .calendar-panel .cal-day { aspect-ratio: auto; block-size: 34px; min-block-size: 34px; border: 0; border-radius: 50%; background: transparent; box-shadow: none; font-size: 12px; }
+.page .calendar-panel .cal-day__num { display: grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: 50%; font-variant-numeric: tabular-nums; line-height: 1; direction: ltr; }
+.page .calendar-panel .cal-day:hover .cal-day__num { background: var(--surface-tertiary); }
+.page .calendar-panel .cal-day.outside { opacity: 0.4; }
+.page .calendar-panel .cal-day.selected .cal-day__num { background: var(--accent-soft); color: var(--accent-soft-foreground); font-weight: 700; }
+.page .calendar-panel .cal-day.today .cal-day__num { background: var(--accent); color: var(--accent-foreground); font-weight: 700; }
+.page .calendar-panel .cal-day.today.selected .cal-day__num { outline: 1px solid var(--accent); outline-offset: 2px; }
+.page .calendar-panel .cal-day__marks { bottom: 0; gap: 2px; }
+.page .calendar-panel .cal-day.selected .cal-mark { background: var(--accent); }
+.page .calendar-panel .cal-legend { gap: 10px; font-size: 10px; }
+.page .calendar-panel > .card__footer { padding-top: 10px; }
+.page .calendar-panel .cal-mode-toggle { max-inline-size: 100%; }
+.page .calendar-panel .cal-mode-btn { padding-block: 5px; min-height: 28px; font-size: 11px; }
+.page :is(.card__title, .class-title, .personal-event-title, .vu-task-title) { display: block; min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.page .sd-titlerow { min-width: 0; max-width: 100%; }

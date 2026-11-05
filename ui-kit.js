@@ -300,6 +300,95 @@
   };
 
   // ---------------------------------------------------------------
+  // Choice modal (replaces window.confirm with a HeroUI modal)
+  //   SDUI.choose({ title, message, actions: [{ value, label, variant }],
+  //                 checkbox: { label, checked } })
+  //   → Promise<{ value, checked }>  (value is null on Escape / close)
+  // The first action with variant "primary" gets initial focus.
+  // ---------------------------------------------------------------
+  SDUI.choose = function ({ title, message, actions = [], checkbox = null, tone = "default" } = {}) {
+    return new Promise((resolve) => {
+      const dialog = document.createElement("dialog");
+      dialog.className = `modal__dialog sd-modal sd-modal--sm sd-choice sd-choice--${tone}`;
+      const uid = `sd-choice-${Math.random().toString(36).slice(2, 8)}`;
+      dialog.setAttribute("aria-labelledby", `${uid}-title`);
+      dialog.setAttribute("aria-describedby", `${uid}-desc`);
+      dialog._sdEnhanced = true;
+
+      const header = document.createElement("header");
+      header.className = "modal__header sd-modal__header";
+      const h = document.createElement("h2");
+      h.className = "modal__heading";
+      h.id = `${uid}-title`;
+      h.textContent = title || "";
+      header.append(h);
+
+      const body = document.createElement("div");
+      body.className = "modal__body sd-modal__body";
+      const p = document.createElement("p");
+      p.id = `${uid}-desc`;
+      p.className = "sd-choice__message";
+      p.textContent = message || "";
+      body.append(p);
+      let box = null;
+      if (checkbox) {
+        const label = document.createElement("label");
+        label.className = "sd-choice__check";
+        box = document.createElement("input");
+        box.type = "checkbox";
+        box.className = "checkbox";
+        box.checked = Boolean(checkbox.checked);
+        const span = document.createElement("span");
+        span.textContent = checkbox.label;
+        label.append(box, span);
+        body.append(label);
+      }
+
+      const footer = document.createElement("div");
+      footer.className = "modal__footer sd-modal__footer sd-choice__actions";
+      let result = null;
+      let primary = null;
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        resolve({ value: result, checked: box ? box.checked : false });
+        setTimeout(() => dialog.remove(), 0);
+      };
+      for (const a of actions) {
+        const b = document.createElement("button");
+        b.type = "button";
+        const variant = a.variant || "secondary";
+        b.className = `button button--${variant === "danger" ? "danger" : variant} button--md`;
+        b.textContent = a.label;
+        b.addEventListener("click", () => {
+          result = a.value;
+          dialog.close();
+          finish(); // don't wait for the async "close" event
+        });
+        if (variant === "primary" || variant === "danger") {
+          b.classList.add("button--primary-action");
+          if (!primary) primary = b;
+        }
+        footer.append(b);
+      }
+
+      dialog.append(header, body, footer);
+      dialog.addEventListener("close", finish); // Escape / backdrop / external close
+      // Click on the backdrop = cancel
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog) {
+          dialog.close();
+          finish();
+        }
+      });
+      document.body.append(dialog);
+      dialog.showModal();
+      (primary || footer.querySelector("button") || h).focus({ preventScroll: true });
+    });
+  };
+
+  // ---------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------
   function boot() {

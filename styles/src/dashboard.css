@@ -12,20 +12,105 @@
 
 .vu-subtitle, .schedule-subtitle, .settings-section-header p, .settings-subtitle { color: var(--muted); }
 
-/* ---------- Clock + greeting ---------- */
+/* ---------- Clock + dates (Dastyar-style: heavy numerals, Shamsi date as the hero) ---------- */
 .clock {
-  font-weight: 300;
-  letter-spacing: -0.04em;
+  margin-top: var(--sd-space-1);
+  font-family: var(--font-sans);
+  font-size: calc(clamp(64px, 6.6vw, 92px) * var(--sd-scale));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
   color: var(--foreground);
+}
+.date-today {
+  margin-top: var(--sd-space-2);
+  font-size: calc(17px * var(--sd-scale));
+  font-weight: 700;
+  color: var(--accent-soft-foreground);
+}
+.date-today-secondary {
+  margin-top: var(--sd-space-1);
+  font-size: var(--sd-text-caption);
+  color: var(--muted);
+}
+.date-today-secondary span[dir="ltr"] { unicode-bidi: isolate; }
+
+/* The clock block (and its tools menu) stays above the side columns */
+.clock-block { position: relative; z-index: 5; }
+.quick-tools-menu {
+  background: var(--overlay);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-radius: calc(var(--sd-card-radius) * 0.8);
+  z-index: 60;
+}
+
+/* Small header icons (edit profile / settings / tools): one quiet style */
+.greeting-wrap .profile-edit-btn {
+  inline-size: 28px;
+  block-size: 28px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+.greeting-wrap .profile-edit-btn:is(:hover, :focus-visible, [aria-expanded="true"]) {
+  background: var(--default);
+  color: var(--accent-soft-foreground);
+}
+
+/* Clock-side tools: outlined pills with an accent icon */
+.clock-wing { inline-size: calc(120px * var(--sd-scale)); gap: var(--sd-space-1-5); }
+.side-tool-btn {
+  gap: var(--sd-space-1-5);
+  min-block-size: calc(30px * var(--sd-scale));
+  padding: 0 var(--sd-space-3);
+  border: 1px solid var(--sd-card-border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: var(--sd-text-micro);
+  font-weight: 600;
+  box-shadow: var(--sd-card-shadow);
+}
+.side-tool-btn > :is(svg, .focus-btn-flame) { color: var(--accent-soft-foreground); flex: none; }
+.side-tool-btn:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--foreground); transform: translateY(-1px); }
+.side-tool-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.side-tool-badge { margin-inline-start: auto; }
+
+/* ---------- Today strip: one card, hairline-divided cells ---------- */
+.sd-today {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  inline-size: 100%;
+  max-inline-size: 640px;
+  margin: var(--sd-space-5, calc(var(--spacing) * 5)) auto 0;
+  padding-block: var(--sd-space-3);
+  background: var(--surface);
+}
+.sd-today__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-inline: var(--sd-space-4);
+}
+.sd-today__cell + .sd-today__cell { border-inline-start: 1px solid var(--separator); }
+.sd-today__label { display: inline-flex; align-items: center; gap: var(--sd-icon-gap); font-size: var(--sd-text-micro); font-weight: 600; color: var(--muted); }
+.sd-today__label .sd-icon { color: var(--accent-soft-foreground); }
+.sd-today__value { font-size: var(--sd-text-body); font-weight: 800; color: var(--foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-today__meta { font-size: var(--sd-text-micro); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-today__meta:empty { display: none; }
+.sd-today__cell[data-state="live"] .sd-today__value { color: var(--success); }
+.sd-today__cell[data-state="urgent"] .sd-today__meta { color: var(--danger); font-weight: 600; }
+@media (max-width: 640px) {
+  .sd-today { grid-template-columns: 1fr; padding-block: 0; }
+  .sd-today__cell { padding-block: var(--sd-space-3); }
+  .sd-today__cell + .sd-today__cell { border-inline-start: 0; border-block-start: 1px solid var(--separator); }
 }
 
 /* ---------- Search: one field, focus ring on the container ---------- */
 .search-form {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: calc(var(--radius) * 2.5);
-  padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 4.5);
-  box-shadow: var(--surface-shadow);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 5);
 }
 .search-form:focus-within {
   border-color: var(--accent);
@@ -40,23 +125,34 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  font-size: 15px;
+  font-size: var(--sd-text-body);
 }
 
-/* ---------- Pinned site tiles ---------- */
+/* ---------- Pinned sites: centred grid of app-icon tiles ---------- */
+.pinned-section { inline-size: 100%; max-inline-size: calc(720px * var(--sd-scale)); margin-inline: auto; }
+.pinned-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* a short last row stays centred */
+  gap: var(--sd-space-3);
+}
 .pin-tile {
+  inline-size: calc(104px * var(--sd-scale));
+  flex: none;
+  gap: var(--sd-space-2);
+  padding: var(--sd-space-4) var(--sd-space-2) var(--sd-space-3);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: calc(var(--radius) * 1.75);
-  box-shadow: var(--surface-shadow);
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: box-shadow 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
-.pin-tile:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-secondary);
-  transform: translateY(-1px);
-  box-shadow: var(--surface-shadow);
+.pin-tile:hover { transform: translateY(-2px); }
+.pin-tile .pin-favicon {
+  inline-size: calc(44px * var(--sd-scale));
+  block-size: calc(44px * var(--sd-scale));
+  padding: 8px;
+  border-radius: calc(var(--sd-card-radius) * 0.55);
+  background: var(--surface-secondary);
 }
+.pin-tile .pin-title { font-size: var(--sd-text-caption); font-weight: 600; color: var(--foreground); }
 
 /* ---------- Sidebar task list ---------- */
 .sidebar-course-task-item, .task-item, .gcal-event, .sidebar-day-exam-card {
@@ -66,14 +162,9 @@
 
 /* ---------- Weekly schedule ---------- */
 .schedule-grid-container { border-radius: calc(var(--radius) * 1.5); }
-.class-card {
-  border-radius: var(--radius);
-  box-shadow: none;
-}
+
 
 /* ---------- VU homework table ---------- */
-.vu-table th { color: var(--muted); font-weight: 600; }
-.vu-table tbody tr:hover { background: var(--surface-secondary); }
 .vu-connect-empty { border-radius: calc(var(--radius) * 1.75); background: var(--surface-secondary); }
 
 
@@ -128,3 +219,123 @@
 .cal-legend li { display: inline-flex; align-items: center; gap: var(--sd-space-1-5); }
 .calendar-panel .card__footer { justify-content: center; }
 .calendar-panel .cal-mode-toggle { inline-size: 100%; max-inline-size: 24rem; }
+
+/* Feature tour: the highlighted "new" card */
+.tour-card--featured { border-color: var(--accent); background: var(--accent-soft); }
+.tour-card--featured strong { display: inline-flex; align-items: center; gap: var(--sd-space-2); flex-wrap: wrap; }
+
+/* Notes: row actions read as small text buttons */
+.note-action-btn {
+  inline-size: auto;
+  padding-inline: var(--sd-space-3);
+  border: 1px solid var(--sd-card-border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: var(--sd-text-micro);
+  font-weight: 600;
+}
+.note-action-btn:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--foreground); }
+.note-action-btn.delete { color: var(--danger); }
+.note-action-btn.delete:hover { border-color: var(--danger); background: var(--danger-soft); color: var(--danger); }
+
+/* ---------- Task-style rows: Today's Tasks and VU share one row language ---------- */
+.task-item, .vu-item {
+  border-radius: calc(var(--sd-card-radius) * 0.5);
+  background: var(--surface-secondary);
+  transition: background-color 0.15s ease;
+}
+.task-item:hover, .vu-item:hover { background: var(--surface-tertiary); }
+
+.vu-section .card__content { gap: var(--sd-space-3); }
+.vu-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sd-space-2); }
+.vu-stats { display: flex; flex-wrap: wrap; gap: var(--sd-space-1); }
+
+.vu-list { display: flex; flex-direction: column; gap: var(--sd-space-1-5); margin: 0; padding: 0; list-style: none; }
+.vu-item {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2.5);
+  min-width: 0;
+  padding: var(--sd-space-2) var(--sd-space-3);
+}
+.vu-item__dot { inline-size: 8px; block-size: 8px; flex: none; border-radius: 50%; background: var(--course-color, var(--accent)); }
+.vu-item__main { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.vu-item__title {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: var(--sd-text-body);
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vu-item__title:hover { color: var(--accent-soft-foreground); text-decoration: underline; text-underline-offset: 3px; }
+.vu-item__title:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.vu-item__meta { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--sd-space-1-5); min-width: 0; color: var(--muted); font-size: var(--sd-text-micro); line-height: 1.6; }
+.vu-item__meta > span + span::before { content: "·"; margin-inline-end: var(--sd-space-1-5); }
+.vu-item__course { overflow: hidden; max-inline-size: 14em; text-overflow: ellipsis; white-space: nowrap; }
+.vu-item__due { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vu-item__type { color: var(--accent-soft-foreground); font-weight: 600; }
+.vu-item__side { display: flex; align-items: center; gap: var(--sd-space-1); flex: none; }
+.vu-item__side .chip { font-size: var(--sd-text-micro); }
+.vu-item__action {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  opacity: 0.75;
+}
+.vu-item__action:hover { background: var(--default); opacity: 1; }
+.vu-item__action:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; opacity: 1; }
+.vu-item--submitted .vu-item__title { color: var(--muted); font-weight: 600; }
+.vu-item--overdue .vu-item__dot { box-shadow: 0 0 0 2px var(--danger-soft); }
+.vu-show-all { align-self: center; }
+
+/* VU header in the narrow column: heading row, then stats + sync on one line */
+.vu-section > .sd-card__header--split { flex-direction: column; align-items: stretch; gap: var(--sd-space-2); }
+.vu-section .vu-header-actions { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: var(--sd-space-2); }
+.vu-section .vu-header-actions[hidden] { display: none; }
+.vu-section .vu-sync-btn { inline-size: 30px; block-size: 30px; flex: none; }
+
+/* Compact app tiles: pinned tools stay one tap away without dominating the column */
+.pinned-grid { gap: var(--sd-space-2); }
+.pin-tile {
+  inline-size: calc(82px * var(--sd-scale));
+  gap: var(--sd-space-1-5);
+  padding: var(--sd-space-3) var(--sd-space-1) var(--sd-space-2);
+}
+.pin-tile .pin-favicon { inline-size: calc(36px * var(--sd-scale)); block-size: calc(36px * var(--sd-scale)); padding: 6px; }
+.pin-tile .pin-title { font-size: var(--sd-text-micro); }
+
+/* Weekly schedule: concise header, compact class cards, quiet separators */
+.schedule-grid-container { border-color: var(--separator); }
+.class-card .class-room { padding: 0 5px; font-size: var(--sd-text-micro); }
+.class-card .class-card-bottom { margin-top: 0; flex-wrap: wrap; row-gap: 0; }
+.class-card .class-units-tag { min-height: 0; padding-block: 0; font-size: 10.5px; }
+.sched-hour-sub { margin-top: 0; }
+
+/* Schedule header never forces the page wider than the screen */
+.schedule-header, .schedule-title-group { min-width: 0; max-inline-size: 100%; }
+.schedule-mode-toggle { max-inline-size: 100%; }
+@media (max-width: 640px) {
+  .schedule-mode-toggle { inline-size: 100%; }
+  .schedule-mode-toggle .sched-mode-btn { flex: 1 1 0; min-width: 0; white-space: normal; text-align: center; line-height: 1.35; padding-block: var(--sd-space-1); }
+}
+
+/* Phones: clock on its own line, the clock-side tools become one wrapping row of pills */
+@media (max-width: 600px) {
+  .clock-stage { flex-wrap: wrap; gap: var(--sd-space-2); }
+  .clock-core { order: -1; flex-basis: 100%; min-width: 0; }
+  .clock-wing { flex-direction: row; flex-wrap: wrap; justify-content: center; inline-size: auto; }
+  .clock-wing .side-tool-btn { inline-size: auto; }
+}
+@media (max-width: 480px) {
+  .vu-item { flex-wrap: wrap; row-gap: var(--sd-space-1); }
+  .vu-item__dot { align-self: flex-start; margin-block-start: 0.55em; }
+  .vu-item__main { flex-basis: calc(100% - 20px); }
+  .vu-item__side { flex-basis: 100%; padding-inline-start: 18px; }
+  .vu-item__course { max-inline-size: 100%; }
+}

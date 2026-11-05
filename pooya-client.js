@@ -273,11 +273,12 @@
   }
 
   // Full import: ensure session → read week parity → fetch schedule → merge into storage.
-  async function importSchedule() {
+  async function importSchedule(options = {}) {
     const session = await ensureSession();
     const schedule = await fetchSchedule();
     const data = await store.get(["scheduleClasses"]);
-    const { classes, added, updated } = mergeIntoClasses(data.scheduleClasses || [], schedule);
+    const existingClasses = options.replaceExisting ? [] : (data.scheduleClasses || []);
+    const { classes, added, updated } = mergeIntoClasses(existingClasses, schedule);
 
     const toSave = {
       scheduleClasses: classes,
@@ -313,6 +314,14 @@
     await store.remove([KEYS.credentials, KEYS.term]);
   }
 
+  // Removes only the classes that came from Pooya; hand-made classes stay.
+  async function removeImportedClasses() {
+    const data = await store.get(["scheduleClasses"]);
+    const kept = (data.scheduleClasses || []).filter((c) => c.importedFrom !== "pooya");
+    await store.set({ scheduleClasses: kept });
+    return kept.length;
+  }
+
   global.Pooya = {
     POOYA_ORIGIN,
     KEYS,
@@ -320,6 +329,7 @@
     connect,
     connectExistingSession,
     disconnect,
+    removeImportedClasses,
     getCredentials,
     importSchedule,
     parseSchedule,

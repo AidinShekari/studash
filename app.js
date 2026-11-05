@@ -24,7 +24,8 @@ const SHAMSI_MONTH_LABELS = [
 const WEEKDAY_LONG = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"];
 const WEEKDAY_LONG_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const faDigits = (str) => String(str).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+// Retain the shared formatter name; display all dashboard numbers with Latin digits.
+const faDigits = (str) => String(str).replace(/[۰-۹٠-٩]/g, (d) => String(d.charCodeAt(0) - (d <= "٩" ? 0x660 : 0x6f0)));
 
 // ---------------------------------------------------------------
 // Jalali (Shamsi) conversion — exact arithmetic in jalali.js (StudashDate).
@@ -69,18 +70,35 @@ function tickClock() {
   document.getElementById("clock").textContent = `${pad2(h)}:${pad2(m)}`;
   document.getElementById("greeting").textContent = greetingFor(h);
 
-  // Modern English Date (e.g. "Friday, September 4, 2026")
-  const weekdayNameEn = WEEKDAY_LONG_EN[now.getDay()];
-  const monthNameEn = MONTH_LABELS_EN[now.getMonth()];
+  // Shamsi date is the hero; Hijri + Gregorian share one muted line under it.
   const dateEl = document.getElementById("dateToday");
-  if (dateEl) {
-    dateEl.textContent = `${weekdayNameEn}, ${monthNameEn} ${now.getDate()}, ${now.getFullYear()}`;
-  }
+  if (dateEl) dateEl.textContent = faDigits(StudashDate.formatJalali(now));
 
   const secondaryEl = document.getElementById("dateTodaySecondary");
   if (secondaryEl) {
-    secondaryEl.textContent = "";
+    const gregorian = `${MONTH_LABELS_EN[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    let hijri = "";
+    try {
+      // formatToParts lets us drop the era ("ه‍.ق.") cleanly
+      hijri = new Intl.DateTimeFormat("fa-IR-u-ca-islamic-umalqura", { day: "numeric", month: "long", year: "numeric" })
+        .formatToParts(now)
+        .filter((p) => p.type !== "era")
+        .map((p) => p.value)
+        .join("")
+        .trim();
+    } catch (e) {}
+    secondaryEl.replaceChildren();
+    if (hijri) {
+      const h = document.createElement("span");
+      h.textContent = hijri;
+      secondaryEl.append(h, document.createTextNode(" · "));
+    }
+    const g = document.createElement("span");
+    g.dir = "ltr";
+    g.textContent = gregorian;
+    secondaryEl.append(g);
   }
+  if (typeof renderTodayStrip === "function") renderTodayStrip();
 
   const [a, b] = horizonColorsFor(h);
   document.documentElement.style.setProperty("--horizon-a", a);
@@ -162,112 +180,49 @@ function getCustomBrandIcon(site) {
   // 1. Pooya Portal (پرتال پویای دانشگاه فردوسی)
   if (url.includes("pooya.um.ac.ir") || title.includes("pooya") || title.includes("پویا")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="url(#pooyaGrad)" />
-        <path d="M18 9L7 15L18 21L29 15L18 9Z" fill="#FFFFFF" />
-        <path d="M10.5 18V23.5C10.5 26 13.5 28 18 28C22.5 28 25.5 26 25.5 23.5V18L18 22L10.5 18Z" fill="#E0F2FE" />
-        <path d="M29 15.5V23" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
-        <circle cx="29" cy="24" r="1.5" fill="#FFFFFF" />
-        <defs>
-          <linearGradient id="pooyaGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#0284C7"/>
-            <stop offset="1" stop-color="#0369A1"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">🎓</span>
     `;
   }
 
   // 2. VU Portal (سامانه آموزش مجازی و سه‌با)
   if (url.includes("vu.um.ac.ir") || title.includes("vu portal") || title.includes("سه‌با") || title.includes("مجازی")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="url(#vuGrad)" />
-        <rect x="7" y="8" width="22" height="16" rx="3" fill="#FFFFFF" />
-        <polygon points="15,12.5 22,16 15,19.5" fill="#4F46E5" />
-        <path d="M12 28H24M18 24V28" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" />
-        <defs>
-          <linearGradient id="vuGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6366F1"/>
-            <stop offset="1" stop-color="#4338CA"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">📋</span>
     `;
   }
 
   // 3. Webmail (ایمیل دانشگاهی فردوسی)
   if (url.includes("webmail.um.ac.ir") || title.includes("webmail") || title.includes("وب‌میل") || title.includes("ایمیل دانشگاه")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="url(#webmailGrad)" />
-        <rect x="7" y="9" width="22" height="18" rx="3" fill="#FFFFFF" />
-        <path d="M7 11L18 19L29 11" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-        <defs>
-          <linearGradient id="webmailGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#E11D48"/>
-            <stop offset="1" stop-color="#9F1239"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">✉️</span>
     `;
   }
 
   // 4. FUM Main Website (سایت اصلی دانشگاه فردوسی مشهد)
   if (url.includes("um.ac.ir") || title.includes("fum") || title.includes("فردوسی")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="url(#fumGrad)" />
-        <path d="M18 7L7 13H29L18 7Z" fill="#FBBF24" />
-        <rect x="9.5" y="14" width="3" height="11" rx="0.5" fill="#FFFFFF" />
-        <rect x="14.5" y="14" width="3" height="11" rx="0.5" fill="#FFFFFF" />
-        <rect x="19.5" y="14" width="3" height="11" rx="0.5" fill="#FFFFFF" />
-        <rect x="24.5" y="14" width="3" height="11" rx="0.5" fill="#FFFFFF" />
-        <rect x="7" y="25.5" width="22" height="3" rx="1" fill="#FBBF24" />
-        <defs>
-          <linearGradient id="fumGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#1E3A8A"/>
-            <stop offset="1" stop-color="#0F172A"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">🏫</span>
     `;
   }
 
   // 5. ChatGPT
   if (url.includes("chatgpt.com") || url.includes("openai.com") || title.includes("chatgpt")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="#10A37F" />
-        <path d="M26.2 14.8a4.4 4.4 0 0 0-.4-3.6 4.5 4.5 0 0 0-4.8-2.2 4.5 4.5 0 0 0-4.6-2 4.4 4.4 0 0 0-3 2.1 4.5 4.5 0 0 0 .5 5.2 4.4 4.4 0 0 0 .4 3.6 4.5 4.5 0 0 0 4.8 2.2 4.4 4.4 0 0 0 4.6 2 4.4 4.4 0 0 0 3-2.1 4.5 4.5 0 0 0-.5-5.2zm-6.6 9.3a3.3 3.3 0 0 1-2.1-.8l.1-.1 3.5-2a.6.6 0 0 0 .3-.5v-4.9l1.5.9a.1.1 0 0 1 0 0v4.1a3.3 3.3 0 0 1-3.3 3.3zm-6.5-2.7a3.3 3.3 0 0 1-.5-2.2v-.1l3.5 2a.6.6 0 0 0 .6 0l4.2-2.5v1.7a.1.1 0 0 1 0 .1l-3.6 2.1a3.3 3.3 0 0 1-4.2-1.1zm-1.8-6.6a3.3 3.3 0 0 1 1.6-1.5l-.1.1v4.1a.6.6 0 0 0 .3.5l4.2 2.5-1.5.9a.1.1 0 0 1-.1 0l-3.6-2.1a3.3 3.3 0 0 1-.9-4.5zm11.5-1.4l-4.2 2.5-1.5-.9a.1.1 0 0 1 0-.1l3.6-2.1a3.3 3.3 0 0 1 4.2 1.1 3.3 3.3 0 0 1 .5 2.2v.1l-3.5-2a.6.6 0 0 0-.6 0zm2.7 4.9a3.3 3.3 0 0 1-1.6 1.5l.1-.1v-4.1a.6.6 0 0 0-.3-.5l-4.2-2.5 1.5-.9a.1.1 0 0 1 .1 0l3.6 2.1a3.3 3.3 0 0 1 .9 4.5zm-8.4-.7l1.9-1.1 1.9 1.1v2.2l-1.9 1.1-1.9-1.1v-2.2z" fill="#FFFFFF"/>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">🤖</span>
     `;
   }
 
   // 6. Claude
   if (url.includes("claude.ai") || title.includes("claude")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="#D97706" />
-        <path d="M19.8 8.2l1.8 5.7 5.7-1.8-3.5 5 5 3.5-5.7-1.8 1.8 5.7-5-3.5-1.8 5.7-1.8-5.7-5 3.5 1.8-5.7-5.7 1.8 5-3.5-3.5-5 5.7 1.8-1.8-5.7 5 3.5z" fill="#FFFFFF"/>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">🧠</span>
     `;
   }
 
   // 7. Gemini
   if (url.includes("gemini.google.com") || title.includes("gemini")) {
     return `
-      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-        <rect width="36" height="36" rx="8" fill="#0F172A" />
-        <path d="M18 6C18 12.6 12.6 18 6 18C12.6 18 18 23.4 18 30C18 23.4 23.4 18 30 18C23.4 18 18 12.6 18 6Z" fill="url(#geminiBrandGrad)"/>
-        <defs>
-          <linearGradient id="geminiBrandGrad" x1="6" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#38BDF8"/>
-            <stop offset="0.5" stop-color="#818CF8"/>
-            <stop offset="1" stop-color="#F472B6"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      <span class="twemoji-icon" aria-hidden="true">✨</span>
     `;
   }
 
@@ -389,7 +344,7 @@ function renderPinned() {
     const removeBtn = document.createElement("button");
     removeBtn.className = "pin-remove";
     removeBtn.type = "button";
-    removeBtn.textContent = "×";
+    removeBtn.textContent = "❌";
     removeBtn.setAttribute("aria-label", `حذف ${site.title}`);
     removeBtn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -407,12 +362,7 @@ function renderPinned() {
       a.classList.add("google-suite-tile");
       a.title = "پکیج سرویس‌های گوگل (Google Apps Suite)";
       iconWrap.innerHTML = `
-        <svg width="28" height="28" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-        </svg>
+        <span class="twemoji-icon" aria-hidden="true">🧰</span>
       `;
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
@@ -425,10 +375,7 @@ function renderPinned() {
       a.classList.add("research-suite-tile");
       a.title = "پکیج مقالات و مراجع علمی (Research & Paper Hub)";
       iconWrap.innerHTML = `
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6fc8f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-        </svg>
+        <span class="twemoji-icon" aria-hidden="true">📚</span>
       `;
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
@@ -441,16 +388,7 @@ function renderPinned() {
       a.classList.add("ai-suite-tile");
       a.title = "پکیج ابزارهای هوش مصنوعی (AI Suite & Hub)";
       iconWrap.innerHTML = `
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#aiTileGrad)"/>
-          <defs>
-            <linearGradient id="aiTileGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#38BDF8"/>
-              <stop offset="0.5" stop-color="#818CF8"/>
-              <stop offset="1" stop-color="#C084FC"/>
-            </linearGradient>
-          </defs>
-        </svg>
+        <span class="twemoji-icon" aria-hidden="true">🤖</span>
       `;
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
@@ -464,14 +402,7 @@ function renderPinned() {
       if (customSvg) {
         iconWrap.innerHTML = customSvg;
       } else {
-        const img = document.createElement("img");
-        img.src = faviconFor(site.url);
-        img.alt = "";
-        img.loading = "lazy";
-        img.onerror = () => {
-          iconWrap.textContent = site.title.slice(0, 1).toUpperCase();
-        };
-        iconWrap.appendChild(img);
+        iconWrap.innerHTML = '<span class="twemoji-icon" aria-hidden="true">🔗</span>';
       }
     }
 
@@ -693,7 +624,12 @@ function renderCalendar() {
     const daysInPrevMonth = jalaliMonthDays(prevY, prevM);
 
     if (monthSubLabel) {
-      monthSubLabel.textContent = `${MONTH_LABELS_EN[firstOfMonthDate.getMonth()]} - ${MONTH_LABELS_EN[(firstOfMonthDate.getMonth() + 1) % 12]} ${firstOfMonthDate.getFullYear()}`;
+      const lastOfMonthDate = toGregorian(shamsiYear, shamsiMonth, daysInMonth);
+      const start = MONTH_LABELS_EN[firstOfMonthDate.getMonth()];
+      const end = MONTH_LABELS_EN[lastOfMonthDate.getMonth()];
+      monthSubLabel.textContent = firstOfMonthDate.getFullYear() === lastOfMonthDate.getFullYear()
+        ? `${start} – ${end} ${lastOfMonthDate.getFullYear()}`
+        : `${start} ${firstOfMonthDate.getFullYear()} – ${end} ${lastOfMonthDate.getFullYear()}`;
     }
 
     for (let i = 0; i < startOffset; i++) {
@@ -720,7 +656,7 @@ function renderCalendar() {
     if (nextM > 12) { nextM = 1; nextY++; }
     let nextDayNum = 1;
 
-    while (cells.length % 7 !== 0) {
+    while (cells.length < 42) {
       cells.push({
         date: toGregorian(nextY, nextM, nextDayNum),
         outside: true,
@@ -760,7 +696,7 @@ function renderCalendar() {
         displayNum: d,
       });
     }
-    while (cells.length % 7 !== 0) {
+    while (cells.length < 42) {
       const dayNum = cells.length - (startOffset + daysInMonth) + 1;
       cells.push({
         date: new Date(viewYear, viewMonth + 1, dayNum),
@@ -769,6 +705,9 @@ function renderCalendar() {
       });
     }
   }
+
+  monthLabel.title = monthLabel.textContent;
+  if (monthSubLabel) monthSubLabel.title = monthSubLabel.textContent;
 
   const allExams = getAllScheduledExams();
   const daysWithExams = new Set(allExams.map((e) => e.exam.date));
@@ -849,7 +788,7 @@ function calendarCellLabel(date, flags) {
   if (flags.exam) parts.push("دارای امتحان");
   if (flags.tasks) parts.push("دارای کار");
   if (flags.vu) parts.push("مهلت تکلیف VU");
-  return parts.join("، ");
+  return faDigits(parts.join("، "));
 }
 
 let calendarFocusIso = null;
@@ -949,6 +888,15 @@ async function loadTasksForMonth() {
   }
 }
 
+async function goToCalendarToday() {
+  const today = new Date();
+  showMonthOf(today);
+  await loadTasksForMonth();
+  await selectCalendarDate(today);
+}
+
+document.getElementById("calendarToday").addEventListener("click", goToCalendarToday);
+
 document.getElementById("prevMonth").addEventListener("click", async () => {
   if (calendarMode === "shamsi") {
     shamsiMonth--;
@@ -979,7 +927,6 @@ document.getElementById("nextMonth").addEventListener("click", async () => {
 // ---------------------------------------------------------------
 const tasksFilterBtns = document.querySelectorAll(".tasks-tab-btn");
 const badgeAllTasksCount = document.getElementById("badgeAllTasksCount");
-const badgeCourseTasksCount = document.getElementById("badgeCourseTasksCount");
 const badgeDailyTasksCount = document.getElementById("badgeDailyTasksCount");
 const badgeGcalCount = document.getElementById("badgeGcalCount");
 const badgeIdeasCount = document.getElementById("badgeIdeasCount");
@@ -988,10 +935,11 @@ const allTasksSelectedDateLabel = document.getElementById("allTasksSelectedDateL
 const allTasksUnifiedList = document.getElementById("allTasksUnifiedList");
 const allTasksUnifiedEmpty = document.getElementById("allTasksUnifiedEmpty");
 
-let currentTaskFilter = "all"; // "all" | "course" | "daily" | "gcal" | "ideas"
+let currentTaskFilter = "all"; // "all" | "daily" | "gcal" | "ideas"
 let cachedGcalEventsForSelectedDate = [];
 
 function setTaskFilter(filterName) {
+  filterName = filterName === "course" ? "all" : filterName;
   currentTaskFilter = filterName;
   SDUI.setSelected(tasksFilterBtns, (btn) => btn.dataset.filter === filterName);
   const activeTab = [...tasksFilterBtns].find((btn) => btn.dataset.filter === filterName);
@@ -1120,75 +1068,6 @@ async function renderAllTasksUnified() {
   tasksCache[key] = tasks;
   const undoneDaily = tasks.filter((t) => !t.done).length;
 
-  // 3. Fetch Course Assignments (Undone)
-  let totalUndoneCourseTasks = 0;
-  for (const rawCourse of scheduleClasses) {
-    const course = normalizeCourse(rawCourse);
-    for (const task of course.tasks || []) {
-      if (!task.done) totalUndoneCourseTasks++;
-    }
-  }
-
-  const allCourseTasks = [];
-  const isSelectedDateToday = sameDay(selectedDate, today);
-
-  for (const rawCourse of scheduleClasses) {
-    const course = normalizeCourse(rawCourse);
-    for (const task of course.tasks || []) {
-      if (!task.done) {
-        if (currentTaskFilter === "course") {
-          // Dedicated Assignments view: show all pending tasks across semester
-          allCourseTasks.push({
-            courseId: course.id,
-            courseTitle: course.title,
-            courseColor: course.color || "var(--accent)",
-            task,
-          });
-        } else {
-          // Unified Daily Agenda: only show tasks due on selectedDate
-          if (task.dueDate === selectedIso) {
-            allCourseTasks.push({
-              courseId: course.id,
-              courseTitle: course.title,
-              courseColor: course.color || "var(--accent)",
-              task,
-            });
-          } else if (isSelectedDateToday) {
-            if (!task.dueDate) {
-              allCourseTasks.push({
-                courseId: course.id,
-                courseTitle: course.title,
-                courseColor: course.color || "var(--accent)",
-                task,
-              });
-            } else {
-              const due = new Date(task.dueDate + "T00:00:00");
-              const nowDate = new Date();
-              nowDate.setHours(0, 0, 0, 0);
-              if (due < nowDate) {
-                // Overdue task reminder for today
-                allCourseTasks.push({
-                  courseId: course.id,
-                  courseTitle: course.title,
-                  courseColor: course.color || "var(--accent)",
-                  task,
-                });
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Sort course tasks by due date
-  allCourseTasks.sort((a, b) => {
-    if (a.task.dueDate && b.task.dueDate) return a.task.dueDate.localeCompare(b.task.dueDate);
-    if (a.task.dueDate) return -1;
-    if (b.task.dueDate) return 1;
-    return 0;
-  });
-
   // 4. Update Badge Counts
   const activeIdeas = ideaProjects.filter((p) => p.status === "active");
   const headerIdeasBadge = document.getElementById("headerIdeasBadge");
@@ -1196,18 +1075,16 @@ async function renderAllTasksUnified() {
   const menuIdeasBadge = document.getElementById("menuIdeasBadge");
   if (menuIdeasBadge) menuIdeasBadge.textContent = `${activeIdeas.length}/3`;
   if (badgeDailyTasksCount) badgeDailyTasksCount.textContent = faDigits(undoneDaily);
-  if (typeof vuPendingCount === "function") totalUndoneCourseTasks += vuPendingCount();
-  if (badgeCourseTasksCount) badgeCourseTasksCount.textContent = faDigits(totalUndoneCourseTasks);
   if (badgeGcalCount) badgeGcalCount.textContent = faDigits(cachedGcalEventsForSelectedDate.length);
   if (badgeAllTasksCount) {
-    badgeAllTasksCount.textContent = faDigits(undoneDaily + totalUndoneCourseTasks + dayExams.length + cachedGcalEventsForSelectedDate.length);
+    badgeAllTasksCount.textContent = faDigits(undoneDaily + dayExams.length + cachedGcalEventsForSelectedDate.length);
   }
 
   const fragment = document.createDocumentFragment();
   let visibleSectionsCount = 0;
 
   // Section: Scheduled Exams
-  if ((currentTaskFilter === "all" || currentTaskFilter === "course") && dayExams.length > 0) {
+  if (currentTaskFilter === "all" && dayExams.length > 0) {
     visibleSectionsCount++;
     const group = document.createElement("div");
     group.className = "unified-section-group";
@@ -1316,7 +1193,7 @@ async function renderAllTasksUnified() {
       const removeBtn = document.createElement("button");
       removeBtn.className = "task-remove";
       removeBtn.type = "button";
-      removeBtn.textContent = "×";
+      removeBtn.textContent = "❌";
       removeBtn.setAttribute("aria-label", "حذف کار");
       removeBtn.addEventListener("click", async () => {
         const idx = tasks.findIndex((t) => t.id === task.id);
@@ -1339,98 +1216,13 @@ async function renderAllTasksUnified() {
     fragment.appendChild(group);
   }
 
-  // Section: VU (vu.um.ac.ir) deadlines
-  if (typeof vuAppendSidebarSection === "function") {
-    visibleSectionsCount += vuAppendSidebarSection(fragment, currentTaskFilter, selectedDate);
-  }
-
-  // Section: Course Assignments
-  if ((currentTaskFilter === "all" || currentTaskFilter === "course") && allCourseTasks.length > 0) {
-    visibleSectionsCount++;
-    const group = document.createElement("div");
-    group.className = "unified-section-group";
-    group.innerHTML = `
-      <div class="unified-group-title">
-        <span>📚 تکالیف و پروژه‌های درسی</span>
-        <span class="unified-group-count">${faDigits(allCourseTasks.length)} انجام‌نشده</span>
-      </div>
-    `;
-    const ul = document.createElement("ul");
-    ul.className = "course-tasks-sidebar-list";
-
-    allCourseTasks.forEach(({ courseId, courseTitle, courseColor, task }) => {
-      const li = document.createElement("li");
-      li.className = "sidebar-course-task-item";
-      li.style.setProperty("--course-color", courseColor);
-
-      const topRow = document.createElement("div");
-      topRow.className = "sidebar-task-top";
-
-      // Interactive chip: a real button (keyboard + focus), styled with the official Chip classes.
-      const pill = document.createElement("button");
-      pill.type = "button";
-      pill.className = "chip chip--sm chip--default chip--soft sd-chip-button sidebar-course-pill";
-      pill.textContent = courseTitle;
-      pill.setAttribute("aria-label", `باز کردن دفترچه درس ${courseTitle}`);
-      pill.addEventListener("click", (e) => {
-        e.stopPropagation();
-        openCourseHub(courseId);
-      });
-      topRow.appendChild(pill);
-
-      const typeInfo = TASK_TYPE_LABELS[task.type] || TASK_TYPE_LABELS.assignment;
-      const typeBadge = typeChip(typeInfo.label);
-      topRow.appendChild(typeBadge);
-
-      const mainRow = document.createElement("div");
-      mainRow.className = "sidebar-task-main";
-
-      const chk = document.createElement("input");
-      chk.type = "checkbox";
-      chk.checked = false;
-      chk.addEventListener("change", async () => {
-        task.done = chk.checked;
-        await storageSet({ scheduleClasses });
-        renderScheduleTable();
-        await renderAllTasksUnified();
-      });
-
-      const titleSpan = document.createElement("span");
-      titleSpan.className = "sidebar-task-title";
-      titleSpan.textContent = task.title;
-
-      mainRow.appendChild(chk);
-      mainRow.appendChild(titleSpan);
-
-      const footerRow = document.createElement("div");
-      footerRow.className = "sidebar-task-footer";
-      if (task.dueDate) {
-        const dueInfo = formatDueDays(task.dueDate);
-        if (dueInfo) {
-          const dueBadge = dueChip(dueInfo);
-          footerRow.appendChild(dueBadge);
-        }
-      }
-
-      li.appendChild(topRow);
-      li.appendChild(mainRow);
-      if (task.dueDate) li.appendChild(footerRow);
-      ul.appendChild(li);
-    });
-
-    group.appendChild(ul);
-    fragment.appendChild(group);
-  }
-
   if (currentSeq !== renderAllTasksSeq) return;
   allTasksUnifiedList.innerHTML = "";
   allTasksUnifiedList.appendChild(fragment);
 
   if (allTasksUnifiedEmpty) {
     allTasksUnifiedEmpty.hidden = visibleSectionsCount > 0;
-    if (currentTaskFilter === "course") {
-      allTasksUnifiedEmpty.textContent = "🎉 هیچ تکلیف انجام‌نشده‌ای نداری!";
-    } else if (currentTaskFilter === "daily") {
+    if (currentTaskFilter === "daily") {
       allTasksUnifiedEmpty.textContent = "کاری برای این روز ثبت نشده.";
     } else if (currentTaskFilter === "gcal") {
       allTasksUnifiedEmpty.textContent = "هیچ رویدادی در تقویم گوگل برای این روز نیست.";
@@ -1729,8 +1521,8 @@ function normalizeCourseSessions(course) {
 function timeToHourFraction(timeStr) {
   if (!timeStr) return 8;
   const [h, m] = timeStr.split(":").map(Number);
-  // The timetable runs from 08:00 to 20:00; legacy records sometimes
-  // persisted noon as 00:00. Treat that value as 12:00 in this context.
+  // Legacy course records sometimes persisted noon as 00:00.
+  // Preserve that interpretation for classes; calendar events use literal midnight.
   const hour = isNaN(h) ? 8 : (h === 0 ? 12 : h);
   return hour + ((isNaN(m) ? 0 : m) / 60);
 }
@@ -1740,18 +1532,44 @@ function displayScheduleTime(timeStr, fallback = "08:00") {
   return raw === "00:00" ? "12:00" : raw;
 }
 
-function getGridSpanForClass(startTime, endTime) {
-  const startFrac = Math.max(8, Math.min(20, timeToHourFraction(startTime)));
-  let endFrac = Math.max(8, Math.min(20, timeToHourFraction(endTime)));
-  if (endFrac <= startFrac) endFrac = Math.min(20, startFrac + 1.5);
+function getGridSpanForClass(startTime, endTime, range, legacyNoon = true) {
+  return StudashSchedule.span(StudashSchedule.interval(startTime, endTime, legacyNoon), range);
+}
 
-  // 12 columns for 08:00 to 20:00. In CSS grid line numbers are 1..13
-  // Grid direction is RTL, so the natural column numbering already places
-  // earlier hours on the right and later hours on the left.
-  const startCol = Math.max(1, Math.min(12, Math.floor(startFrac - 8) + 1));
-  const endCol = Math.max(startCol + 1, Math.min(13, Math.ceil(endFrac - 8) + 1));
+function applyScheduleRange(container, range) {
+  container.style.setProperty("--schedule-columns", range?.columns || 1);
+  container.dataset.startHour = range ? range.start : "";
+  container.dataset.endHour = range ? range.end : "";
+}
 
-  return { startCol, endCol };
+function appendScheduleHours(header, range) {
+  if (!range) {
+    const label = document.createElement("div");
+    label.className = "sched-hour-header";
+    label.textContent = "برنامهٔ روز";
+    header.appendChild(label);
+    return;
+  }
+  for (let h = range.start; h < range.end; h++) {
+    const cell = document.createElement("div");
+    cell.className = "sched-hour-header";
+    const title = document.createElement("span");
+    title.textContent = `${pad2(h)}:00`;
+    const sub = document.createElement("span");
+    sub.className = "sched-hour-sub";
+    sub.textContent = `تا ${pad2(h + 1)}:00`;
+    cell.append(title, sub);
+    header.appendChild(cell);
+  }
+}
+
+function appendScheduleEmpty(container, count) {
+  if (count) return;
+  container.hidden = true;
+  const empty = document.createElement("p");
+  empty.className = "empty-hint";
+  empty.textContent = "این هفته برنامه‌ای برای نمایش نداری.";
+  scheduleGrid.appendChild(empty);
 }
 
 // ---------------------------------------------------------------
@@ -1836,13 +1654,16 @@ function updateTodayClassesSummary() {
   todayClassesSummary.textContent = `کلاس‌های امروز تمام شد ✅ (${faDigits(state.sessions.length)} جلسه)`;
 }
 
-// Live "you are here" line on today's row (08:00–20:00 grid).
+// Live "you are here" line on today's row, using the current week's time range.
 function updateNowMarker() {
   const row = scheduleGrid && scheduleGrid.querySelector(".schedule-day-row.today-row .sched-day-slots-container");
   if (!row) return;
   const state = getTodayClassState();
   let marker = row.querySelector(".now-marker");
-  if (state.nowFrac < 8 || state.nowFrac >= 20) {
+  const grid = row.closest(".schedule-grid-container");
+  const start = Number(grid?.dataset.startHour);
+  const end = Number(grid?.dataset.endHour);
+  if (!grid?.dataset.endHour || state.nowFrac < start || state.nowFrac >= end) {
     if (marker) marker.remove();
     return;
   }
@@ -1852,10 +1673,10 @@ function updateNowMarker() {
     marker.innerHTML = '<span class="now-marker-dot"></span><span class="now-marker-label"></span>';
     row.appendChild(marker);
   }
-  const frac = (state.nowFrac - 8) / 12;
+  const frac = (state.nowFrac - start) / (end - start);
   marker.style.insetInlineStart = `calc(6px + (100% - 12px) * ${frac.toFixed(4)})`;
   marker.classList.toggle("in-class", Boolean(state.current));
-  marker.classList.toggle("label-flip", frac > 0.8); // keep the label inside the grid near 20:00
+  marker.classList.toggle("label-flip", frac > 0.8); // keep the label inside the visible time range
   marker.querySelector(".now-marker-label").textContent = state.current
     ? `شما اینجا هستید · ${formatHourFraction(state.nowFrac)} · سر کلاس`
     : `شما اینجا هستید · ${formatHourFraction(state.nowFrac)} · کلاس ندارید`;
@@ -1886,10 +1707,25 @@ function renderUniversityScheduleTable() {
   if (scheduleEmpty) scheduleEmpty.hidden = true;
   updateTodayClassesSummary();
 
+  const visibleDays = new Set(SCHEDULE_DAYS.map(day => day.index));
+  const activeSessions = scheduleClasses.map(normalizeCourse).flatMap(course => normalizeCourseSessions(course)
+    .filter(session => visibleDays.has(session.day) && sessionMeetsOnDay(course, session, session.day))
+    .map(session => ({ course, session })));
+  const deadlines = typeof vuItemsDueOn === "function" ? SCHEDULE_DAYS.flatMap(day => vuItemsDueOn(vuDateForScheduleDay(day.index))) : [];
+  const range = StudashSchedule.range([
+    ...activeSessions.map(({ session }) => StudashSchedule.interval(session.startTime || "08:00", session.endTime || "10:00", true)),
+    ...deadlines.filter(item => !vuIsMidnightDeadline(item)).map(item => {
+      const due = new Date(item.due);
+      const start = due.getHours() + due.getMinutes() / 60;
+      return { start, end: Math.min(24, start + 1 / 60) };
+    }),
+  ]);
+
   const container = document.createElement("div");
   container.className = "schedule-grid-container";
+  applyScheduleRange(container, range);
 
-  // 1. Header Row (08:00 to 20:00)
+  // Header uses only the occupied time range for this week.
   const headerRow = document.createElement("div");
   headerRow.className = "schedule-grid-header";
 
@@ -1898,21 +1734,7 @@ function renderUniversityScheduleTable() {
   cornerCell.textContent = "روز / ساعت";
   headerRow.appendChild(cornerCell);
 
-  for (let h = 8; h < 20; h++) {
-    const hourCell = document.createElement("div");
-    hourCell.className = "sched-hour-header";
-
-    const titleSpan = document.createElement("span");
-    titleSpan.textContent = faDigits(`${pad2(h)}:۰۰`);
-
-    const subSpan = document.createElement("span");
-    subSpan.className = "sched-hour-sub";
-    subSpan.textContent = faDigits(`${pad2(h)} - ${pad2(h + 1)}`);
-
-    hourCell.appendChild(titleSpan);
-    hourCell.appendChild(subSpan);
-    headerRow.appendChild(hourCell);
-  }
+  appendScheduleHours(headerRow, range);
   container.appendChild(headerRow);
 
   // 2. Day Rows
@@ -1942,10 +1764,10 @@ function renderUniversityScheduleTable() {
     const slotsContainer = document.createElement("div");
     slotsContainer.className = "sched-day-slots-container";
 
-    // Background guideline lines (12 columns)
+    // Guidelines use the same dynamic columns as the header.
     const guideLines = document.createElement("div");
     guideLines.className = "sched-slot-guidelines";
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < (range?.columns || 1); i++) {
       const col = document.createElement("div");
       col.className = "sched-guide-col";
       guideLines.appendChild(col);
@@ -1953,26 +1775,14 @@ function renderUniversityScheduleTable() {
     slotsContainer.appendChild(guideLines);
 
     // Find all sessions for this specific day
-    const daySessions = [];
-    for (const rawItem of scheduleClasses) {
-      const item = normalizeCourse(rawItem);
-      const sessions = normalizeCourseSessions(item);
-      for (const s of sessions) {
-        if (s.day === day.index) {
-          daySessions.push({
-            course: item,
-            session: s,
-          });
-        }
-      }
-    }
+    const daySessions = activeSessions.filter(({ session }) => session.day === day.index);
 
     // Sort sessions by startTime
     daySessions.sort((a, b) => (a.session.startTime || "").localeCompare(b.session.startTime || ""));
 
     for (const entry of daySessions) {
       const { course, session } = entry;
-      const { startCol, endCol } = getGridSpanForClass(session.startTime, session.endTime);
+      const { startCol, endCol } = getGridSpanForClass(session.startTime || "08:00", session.endTime || "10:00", range);
 
       const card = document.createElement("div");
       // Interactive card: the title is the card's primary button and its hit area is
@@ -1995,6 +1805,7 @@ function renderUniversityScheduleTable() {
       titleBtn.type = "button";
       titleBtn.className = "sd-card__link";
       titleBtn.textContent = course.title;
+      titleBtn.title = course.title;
       titleBtn.setAttribute("aria-label", `باز کردن دفترچه درس ${course.title}`);
       titleBtn.addEventListener("click", () => openCourseHub(course.id));
       titleEl.appendChild(titleBtn);
@@ -2031,7 +1842,7 @@ function renderUniversityScheduleTable() {
       delBtn.className = "class-action-btn btn-delete";
       delBtn.title = "حذف این درس";
       delBtn.setAttribute("aria-label", `حذف ${course.title}`);
-      delBtn.textContent = "×";
+      delBtn.textContent = "❌";
       delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         deleteClass(course.id, course.title);
@@ -2040,7 +1851,6 @@ function renderUniversityScheduleTable() {
       actions.appendChild(hubBtn);
       actions.appendChild(editBtn);
       actions.appendChild(delBtn);
-      topRow.appendChild(actions);
       card.appendChild(topRow);
 
       // Middle: Location & Instructor
@@ -2051,7 +1861,7 @@ function renderUniversityScheduleTable() {
         const room = document.createElement("span");
         room.className = "class-room";
         room.textContent = `📍 ${session.location}`;
-        if (session.locationFull) room.title = session.locationFull;
+        room.title = session.locationFull || session.location;
         details.appendChild(room);
       }
 
@@ -2059,6 +1869,7 @@ function renderUniversityScheduleTable() {
         const inst = document.createElement("span");
         inst.className = "class-instructor";
         inst.textContent = `👨‍🏫 ${course.instructor}`;
+        inst.title = course.instructor;
         details.appendChild(inst);
       }
       card.appendChild(details);
@@ -2108,14 +1919,15 @@ function renderUniversityScheduleTable() {
           badgesContainer.appendChild(absBadge);
         }
 
-        card.appendChild(badgesContainer);
+        bottomRow.appendChild(badgesContainer);
       }
 
+      bottomRow.appendChild(actions);
       card.appendChild(bottomRow);
       slotsContainer.appendChild(card);
     }
 
-    const vuDeadlines = typeof vuBuildScheduleDeadlines === "function" ? vuBuildScheduleDeadlines(day.index) : null;
+    const vuDeadlines = typeof vuBuildScheduleDeadlines === "function" ? vuBuildScheduleDeadlines(day.index, range) : null;
     if (vuDeadlines) slotsContainer.appendChild(vuDeadlines);
 
     dayRow.appendChild(slotsContainer);
@@ -2123,6 +1935,7 @@ function renderUniversityScheduleTable() {
   }
 
   scheduleGrid.appendChild(container);
+  appendScheduleEmpty(container, activeSessions.length + deadlines.length);
   updateNowMarker();
 
   // Calculate total units & course count for the footer summary bar
@@ -2193,6 +2006,56 @@ async function fetchGoogleEventsForWeek(token, weekDays) {
   return data.items || [];
 }
 
+function getPersonalDayEvents(day, weekGcalEvents) {
+  const dayEvents = [];
+  const dayStart = StudashDate.parseIsoDate(day.isoDate);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+  for (const ev of weekGcalEvents) {
+    if (!ev.start) continue;
+    const isAllDay = Boolean(ev.start.date && !ev.start.dateTime);
+    const start = isAllDay ? StudashDate.parseIsoDate(ev.start.date) : new Date(ev.start.dateTime);
+    const end = isAllDay
+      ? (ev.end?.date ? StudashDate.parseIsoDate(ev.end.date) : new Date(start.getTime() + 86400000))
+      : (ev.end?.dateTime ? new Date(ev.end.dateTime) : new Date(start.getTime() + 3600000));
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start >= dayEnd || end <= dayStart) continue;
+    const clippedStart = new Date(Math.max(start.getTime(), dayStart.getTime()));
+    const clippedEnd = new Date(Math.min(end.getTime(), dayEnd.getTime()));
+    dayEvents.push({
+      id: ev.id,
+      title: ev.summary || "رویداد بدون عنوان",
+      startTime: isAllDay ? null : `${pad2(clippedStart.getHours())}:${pad2(clippedStart.getMinutes())}`,
+      endTime: isAllDay ? null : (clippedEnd.getTime() === dayEnd.getTime() ? "24:00" : `${pad2(clippedEnd.getHours())}:${pad2(clippedEnd.getMinutes())}`),
+      isAllDay,
+      source: "Google Calendar",
+      color: "#818cf8",
+      link: ev.htmlLink || ev.hangoutLink,
+    });
+  }
+
+    // 2) From Scheduled Exams for this day
+    const allExams = getAllScheduledExams();
+    const dayExams = allExams.filter((e) => e.exam.date === day.isoDate);
+    for (const de of dayExams) {
+      const examStart = de.exam.time || null;
+      // Default duration: 2 hours
+      const start = StudashSchedule.hour(examStart) ?? 8;
+      const endMinutes = Math.min(1440, Math.round((start + 2) * 60));
+      const examEnd = `${pad2(Math.floor(endMinutes / 60))}:${pad2(endMinutes % 60)}`;
+      dayEvents.push({
+        id: de.exam.id,
+        title: `${de.exam.title} (${de.courseTitle})`,
+        startTime: examStart,
+        endTime: examEnd,
+        isAllDay: !examStart,
+        source: "🎯 آزمون کلاسی",
+        color: "#ef4444",
+      });
+    }
+
+  return dayEvents;
+}
+
 async function renderPersonalScheduleTable() {
   scheduleGrid.innerHTML = "";
   if (scheduleEmpty) scheduleEmpty.hidden = true;
@@ -2225,10 +2088,16 @@ async function renderPersonalScheduleTable() {
     }
   }
 
+  const eventsByDay = new Map(weekDays.map(day => [day.isoDate, getPersonalDayEvents(day, weekGcalEvents)]));
+  const range = StudashSchedule.range([...eventsByDay.values()].flat()
+    .filter(event => !event.isAllDay)
+    .map(event => StudashSchedule.interval(event.startTime, event.endTime)));
+
   const container = document.createElement("div");
   container.className = "schedule-grid-container";
+  applyScheduleRange(container, range);
 
-  // 1. Header Row (08:00 to 20:00)
+  // Header uses only the occupied time range for this week.
   const headerRow = document.createElement("div");
   headerRow.className = "schedule-grid-header";
 
@@ -2237,21 +2106,7 @@ async function renderPersonalScheduleTable() {
   cornerCell.textContent = "روز / تاریخ";
   headerRow.appendChild(cornerCell);
 
-  for (let h = 8; h < 20; h++) {
-    const hourCell = document.createElement("div");
-    hourCell.className = "sched-hour-header";
-
-    const titleSpan = document.createElement("span");
-    titleSpan.textContent = faDigits(`${pad2(h)}:۰۰`);
-
-    const subSpan = document.createElement("span");
-    subSpan.className = "sched-hour-sub";
-    subSpan.textContent = faDigits(`${pad2(h)} - ${pad2(h + 1)}`);
-
-    hourCell.appendChild(titleSpan);
-    hourCell.appendChild(subSpan);
-    headerRow.appendChild(hourCell);
-  }
+  appendScheduleHours(headerRow, range);
   container.appendChild(headerRow);
 
   let totalEventsCount = 0;
@@ -2284,10 +2139,10 @@ async function renderPersonalScheduleTable() {
     const slotsContainer = document.createElement("div");
     slotsContainer.className = "sched-day-slots-container";
 
-    // 12 guidelines
+    // Guidelines use the occupied time range.
     const guideLines = document.createElement("div");
     guideLines.className = "sched-slot-guidelines";
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < (range?.columns || 1); i++) {
       const col = document.createElement("div");
       col.className = "sched-guide-col";
       guideLines.appendChild(col);
@@ -2295,69 +2150,22 @@ async function renderPersonalScheduleTable() {
     slotsContainer.appendChild(guideLines);
 
     // Filter events for this specific day
-    const dayEvents = [];
-
-    // 1) From Google Calendar
-    for (const ev of weekGcalEvents) {
-      if (!ev.start) continue;
-      let evStart = null;
-      let evEnd = null;
-      let isAllDay = false;
-
-      if (ev.start.dateTime) {
-        evStart = new Date(ev.start.dateTime);
-        evEnd = ev.end?.dateTime ? new Date(ev.end.dateTime) : new Date(evStart.getTime() + 3600000);
-      } else if (ev.start.date) {
-        isAllDay = true;
-        evStart = StudashDate.parseIsoDate(ev.start.date); // all-day: date-only, keep the local day
-      }
-
-      if (evStart && isoDate(evStart) === day.isoDate) {
-        dayEvents.push({
-          id: ev.id,
-          title: ev.summary || "رویداد بدون عنوان",
-          startTime: isAllDay ? "08:00" : `${pad2(evStart.getHours())}:${pad2(evStart.getMinutes())}`,
-          endTime: isAllDay ? "10:00" : (evEnd ? `${pad2(evEnd.getHours())}:${pad2(evEnd.getMinutes())}` : "10:00"),
-          isAllDay,
-          source: "Google Calendar",
-          color: "#818cf8",
-          link: ev.htmlLink || ev.hangoutLink,
-        });
-      }
-    }
-
-    // 2) From Scheduled Exams for this day
-    const allExams = getAllScheduledExams();
-    const dayExams = allExams.filter((e) => e.exam.date === day.isoDate);
-    for (const de of dayExams) {
-      const examStart = de.exam.time || "08:30";
-      // Default duration: 2 hours
-      const [eh, em] = examStart.split(":").map(Number);
-      const endH = Math.min(20, (isNaN(eh) ? 8 : eh) + 2);
-      const examEnd = `${pad2(endH)}:${pad2(isNaN(em) ? 0 : em)}`;
-      dayEvents.push({
-        id: de.exam.id,
-        title: `${de.exam.title} (${de.courseTitle})`,
-        startTime: examStart,
-        endTime: examEnd,
-        source: "🎯 آزمون کلاسی",
-        color: "#ef4444",
-      });
-    }
+    const dayEvents = eventsByDay.get(day.isoDate);
 
     totalEventsCount += dayEvents.length;
 
     // Render Event Cards on Grid
     for (const ev of dayEvents) {
-      const { startCol, endCol } = getGridSpanForClass(ev.startTime, ev.endTime);
+      const { startCol, endCol } = getGridSpanForClass(ev.startTime, ev.endTime, range, false);
 
       const card = document.createElement("div");
       card.className = "personal-event-card";
-      card.style.gridColumn = `${startCol} / ${endCol}`;
+      card.style.gridColumn = ev.isAllDay ? "1 / -1" : `${startCol} / ${endCol}`;
       card.style.setProperty("--event-color", ev.color);
-      card.title = `${ev.title} (${ev.source}) — ${ev.startTime} تا ${ev.endTime}`;
+      card.title = ev.isAllDay ? `${ev.title} (${ev.source}) — بدون ساعت مشخص` : `${ev.title} (${ev.source}) — ${ev.startTime} تا ${ev.endTime}`;
 
       if (ev.link) {
+        card.dataset.contextOpen = "true";
         card.addEventListener("click", () => {
           window.open(ev.link, "_blank");
         });
@@ -2368,6 +2176,7 @@ async function renderPersonalScheduleTable() {
 
       const titleEl = document.createElement("h4");
       titleEl.className = "personal-event-title";
+      titleEl.title = ev.title;
       const icon = ev.source === "Google Calendar" ? "📅" : (ev.source.includes("آزمون") ? "🎯" : "⏰");
       titleEl.innerHTML = `<span>${icon}</span> <span>${ev.title}</span>`;
       topRow.appendChild(titleEl);
@@ -2378,7 +2187,7 @@ async function renderPersonalScheduleTable() {
 
       const timeEl = document.createElement("span");
       timeEl.className = "personal-event-time";
-      timeEl.textContent = `${faDigits(displayScheduleTime(ev.startTime))} - ${faDigits(displayScheduleTime(ev.endTime, "10:00"))}`;
+      timeEl.textContent = ev.isAllDay ? "بدون ساعت مشخص" : `${ev.startTime} - ${ev.endTime}`;
       bottomRow.appendChild(timeEl);
 
       const sourceTag = document.createElement("span");
@@ -2396,6 +2205,7 @@ async function renderPersonalScheduleTable() {
 
   scheduleGrid.appendChild(container);
 
+  appendScheduleEmpty(container, totalEventsCount);
   if (personalTotalEvents) {
     personalTotalEvents.textContent = `${faDigits(totalEventsCount)} رویداد`;
   }
@@ -2478,7 +2288,7 @@ function createSessionItem(sessionData = null) {
   item.innerHTML = `
     <div class="session-item-header">
       <span class="session-num">جلسه</span>
-      <button type="button" class="session-remove-btn" title="حذف این جلسه" aria-label="حذف جلسه">×</button>
+      <button type="button" class="session-remove-btn" title="حذف این جلسه" aria-label="حذف جلسه"><span class="twemoji-icon" aria-hidden="true">❌</span></button>
     </div>
     <div class="session-fields">
       <div class="form-row">
@@ -2842,7 +2652,7 @@ function renderHubTasks() {
     const delBtn = document.createElement("button");
     delBtn.type = "button";
     delBtn.className = "hub-item-delete";
-    delBtn.textContent = "×";
+    delBtn.textContent = "❌";
     delBtn.title = "حذف تکلیف";
     delBtn.setAttribute("aria-label", `حذف ${task.title}`);
     delBtn.addEventListener("click", async () => {
@@ -2933,14 +2743,7 @@ function renderHubLinks() {
 
     const favWrap = document.createElement("div");
     favWrap.className = "hub-link-favicon";
-    const img = document.createElement("img");
-    img.src = faviconFor(l.url);
-    img.alt = "";
-    img.loading = "lazy";
-    img.onerror = () => {
-      favWrap.textContent = "🔗";
-    };
-    favWrap.appendChild(img);
+    favWrap.innerHTML = '<span class="twemoji-icon" aria-hidden="true">🔗</span>';
 
     const details = document.createElement("div");
     details.className = "hub-link-details";
@@ -2959,7 +2762,7 @@ function renderHubLinks() {
     const delBtn = document.createElement("button");
     delBtn.type = "button";
     delBtn.className = "hub-item-delete";
-    delBtn.textContent = "×";
+    delBtn.textContent = "❌";
     delBtn.title = "حذف لینک";
     delBtn.setAttribute("aria-label", `حذف ${l.title}`);
     delBtn.addEventListener("click", async (e) => {
@@ -3183,7 +2986,7 @@ function renderHubExams() {
     const delBtn = document.createElement("button");
     delBtn.type = "button";
     delBtn.className = "hub-exam-delete-btn";
-    delBtn.textContent = "×";
+    delBtn.textContent = "❌";
     delBtn.title = "حذف آزمون";
     delBtn.setAttribute("aria-label", `حذف ${exam.title}`);
     delBtn.addEventListener("click", async () => {
@@ -4304,7 +4107,7 @@ function renderIdeaLabModal() {
         const delStepBtn = document.createElement("button");
         delStepBtn.type = "button";
         delStepBtn.className = "idea-step-del";
-        delStepBtn.textContent = "×";
+        delStepBtn.textContent = "❌";
         delStepBtn.title = "حذف گام";
         delStepBtn.addEventListener("click", async () => {
           idea.steps.splice(sIdx, 1);
@@ -4700,19 +4503,16 @@ async function initNotes() {
 // Pinned Tools Management (which shortcut buttons show near the clock)
 // ---------------------------------------------------------------
 const DEFAULT_PINNED_TOOLS = {
-  webmail: false,
-  idea: false,
-  notes: false,
-  timer: false,
-  report: false,
+  webmail: true,
+  idea: true,
+  notes: true,
+  timer: true,
+  report: true,
 };
 
 let pinnedToolsState = { ...DEFAULT_PINNED_TOOLS };
 
 // Fixed reading order + element ids for the small buttons that flank the clock.
-// Used to split whichever buttons are currently visible evenly between the
-// right and left wings (instead of a hardcoded 2/3 split that looks
-// lopsided once a button is hidden via settings).
 const TOOL_BTN_IDS = {
   webmail: "headerWebmailBtn",
   idea: "headerIdeaLabBtn",
@@ -4737,32 +4537,37 @@ async function initToolsMenuAndPinning() {
     sideButtons.forEach((btn) => {
       const toolKey = btn.getAttribute("data-tool");
       if (toolKey in pinnedToolsState) {
-        btn.style.display = pinnedToolsState[toolKey] ? "" : "none";
+        const isPinned = Boolean(pinnedToolsState[toolKey]);
+        btn.hidden = !isPinned;
+        btn.style.removeProperty("display");
       }
     });
 
-    // 2. Rebalance wings: split currently-visible buttons evenly between
-    // right/left instead of a fixed lopsided grouping.
+    // 2. Keep buttons permanently anchored to their original natural wings:
+    // Right wing: timer, report
+    // Left wing: webmail, idea, notes
     const rightWing = document.querySelector(".clock-wing-right");
     const leftWing = document.querySelector(".clock-wing-left");
+    const rightKeys = ["timer", "report"];
+    const leftKeys = ["webmail", "idea", "notes"];
+
     if (rightWing && leftWing) {
-      const visibleBtns = TOOL_BTN_ORDER
-        .map((key) => document.getElementById(TOOL_BTN_IDS[key]))
-        .filter((btn) => btn && btn.style.display !== "none");
-      const half = Math.ceil(visibleBtns.length / 2);
-      visibleBtns.forEach((btn, i) => {
-        const target = i < half ? rightWing : leftWing;
-        if (btn.parentElement !== target) target.appendChild(btn);
+      rightKeys.forEach((key) => {
+        const btn = document.getElementById(TOOL_BTN_IDS[key]);
+        if (btn && btn.parentElement !== rightWing) rightWing.appendChild(btn);
+      });
+      leftKeys.forEach((key) => {
+        const btn = document.getElementById(TOOL_BTN_IDS[key]);
+        if (btn && btn.parentElement !== leftWing) leftWing.appendChild(btn);
       });
     }
 
     // 3. Check each clock wing; if all children hidden, hide wing
     const wings = document.querySelectorAll(".clock-wing");
     wings.forEach((wing) => {
-      const visibleChildren = Array.from(wing.children).filter(
-        (ch) => ch.style.display !== "none" && !ch.hidden
-      );
-      wing.style.display = visibleChildren.length > 0 ? "" : "none";
+      const hasVisible = Array.from(wing.children).some((ch) => !ch.hidden);
+      wing.hidden = !hasVisible;
+      wing.style.removeProperty("display");
     });
 
     // 4. Update checkboxes in Settings modal
@@ -4789,6 +4594,12 @@ async function initToolsMenuAndPinning() {
   const togglePin = async (toolKey) => {
     if (!toolKey || !(toolKey in pinnedToolsState)) return;
     pinnedToolsState[toolKey] = !pinnedToolsState[toolKey];
+    await storageSet({ pinnedTools: pinnedToolsState });
+    applyPinnedTools();
+  };
+
+  window.resetPinnedTools = async () => {
+    pinnedToolsState = { ...DEFAULT_PINNED_TOOLS };
     await storageSet({ pinnedTools: pinnedToolsState });
     applyPinnedTools();
   };

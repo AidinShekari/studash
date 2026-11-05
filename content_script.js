@@ -24,7 +24,25 @@
   rootHost.style.zIndex = "2147483647";
   rootHost.style.bottom = "24px";
   rootHost.style.left = "24px";
-  rootHost.style.fontFamily = "'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  rootHost.style.fontFamily = "'StuDash Twemoji', 'StuDash Estedad', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
+  // The widget lives on other sites, so register the bundled Estedad under a private
+  // family name (no clash with the page's own fonts). Failure just keeps the fallback.
+  try {
+    for (const [subset, range] of [["arabic", "U+0600-06FF,U+200C-200E,U+FB50-FDFF,U+FE70-FEFC"], ["latin", "U+0000-00FF,U+2000-206F"]]) {
+      for (const weight of ["400", "700", "800"]) {
+        const url = chrome.runtime.getURL(`fonts/estedad/estedad-${subset}-${weight}-normal.woff2`);
+        const face = new FontFace("StuDash Estedad", `url("${url}") format("woff2")`, { weight, unicodeRange: range, display: "swap" });
+        document.fonts.add(face);
+        face.load().catch(() => {});
+      }
+    }
+    const emoji = new FontFace("StuDash Twemoji", `url("${chrome.runtime.getURL("fonts/twemoji/twemoji.woff2")}") format("woff2")`, {
+      unicodeRange: "U+200D,U+20E3,U+FE0F,U+231A-23FA,U+2600-27BF,U+2B05-2B55,U+1F000-1FAFF",
+      display: "swap",
+    });
+    document.fonts.add(emoji);
+    emoji.load().catch(() => {});
+  } catch (e) {}
   rootHost.style.userSelect = "none";
   rootHost.style.lineHeight = "1.4";
   document.documentElement.appendChild(rootHost);

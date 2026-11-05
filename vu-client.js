@@ -436,7 +436,7 @@
 
   async function getCourses(session) {
     const seen = new Map();
-    for (const classification of ["inprogress", "all"]) {
+    for (const classification of ["inprogress"]) {
       try {
         const data = await ajax(session.sesskey, "core_course_get_enrolled_courses_by_timeline_classification", {
           offset: 0,
@@ -741,7 +741,7 @@
     return "pending";
   }
 
-  const faNum = (n) => String(n).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+  const faNum = (n) => toEnglishDigits(String(n));
 
   // { text, level: "overdue" | "urgent" (<24h) | "soon" (<3d) | "normal" | "none" }
   function formatTimeLeft(due, now = Date.now()) {
@@ -760,7 +760,7 @@
     return { text: `${span} مانده`, level: hours < 24 ? "urgent" : days < 3 ? "soon" : "normal" };
   }
 
-  const shamsiFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+  const shamsiFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
     weekday: "long",
     day: "numeric",
     month: "long",

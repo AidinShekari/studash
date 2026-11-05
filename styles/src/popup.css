@@ -27,8 +27,8 @@ body.pp {
 .pp-brand p { font-size: var(--sd-text-caption); line-height: 1.4; color: var(--muted); }
 .pp-header-actions { display: flex; gap: var(--sd-space-1); }
 
-.pp-card { padding: calc(var(--spacing) * 3.5); gap: calc(var(--spacing) * 2.5); border-radius: calc(var(--radius) * 2); border: 1px solid var(--border); }
-.pp-card-title { display: flex; align-items: center; gap: var(--sd-icon-gap); font-size: var(--sd-text-section); font-weight: 650; }
+.pp-card { padding: calc(var(--spacing) * 4); gap: calc(var(--spacing) * 3); } /* surface: surfaces.css */
+.pp-card-title { display: flex; align-items: center; gap: var(--sd-icon-gap); font-size: var(--sd-text-section); font-weight: var(--sd-weight-title); }
 .pp-card-title .sd-icon { color: var(--accent-soft-foreground); }
 .pp-card .card__header { gap: var(--sd-heading-gap); }
 .pp-card .card__description { font-size: var(--sd-text-caption); line-height: 1.6; }

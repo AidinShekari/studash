@@ -1,0 +1,22 @@
+/* Keep headers, cards, guidelines, and the live marker on the same time axis. */
+.schedule-grid-container { min-width: calc(86px + var(--schedule-columns, 1) * 76px); }
+.schedule-grid-header, .schedule-day-row { grid-template-columns: 86px repeat(var(--schedule-columns, 1), minmax(0, 1fr)); }
+.sched-day-slots-container, .sched-slot-guidelines { grid-template-columns: repeat(var(--schedule-columns, 1), minmax(0, 1fr)); }
+.schedule-grid-container .vu-sched-deadlines { display: contents; }
+.schedule-grid-container .vu-sched-chip { min-width: 0; flex-wrap: wrap; align-self: start; }
+.schedule-grid-container .vu-sched-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.schedule-grid-container .vu-sched-time { font-size: 10px; }
+
+/* Midnight deadlines belong beneath the day's timed cards, not on the hour axis. */
+.schedule-grid-container .vu-sched-night-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding-block-start: 4px;
+  border-block-start: 1px solid var(--separator);
+}
+.vu-sched-night-label { flex-basis: 100%; font-size: 10px; line-height: 1.5; color: var(--muted); }
+.schedule-grid-container .vu-sched-night-list .vu-sched-chip { max-width: 100%; }

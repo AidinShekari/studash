@@ -7,11 +7,15 @@ import { pathToFileURL } from "node:url";
 
 const chrome = process.env.CHROME_PATH || ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium"].find(existsSync);
 if (!chrome) { console.error("Chrome not found; set CHROME_PATH"); process.exit(2); }
-const page = pathToFileURL(resolve("tests/browser/ui-kit.html")).href;
+const page = pathToFileURL(resolve(process.argv[2] || "tests/browser/ui-kit.html")).href;
+const viewportWidth = Number(process.argv[3] || 1440);
+const testUrl = new URL(page);
+testUrl.searchParams.set('width', viewportWidth);
+testUrl.searchParams.set('mode', process.argv[4] || 'dark');
 const profile = mkdtempSync(join(tmpdir(), "sd-test-"));
 let html;
 try {
-  html = execFileSync(chrome, ["--headless=new", "--disable-gpu", "--allow-file-access-from-files", `--user-data-dir=${profile}`, "--virtual-time-budget=5000", "--dump-dom", page], { encoding: "utf8" });
+  html = execFileSync(chrome, ["--headless=new", `--window-size=${viewportWidth},1000`, "--disable-gpu", "--allow-file-access-from-files", `--user-data-dir=${profile}`, "--virtual-time-budget=5000", "--dump-dom", testUrl.href], { encoding: "utf8" });
 } finally {
   rmSync(profile, { recursive: true, force: true });
 }

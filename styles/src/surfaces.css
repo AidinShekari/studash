@@ -1,0 +1,75 @@
+/* ===============================================================
+   Card surfaces — one place for how every "widget" looks.
+   Solid (default): opaque surface, large radius, soft layered shadow.
+   Glass (Appearance → سطح کارت‌ها): translucent surface with blur over a
+   soft accent-tinted backdrop. Falls back to solid when the user asks for
+   reduced transparency or the browser lacks backdrop-filter.
+   =============================================================== */
+
+/* Every widget-like container shares the same surface tokens */
+.sd-card, .pp-card, .pin-tile, .search-form, .class-card, .sd-surface {
+  border-radius: var(--sd-card-radius);
+  border: 1px solid var(--sd-card-border);
+  box-shadow: var(--sd-card-shadow);
+}
+.pin-tile, .search-form { border-radius: calc(var(--sd-card-radius) * 0.8); }
+.class-card { border-radius: calc(var(--sd-card-radius) * 0.6); box-shadow: none; }
+.sd-card.card--default, .pp-card { background: var(--surface); }
+
+/* Hover lift only for things you can click */
+.pin-tile:hover, .sd-card-interactive:hover { box-shadow: var(--sd-card-shadow-hover); }
+
+/* Hairline-divided cells inside a card (Dastyar's split widgets) */
+.sd-cells { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+.sd-cells > * { padding-inline: var(--sd-card-padding); min-width: 0; }
+.sd-cells > * + * { border-inline-start: 1px solid var(--separator); }
+
+/* Card title with a tinted icon badge before it */
+.sd-title-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: calc(var(--sd-card-radius) * 0.5);
+  background: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+  font-size: 1rem;
+}
+.sd-titlerow { display: flex; align-items: center; gap: calc(var(--spacing) * 2.5); min-width: 0; }
+.sd-titlerow > .card__title { min-width: 0; }
+
+/* ---------- Glass ---------- */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @media not (prefers-reduced-transparency: reduce) {
+    html[data-surface="glass"] {
+      --sd-glass-tint: color-mix(in oklab, var(--accent) 34%, transparent);
+      --sd-glass-tint-2: oklch(0.62 0.14 255 / 0.26);
+      --sd-glass-fill: color-mix(in oklab, var(--surface) 70%, transparent);
+      --sd-glass-edge: color-mix(in oklab, white 55%, transparent);
+    }
+    html.dark[data-surface="glass"] {
+      --sd-glass-fill: color-mix(in oklab, var(--surface) 62%, transparent);
+      --sd-glass-edge: color-mix(in oklab, white 12%, transparent);
+    }
+    /* Backdrop: two soft accent glows over the theme background (fixed, so cards blur it) */
+    html[data-surface="glass"] body:not(.pp) {
+      background:
+        radial-gradient(56rem 36rem at 90% -8%, var(--sd-glass-tint), transparent 62%),
+        radial-gradient(48rem 34rem at 4% 104%, var(--sd-glass-tint-2), transparent 62%),
+        radial-gradient(30rem 22rem at 45% 40%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 70%),
+        var(--background);
+      background-attachment: fixed;
+    }
+    html[data-surface="glass"] :is(.sd-card, .pp-card, .pin-tile, .search-form, .sd-surface, .side-tool-btn) {
+      background: var(--sd-glass-fill);
+      -webkit-backdrop-filter: blur(18px) saturate(1.5);
+      backdrop-filter: blur(18px) saturate(1.5);
+      border-color: var(--sd-glass-edge);
+      box-shadow: 0 1px 0 0 var(--sd-glass-edge) inset, var(--sd-card-shadow);
+    }
+    html[data-surface="glass"] body.pp {
+      background: linear-gradient(160deg, var(--sd-glass-tint), transparent 55%), var(--background);
+    }
+  }
+}

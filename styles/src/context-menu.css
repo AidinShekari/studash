@@ -1,0 +1,25 @@
+/* Hide inline operations only once their shared context menu is available. */
+.sd-context-ready :is(.class-card-actions, .pin-remove, .task-remove, .hub-task-item .hub-item-delete, .hub-link-card .hub-item-delete, .hub-exam-delete-btn, .note-card-actions, .idea-card-top-actions, .idea-step-del, .vu-task-row .vu-calendar-link) { display: none !important; }
+.sd-context-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(240px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--overlay, var(--surface));
+  color: var(--foreground);
+  box-shadow: 0 12px 36px rgb(0 0 0 / 20%);
+  z-index: 10000;
+  font: 500 12px/1.7 var(--font-sans);
+}
+.sd-context-item { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 7px 9px; border: 0; border-radius: 7px; background: transparent; color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.sd-context-item > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.sd-context-item:is(:hover, :focus-visible) { background: var(--surface-tertiary); outline: none; }
+.sd-context-item--danger { color: var(--danger); }
+.sd-context-item--danger:is(:hover, :focus-visible) { background: var(--danger-soft); }
+.sd-context-item:disabled { opacity: 0.4; cursor: default; }
+.sd-context-ready :is(.class-card, .personal-event-card, .pin-tile, .task-item, .hub-task-item, .hub-link-card, .hub-exam-card, .note-card, .idea-full-card, .idea-step-item, .vu-task-row)[tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }

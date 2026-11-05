@@ -92,6 +92,49 @@ const key = (el, k) => el.dispatchEvent(new KeyboardEvent("keydown", { key: k, b
     eq(StudashDate.formatJalali(new Date(2025, 2, 20)), "پنجشنبه ۳۰ اسفند ۱۴۰۳");
   });
 
+  await test("SDUI.choose resolves the clicked action and removes the dialog", async () => {
+    const p = SDUI.choose({ title: "برنامه؟", message: "متن", actions: [{ value: null, label: "انصراف", variant: "ghost" }, { value: "merge", label: "ادغام" }, { value: "replace", label: "جایگزینی", variant: "primary" }] });
+    const d = document.querySelector("dialog.sd-choice");
+    eq(d.open, true, "open");
+    eq(document.getElementById(d.getAttribute("aria-labelledby")).textContent, "برنامه؟", "name");
+    eq(document.activeElement.textContent, "جایگزینی", "primary focused");
+    eq(getComputedStyle(d.querySelector(".button--primary")).order, "2", "primary is last");
+    d.querySelectorAll("button")[1].click();
+    const r = await p;
+    eq(r.value, "merge");
+    await sleep(10);
+    eq(document.querySelector("dialog.sd-choice"), null, "removed");
+  });
+
+  await test("SDUI.choose: cancel resolves null and reports the checkbox", async () => {
+    const p = SDUI.choose({ title: "قطع", message: "؟", checkbox: { label: "حذف درس‌ها" }, actions: [{ value: null, label: "انصراف", variant: "ghost" }, { value: "ok", label: "قطع", variant: "danger" }] });
+    const d = document.querySelector("dialog.sd-choice");
+    eq(d.querySelector(".button--danger") !== null, true, "danger variant");
+    d.querySelector("input[type=checkbox]").click();
+    d.querySelector(".button--ghost").click();
+    const r = await p;
+    eq(r.value, null); eq(r.checked, true);
+  });
+
+  await test("theme: scale and surface are validated and applied to <html>", () => {
+    const T = StudashTheme;
+    eq(T.DEFAULTS.scale, "normal"); eq(T.DEFAULTS.surface, "solid");
+    const a = T.apply({ scale: "large", surface: "glass" });
+    eq(a.scale, "large"); eq(a.surface, "glass");
+    eq(document.documentElement.dataset.scale, "large");
+    eq(document.documentElement.dataset.surface, "glass");
+    const b = T.apply({ scale: "huge", surface: "metal" });
+    eq(b.scale, "normal", "invalid scale falls back"); eq(b.surface, "solid", "invalid surface falls back");
+    eq(document.documentElement.dataset.surface, "solid");
+  });
+
+  await test("modal dialogs stay fixed to the viewport (not scrolled with the page)", () => {
+    const d = document.getElementById("d2");
+    d.showModal();
+    eq(getComputedStyle(d).position, "fixed");
+    d.close();
+  });
+
   document.getElementById("results").textContent = JSON.stringify(results);
   document.body.setAttribute("data-done", "true");
 })();

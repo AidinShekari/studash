@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="fa" dir="rtl" class="dark" data-theme="studash-dark">
+<head><meta charset="utf-8"><link rel="stylesheet" href="../../styles/studash.css"><title>Context menu tests</title></head>
+<body>
+<div class="class-card" id="classOne"><div class="class-title"><button class="sd-card__link">کلاس اول</button></div><div class="class-card-actions"><button id="editOne" title="ویرایش کلاس">✏️</button><button id="deleteOne" title="حذف کلاس">❌</button></div></div>
+<div class="class-card" id="classTwo"><div class="class-title"><button class="sd-card__link">کلاس دوم</button></div><div class="class-card-actions"><button id="editTwo" title="ویرایش کلاس دوم">✏️</button></div></div>
+<div class="task-item" id="task"><input type="checkbox"><span>کار روزانه</span><button class="task-remove" aria-label="حذف کار">❌</button></div>
+<div class="note-card" id="note"><div class="note-card-actions"><button title="کپی یادداشت">کپی</button></div><textarea id="noteEditor">متن قابل ویرایش</textarea></div>
+<dialog id="testDialog"><article class="hub-link-card"><a href="#link" class="hub-link-left">لینک</a><button class="hub-item-delete" title="حذف لینک">حذف</button></article></dialog>
+<script src="../../context-menu.js"></script>
+<script src="context-menu.spec.js"></script>
+</body></html>

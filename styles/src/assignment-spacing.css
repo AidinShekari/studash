@@ -1,0 +1,100 @@
+/* Dashboard rhythm: compact side cards and task-style VU assignments. */
+.page .sd-card {
+  padding: var(--sd-space-4);
+  gap: var(--sd-space-3);
+}
+.page .sd-card > .card__header,
+.page .sd-card > .card__content {
+  padding: 0;
+}
+.page .sd-card :is(.card__title, .card__description, .empty-hint) {
+  margin: 0;
+}
+.page .tasks-panel {
+  padding: var(--sd-space-4) !important;
+}
+.page .sidebar-left {
+  position: static;
+  gap: var(--sd-space-4);
+  min-width: 0;
+}
+.page .sidebar-right, .page .main { min-width: 0; }
+.page .sd-card__titlebar { flex-wrap: wrap; gap: 8px; }
+.page .tasks-panel > .card__header { gap: 12px; }
+.page .calendar-panel .sd-calendar { max-inline-size: 22rem !important; }
+.page .calendar-panel .card__content { gap: 12px; }
+.page .vu-section > .card__header { gap: 10px; }
+.page .vu-header-actions { width: 100%; gap: 8px; }
+.page .vu-stats { flex: 1; gap: 4px; }
+.page .vu-stats .chip { font-size: 11px; }
+.page #vuConnectedBody { display: flex; flex-direction: column; gap: 12px; }
+.page #vuConnectedBody[hidden] { display: none; }
+.page .vu-toolbar { align-items: stretch; gap: 8px; }
+.page .vu-filter-chips { width: 100%; gap: 2px; }
+.page .vu-filter-chips .vu-chip { flex: 1; padding-inline: 6px; font-size: 12px; }
+.page .vu-toolbar .sd-field { width: 100%; min-width: 0; }
+.page .vu-toolbar .vu-course-filter { flex: 1; min-width: 0; max-width: 100%; }
+.page .vu-connect-empty { padding: 12px; gap: 10px; }
+.page .vu-connect-empty > div:nth-child(2) { min-width: 0; flex-basis: 180px; }
+.page .vu-connect-empty p { margin-block: 4px 0; }
+.vu-task-list { list-style: none; padding: 0; margin: 0; min-width: 0; }
+.vu-task-row { display: flex; flex-direction: column; gap: 6px; padding-block: 12px; border-bottom: 1px solid var(--border); }
+.vu-task-row:first-child { padding-top: 0; }
+.vu-task-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.vu-task-heading { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.vu-task-heading > .chip { flex: none; }
+.vu-task-title { flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--foreground); font-size: 13px; font-weight: 600; line-height: 1.7; text-decoration: none; }
+.vu-task-title:hover { color: var(--accent-soft-foreground); text-decoration: underline; }
+.vu-task-row--submitted .vu-task-title { text-decoration: line-through; color: var(--muted); }
+.vu-task-course { display: flex; align-items: baseline; gap: 6px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.vu-task-course .vu-course-dot { flex: none; margin: 0; }
+.vu-task-due { font-size: 12px; color: var(--muted); line-height: 1.7; overflow-wrap: anywhere; }
+.vu-task-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.vu-calendar-link { margin-inline-start: auto; color: var(--accent-soft-foreground); font-size: 11px; padding-block: 6px; }
+.vu-pagination { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+.vu-pagination[hidden] { display: none; }
+.vu-page-summary { margin: 0; font-size: 12px; color: var(--muted); }
+.vu-page-controls { display: flex; gap: 6px; }
+.vu-page-controls button { min-height: 32px; min-width: 44px; }
+.vu-page-controls button:disabled { opacity: 0.4; cursor: default; }
+.vu-page-controls button:focus-visible, .vu-task-row a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Compact wrapping metadata inside schedule and daily-task cards. */
+.page :is(.class-card-bottom, .class-card-badges, .sidebar-task-top) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px 3px;
+  margin-block: 0;
+}
+.page .class-card-badges { display: contents; }
+.page :is(.class-card, .sidebar-course-task-item, .sidebar-day-exam-card, .gcal-event) .chip {
+  display: inline-flex;
+  flex: 0 1 auto;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 1px 5px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: center;
+}
+.page :is(.class-card, .sidebar-course-task-item, .sidebar-day-exam-card, .gcal-event) .chip__label {
+  line-height: inherit;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.page .class-card-bottom .class-time { flex: 0 0 auto; line-height: 1.4; }
+.page .sidebar-task-top .sd-chip-button { min-height: 24px; }
+
+/* Course prefix and assignment title share one compact RTL line. */
+.page .vu-task-heading .vu-task-title { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.page .vu-task-title .vu-task-course { display: block; flex: 0 1 auto; max-width: 42%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 500; line-height: inherit; color: var(--muted); }
+.page .vu-task-name { display: block; flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.page #tasksPanel .tasks-panel-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }

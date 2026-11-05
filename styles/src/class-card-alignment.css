@@ -1,0 +1,70 @@
+/* Class titles own their full row; details keep the same baseline in every card. */
+.page .class-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  align-items: start;
+  justify-content: stretch;
+  gap: 5px;
+  min-width: 0;
+  text-align: start;
+}
+.page .class-card-top { display: block; min-width: 0; width: 100%; }
+.page .class-card .class-title {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.7;
+  min-height: 1.7em;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: initial;
+}
+.page .class-title .sd-card__link {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: start;
+  line-height: inherit;
+}
+.page .class-card-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1.7em 1.7em;
+  gap: 0;
+  min-width: 0;
+  width: 100%;
+  line-height: 1.7;
+  font-size: 10.5px;
+  text-align: start;
+}
+.page .class-card-details :is(.class-instructor, .class-room) {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: inherit;
+  font-size: inherit;
+  text-align: start;
+}
+.page .class-card-details .class-instructor { grid-row: 1; }
+.page .class-card-details .class-room { grid-row: 2; }
+.page .class-card-bottom { min-width: 0; width: 100%; align-items: center; }
+.page .class-card .class-card-actions {
+  margin-inline-start: auto;
+  opacity: 0.65;
+  transform: none;
+  align-items: center;
+  gap: 3px;
+}
+.page .class-card:is(:hover, :focus-within) .class-card-actions { opacity: 1; }
+@media (hover: none) { .page .class-card .class-card-actions { opacity: 1; } }
