@@ -55,6 +55,7 @@
 @import "./surfaces.css" layer(studash);
 @import "./appearance.css" layer(studash);
 @import "./popup.css" layer(studash);
+@import "./release-dashboard.css";
 @import "./assignment-spacing.css";
 @import "./twemoji-icons.css";
 @import "./calendar-polish.css";

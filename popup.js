@@ -195,16 +195,7 @@ $("openDashboardBtn").addEventListener("click", () => {
 });
 
 $("disconnectBtn").addEventListener("click", async () => {
-  const { value } = await SDUI.choose({
-    title: "قطع اتصال VU",
-    message: "نام کاربری، رمز و اطلاعات ذخیره‌شدهٔ VU از این کامپیوتر پاک می‌شوند.",
-    tone: "danger",
-    actions: [
-      { value: null, label: "انصراف", variant: "ghost" },
-      { value: "ok", label: "قطع اتصال", variant: "danger" },
-    ],
-  });
-  if (value !== "ok") return;
+  if (!confirm("اتصال VU قطع شود؟ نام کاربری، رمز و اطلاعات ذخیره‌شده پاک می‌شوند.")) return;
   await VU.disconnect();
   await render();
 });
@@ -270,22 +261,16 @@ async function runPooyaImport(btn, connectFn) {
   showError($("pooyaError"), "");
   $("pooyaSuccess").hidden = true;
 
-  // Existing schedule: ask whether Pooya replaces it or merges into it.
   let replaceExisting = false;
-  const { scheduleClasses: existing } = await chrome.storage.local.get("scheduleClasses");
-  const existingCount = (existing || []).length;
+  const currentStored = await chrome.storage.local.get("scheduleClasses");
+  const existingCount = (currentStored.scheduleClasses || []).length;
   if (existingCount > 0) {
-    const { value } = await SDUI.choose({
-      title: "برنامه کلاسی فعلی را چه کنیم؟",
-      message: `الان ${VU.faNum(existingCount)} درس در برنامه هفتگی‌ات هست.\n«جایگزینی» برنامه فعلی را با برنامه پویا عوض می‌کند؛ «ادغام» درس‌های پویا را کنار درس‌های فعلی اضافه یا به‌روز می‌کند.`,
-      actions: [
-        { value: null, label: "انصراف", variant: "ghost" },
-        { value: "merge", label: "ادغام", variant: "secondary" },
-        { value: "replace", label: "جایگزینی", variant: "primary" },
-      ],
-    });
-    if (!value) return;
-    replaceExisting = value === "replace";
+    const userChoice = confirm(
+      `⚠️ شما ${existingCount} درس در برنامه هفتگی دارید.\n\n` +
+      `«OK» = جایگزینی با برنامه پویا\n` +
+      `«Cancel» = ادغام با برنامه فعلی`
+    );
+    replaceExisting = userChoice;
   }
 
   pooyaSetLoading(btn, true);
@@ -332,19 +317,11 @@ $("pooyaOtherAccountBtn").addEventListener("click", () => {
 $("pooyaImportBtn").addEventListener("click", () => runPooyaImport($("pooyaImportBtn")));
 
 $("pooyaDisconnectBtn").addEventListener("click", async () => {
-  const { value, checked } = await SDUI.choose({
-    title: "قطع اتصال پویا",
-    message: "اطلاعات ورود پویا از این کامپیوتر پاک می‌شود.",
-    tone: "danger",
-    checkbox: { label: "درس‌هایی که از پویا وارد شده‌اند هم از برنامه هفتگی حذف شوند", checked: false },
-    actions: [
-      { value: null, label: "انصراف", variant: "ghost" },
-      { value: "ok", label: "قطع اتصال", variant: "danger" },
-    ],
-  });
-  if (value !== "ok") return;
+  const clearSchedule = confirm("آیا مایلید با قطع اتصال پویا، برنامه کلاسی واردشده هم پاک شود؟\n\n«OK» = بله، برنامه کلاسی هم پاک شود\n«Cancel» = خیر، برنامه کلاسی حفظ شود");
   await Pooya.disconnect();
-  if (checked) await Pooya.removeImportedClasses();
+  if (clearSchedule) {
+    await chrome.storage.local.set({ scheduleClasses: [] });
+  }
   pooyaMode = "vu";
   renderPooya();
 });

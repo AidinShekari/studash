@@ -4,6 +4,8 @@
 
 // Shared date helpers (local calendar day, never UTC-shifted).
 importScripts("jalali.js");
+importScripts("notifications.js");
+importScripts("weather.js");
 
 const DEFAULT_TIMER_STATE = {
   isRunning: false,
@@ -563,10 +565,176 @@ async function processVuNotifications(newData, oldData) {
   await chrome.storage.local.set({ vuNotified });
 }
 
+// ===============================================================
+// Weekly Thursday Food Reservation Reminder (رزرو غذای سلف دانشگاه)
+// ===============================================================
+const FOOD_REMINDER_ALARM = "studashFoodReminderAlarm";
+
+async function scheduleFoodReminderAlarm() {
+  const existing = await chrome.alarms.get(FOOD_REMINDER_ALARM);
+  if (!existing) {
+    chrome.alarms.create(FOOD_REMINDER_ALARM, { periodInMinutes: 30 });
+  }
+}
+
+async function checkWeeklyFoodReminder() {
+  const now = new Date();
+  // 4 is Thursday (پنجشنبه) in JavaScript Date.getDay() (0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat)
+  if (now.getDay() !== 4) return;
+  const hour = now.getHours();
+  // Target window: Thursday morning between 09:00 and 11:00
+  if (hour < 9 || hour > 11) return;
+
+  const { lastFoodReminderDateIso } = await chrome.storage.local.get("lastFoodReminderDateIso");
+  const todayIso = typeof StudashDate !== "undefined" ? StudashDate.todayIso() : now.toISOString().slice(0, 10);
+
+  if (lastFoodReminderDateIso === todayIso) return; // Already reminded today
+
+  await chrome.storage.local.set({ lastFoodReminderDateIso: todayIso });
+
+  if (typeof StudashNotifications !== "undefined") {
+    await StudashNotifications.add({
+      id: `food_reservation_${todayIso}`,
+      type: "food",
+      title: "یادآوری رزرو غذای سلف دانشگاه 🍱",
+      message: "رزرو غذای هفته آینده فراموش نشود! مهلت رزرو غذای دانشجویی در حال اتمام است.",
+      icon: "🍱",
+      url: "https://pooya.um.ac.ir",
+      timestamp: Date.now(),
+    });
+  }
+}
+
+// ===============================================================
+// Smart Weather & Clothing Advisor (هوشمند هواشناسی و لباس)
+// ===============================================================
+const WEATHER_ADVISOR_ALARM = "studashWeatherAdvisorAlarm";
+
+async function scheduleWeatherAdvisorAlarm() {
+  const existing = await chrome.alarms.get(WEATHER_ADVISOR_ALARM);
+  if (!existing) {
+    chrome.alarms.create(WEATHER_ADVISOR_ALARM, { periodInMinutes: 60 });
+  }
+}
+
+async function checkWeatherAdvisorNotifications() {
+  if (typeof StudashWeather === "undefined" || typeof StudashNotifications === "undefined") return;
+
+  const settings = await StudashWeather.getSettings();
+  if (!settings.enabled || !settings.notifyOnSevere) return;
+
+  const weather = await StudashWeather.fetchWeather();
+  if (!weather) return;
+
+  const now = new Date();
+  const hour = now.getHours();
+  const todayIso = typeof StudashDate !== "undefined" ? StudashDate.todayIso() : now.toISOString().slice(0, 10);
+
+  // Late night check (20:00 to 23:30): Check TOMORROW'S weather (snow, heavy rain, extreme cold)
+  if (hour >= 20 && hour <= 23) {
+    const advice = StudashWeather.getAdvice(weather, hour);
+    if (advice && advice.isSevere) {
+      const { lastWeatherNightAlertIso } = await chrome.storage.local.get("lastWeatherNightAlertIso");
+      if (lastWeatherNightAlertIso !== todayIso) {
+        await chrome.storage.local.set({ lastWeatherNightAlertIso: todayIso });
+        await StudashNotifications.add({
+          id: `weather_night_${todayIso}`,
+          type: "weather",
+          title: `${advice.title} ${advice.icon}`,
+          message: advice.advice,
+          icon: advice.icon,
+          timestamp: Date.now(),
+        });
+      }
+    }
+  }
+
+  // Morning check (06:30 to 09:30): Check TODAY'S weather before campus
+  if (hour >= 6 && hour <= 9) {
+    const advice = StudashWeather.getAdvice(weather, hour);
+    if (advice && (advice.isSevere || advice.alertType === "cold")) {
+      const { lastWeatherDayAlertIso } = await chrome.storage.local.get("lastWeatherDayAlertIso");
+      if (lastWeatherDayAlertIso !== todayIso) {
+        await chrome.storage.local.set({ lastWeatherDayAlertIso: todayIso });
+        await StudashNotifications.add({
+          id: `weather_day_${todayIso}`,
+          type: "weather",
+          title: `${advice.title} ${advice.icon}`,
+          message: advice.advice,
+          icon: advice.icon,
+          timestamp: Date.now(),
+        });
+      }
+    }
+  }
+}
+
+// ===============================================================
+// Pooya Grade Scraped Handler (ثبت نمرات پویا)
+// ===============================================================
+async function handlePooyaGradesScraped(items) {
+  if (!Array.isArray(items) || items.length === 0) return;
+  const { pooyaGradesCache } = await chrome.storage.local.get("pooyaGradesCache");
+  const cache = pooyaGradesCache || null;
+
+  // First run ever: seed cache with current grades without spamming
+  if (!cache) {
+    const initialCache = {};
+    items.forEach((item) => {
+      initialCache[item.id] = { grade: item.grade, updatedAt: Date.now() };
+    });
+    await chrome.storage.local.set({ pooyaGradesCache: initialCache });
+    return;
+  }
+
+  const updatedCache = { ...cache };
+  for (const item of items) {
+    if (!item.hasGrade) continue;
+
+    const prev = cache[item.id];
+    const isNew = !prev || (prev.grade === null && item.grade !== null);
+    const isUpdated = prev && prev.grade !== null && prev.grade !== item.grade;
+
+    if (isNew || isUpdated) {
+      updatedCache[item.id] = { grade: item.grade, updatedAt: Date.now() };
+
+      const gradeTitle = isUpdated ? `تغییر نمره: ${item.course}` : `ثبت نمره جدید: ${item.course}`;
+      const gradeMsg = `${item.title}${item.category ? ` (${item.category})` : ""} • نمره: ${item.grade}${item.maxGrade ? ` از ${item.maxGrade}` : ""}`;
+
+      if (typeof StudashNotifications !== "undefined") {
+        await StudashNotifications.add({
+          id: `grade_${item.id}_${item.grade}`,
+          type: "grade",
+          title: gradeTitle,
+          message: gradeMsg,
+          icon: "🎓",
+          url: "https://pooya.um.ac.ir/educ/stu_portal/GradeItems.php",
+          meta: {
+            course: item.course,
+            instructor: item.instructor,
+            title: item.title,
+            category: item.category,
+            grade: item.grade,
+            maxGrade: item.maxGrade,
+          },
+          timestamp: Date.now(),
+        });
+      }
+    }
+  }
+
+  await chrome.storage.local.set({ pooyaGradesCache: updatedCache });
+}
+
 chrome.notifications.onClicked.addListener((id) => {
-  if (!id.startsWith("vu|")) return;
-  const target = id.split("|")[1];
-  chrome.tabs.create({ url: target === "dashboard" ? chrome.runtime.getURL("newtab.html") : target });
+  if (id.startsWith("vu|")) {
+    const target = id.split("|")[1];
+    chrome.tabs.create({ url: target === "dashboard" ? chrome.runtime.getURL("newtab.html") : target });
+    chrome.notifications.clear(id);
+    return;
+  }
+  // Grade, food or general StuDash notifications open the dashboard
+  chrome.tabs.create({ url: chrome.runtime.getURL("newtab.html") });
   chrome.notifications.clear(id);
 });
 
@@ -591,11 +759,31 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === VU_SYNC_ALARM) runVuSync();
+  if (alarm.name === FOOD_REMINDER_ALARM) checkWeeklyFoodReminder();
+  if (alarm.name === WEATHER_ADVISOR_ALARM) checkWeatherAdvisorNotifications();
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || message.target === "offscreen") return false;
   switch (message.action) {
+    case "POOYA_GRADES_SCRAPED":
+      handlePooyaGradesScraped(message.items).then(() => sendResponse({ ok: true }));
+      return true;
+
+    case "TRIGGER_FOOD_REMINDER_TEST":
+      if (typeof StudashNotifications !== "undefined") {
+        StudashNotifications.add({
+          type: "food",
+          title: "یادآوری رزرو غذای سلف دانشگاه 🍱",
+          message: "رزرو غذای هفته آینده فراموش نشود! مهلت رزرو غذای دانشجویی در حال اتمام است.",
+          icon: "🍱",
+          url: "https://pooya.um.ac.ir",
+        }).then(() => sendResponse({ ok: true }));
+      } else {
+        sendResponse({ ok: false });
+      }
+      return true;
+
     case "VU_SYNC":
       runVuSync(Boolean(message.force)).then(sendResponse);
       return true;
@@ -623,12 +811,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.runtime.onInstalled.addListener(() => {
   installVuHeaderRules();
   scheduleVuAlarm();
+  scheduleFoodReminderAlarm();
+  checkWeeklyFoodReminder();
+  scheduleWeatherAdvisorAlarm();
+  checkWeatherAdvisorNotifications();
 });
+
 chrome.runtime.onStartup.addListener(() => {
   scheduleVuAlarm();
+  scheduleFoodReminderAlarm();
+  checkWeeklyFoodReminder();
+  scheduleWeatherAdvisorAlarm();
+  checkWeatherAdvisorNotifications();
   runVuSync();
 });
 
 // Session rules don't survive a browser restart, and the worker can be restarted any time.
 installVuHeaderRules();
+scheduleFoodReminderAlarm();
+checkWeeklyFoodReminder();
+scheduleWeatherAdvisorAlarm();
+checkWeatherAdvisorNotifications();
 refreshVuBadge();

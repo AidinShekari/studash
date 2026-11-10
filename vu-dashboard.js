@@ -563,32 +563,22 @@ async function vuReloadScheduleFromStorage() {
   try { updateFocusCourseSelectOptions(); } catch (e) {}
 }
 
-// Shared by the new tab: asks replace / merge / cancel when classes already exist.
-// Resolves to "replace" | "merge" | null (cancelled). No prompt when the schedule is empty.
-async function askPooyaImportMode() {
-  const { scheduleClasses: existing } = await chrome.storage.local.get("scheduleClasses");
-  const count = (existing || []).length;
-  if (!count) return "merge";
-  const { value } = await SDUI.choose({
-    title: "برنامه کلاسی فعلی را چه کنیم؟",
-    message: `الان ${faDigits(count)} درس در برنامه هفتگی‌ات هست.\n«جایگزینی» برنامه فعلی را با برنامه پویا عوض می‌کند تا درس تکراری نماند؛ «ادغام» درس‌های پویا را کنار درس‌های فعلی اضافه یا به‌روز می‌کند.`,
-    actions: [
-      { value: null, label: "انصراف", variant: "ghost" },
-      { value: "merge", label: "ادغام", variant: "secondary" },
-      { value: "replace", label: "جایگزینی", variant: "primary" },
-    ],
-  });
-  return value;
-}
-
 async function runPooyaImportHere(connectFn) {
   const btn = document.getElementById("pooyaImportBtn");
   const label = btn ? btn.textContent : "";
 
-  // If a schedule already exists, ask whether Pooya should replace it or merge into it.
-  const mode = await askPooyaImportMode();
-  if (!mode) return null;
-  const replaceExisting = mode === "replace";
+  // Prompt user if scheduleClasses already exist
+  let replaceExisting = false;
+  const currentStored = await chrome.storage.local.get("scheduleClasses");
+  const existingCount = (currentStored.scheduleClasses || []).length;
+  if (existingCount > 0) {
+    const userChoice = confirm(
+      `⚠️ توجه: شما در حال حاضر ${existingCount} درس در برنامه هفتگی خود دارید.\n\n` +
+      `اگر «OK» را بزنید، برنامه کلاسی پویا جایگزین (Replace) برنامه قبلی خواهد شد تا تداخلی ایجاد نشود.\n` +
+      `اگر «Cancel» را بزنید، درس‌های پویا به برنامه قبلی شما اضافه (Merge) خواهند شد.`
+    );
+    replaceExisting = userChoice;
+  }
 
   if (btn) {
     btn.disabled = true;
@@ -650,8 +640,7 @@ function initPooyaUI() {
     try {
       const u = document.getElementById("pooyaDialogUsername").value;
       const pw = document.getElementById("pooyaDialogPassword").value;
-      const r = await runPooyaImportHere(() => Pooya.connect(u, pw));
-      if (!r) return; // cancelled the replace/merge choice: keep the login dialog open
+      await runPooyaImportHere(() => Pooya.connect(u, pw));
       document.getElementById("pooyaDialogPassword").value = "";
       dialog.close();
     } catch (err) {
@@ -663,8 +652,8 @@ function initPooyaUI() {
   document.getElementById("pooyaDialogUseVuBtn").addEventListener("click", async () => {
     busy(true);
     try {
-      const r = await runPooyaImportHere(() => Pooya.connect(vuState.creds.username, vuState.creds.password));
-      if (r) dialog.close();
+      await runPooyaImportHere(() => Pooya.connect(vuState.creds.username, vuState.creds.password));
+      dialog.close();
     } catch (err) {
       showDialogError(err);
     } finally {

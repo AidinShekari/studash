@@ -15,6 +15,7 @@ Chrome reads the extracted files in place. Keep that folder after installation; 
 
 ## Use StuDash
 
+- **Check notifications and weather:** the dashboard includes a notification center for Pooya grade updates, meal reminders, and weather alerts. The optional weather advisor fetches forecasts for the city selected in settings.
 - **Use card actions:** right-click classes, tasks, notes, ideas, and links for their available actions. On a keyboard use **Shift+F10**; on touch screens press and hold.
 - **Read a compact dashboard:** assignments and quizzes have course names beside their titles, filters, and five-item pages. The weekly timetable fits its occupied hours; midnight deadlines appear beneath the day instead of extending the time axis. UI symbols use locally bundled Twemoji.
 - **Plan your week:** add courses and meeting times to the class schedule. Open a course to keep its assignments, notes, useful links, and attendance count together. The calendar can display Jalali or Gregorian dates.

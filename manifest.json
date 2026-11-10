@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "StuDash - Student Dashboard (Beta)",
   "short_name": "StuDash",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "داشبورد جامع دانشجویی در تب جدید کروم: تقویم شمسی/میلادی، تسک روزانه، تایمر مطالعه، یادداشت سریع و سایت‌های پرکاربرد دانشگاه.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1C/kP6VAFlV9IufqwJXeLrRKSbXKQC6Z8K+Lhmhgb32mC0JSe4/C8Eb+Q9n0R+YoT/NVXYE8U2FKSvIUHoILS2jPRPBFqDh2/6KhkY4d7eqLIhQo/3+Ms1RxlFycfBRNJhedUgBefdeZZV/35v4MZyHE+X8soJviJxigtwmuWI2mEXxGN01RIAM5qxUnMVWLwwLg/UKu4TznIZ6eyDg/4UvlUpAGGLIyM+FEkp7vk0A0lbUpLjO4Oub88N6rK9QiA0rMrko+r76lIb2bbZTsEeMAmz5S5qPK2m/+oILnyVCckuUELcrWoffCoYUGYPEoeww8tSJ8pXQdR2MyjHapXQIDAQAB",
   "chrome_url_overrides": {
@@ -20,7 +20,8 @@
     "https://vu.um.ac.ir/*",
     "https://oauth.um.ac.ir/*",
     "https://pooya.um.ac.ir/*",
-    "https://www.googleapis.com/*"
+    "https://www.googleapis.com/*",
+    "https://api.open-meteo.com/*"
   ],
   "action": {
     "default_title": "StuDash",
@@ -37,6 +38,7 @@
       "js": [
         "content_script.js"
       ],
+      "all_frames": true,
       "run_at": "document_idle"
     }
   ],
@@ -56,5 +58,6 @@
       ],
       "use_dynamic_url": true
     }
-  ]
+  ],
+  "version_name": "1.2.0-beta.1"
 }

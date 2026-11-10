@@ -8,7 +8,8 @@
   const POOYA_ORIGIN = "https://pooya.um.ac.ir";
   const MAIN_FRAME_URL = `${POOYA_ORIGIN}/gateway/PuyaMainFrame2.php`;
   const SCHEDULE_URL = `${POOYA_ORIGIN}/educ/educfac/ShowStSchedule.php`;
-  const KEYS = { credentials: "pooyaCredentials", term: "pooyaTerm", parity: "weekParityRef" };
+  const GRADE_ITEMS_URL = `${POOYA_ORIGIN}/educ/stu_portal/GradeItems.php`;
+  const KEYS = { credentials: "pooyaCredentials", term: "pooyaTerm", parity: "weekParityRef", gradesCache: "pooyaGradesCache" };
 
   const {
     store,
@@ -311,28 +312,178 @@
   }
 
   async function disconnect() {
-    await store.remove([KEYS.credentials, KEYS.term]);
+    await store.remove([KEYS.credentials, KEYS.term, KEYS.gradesCache]);
   }
 
-  // Removes only the classes that came from Pooya; hand-made classes stay.
-  async function removeImportedClasses() {
-    const data = await store.get(["scheduleClasses"]);
-    const kept = (data.scheduleClasses || []).filter((c) => c.importedFrom !== "pooya");
-    await store.set({ scheduleClasses: kept });
-    return kept.length;
+  // ---------------------------------------------------------------
+  // Gradebook / Course Work parsing (GradeItems.php)
+  // ---------------------------------------------------------------
+  function parseGradeItems(doc) {
+    if (!doc) return [];
+    const tables = [...doc.querySelectorAll("table")];
+    const targetTable = tables.find((t) => {
+      const text = t.textContent;
+      return (text.includes("درس") || text.includes("عنوان")) && (text.includes("نمره") || text.includes("بارم"));
+    });
+    if (!targetTable) return [];
+
+    const rows = [...targetTable.querySelectorAll("tr")];
+    if (rows.length < 2) return [];
+
+    const headerRow = rows.find(
+      (r) => r.querySelector("th") || (r.children.length >= 5 && (r.textContent.includes("درس") || r.textContent.includes("عنوان")))
+    );
+    if (!headerRow) return [];
+
+    const headerCells = [...headerRow.children].map((c) => cleanText(c.textContent));
+
+    const colIndex = {
+      course: headerCells.findIndex((t) => t.includes("درس")),
+      instructor: headerCells.findIndex((t) => t.includes("استاد")),
+      title: headerCells.findIndex((t) => t.includes("عنوان")),
+      category: headerCells.findIndex((t) => t.includes("دسته")),
+      maxGrade: headerCells.findIndex((t) => t.includes("بارم")),
+      deadline: headerCells.findIndex((t) => t.includes("مهلت")),
+      assignment: headerCells.findIndex((t) => t.includes("تکلیف")),
+      description: headerCells.findIndex((t) => t.includes("توضیح")),
+      grade: headerCells.findIndex((t) => t.includes("نمره")),
+    };
+
+    const items = [];
+    for (const tr of rows) {
+      if (tr === headerRow) continue;
+      const cells = [...tr.children].filter((c) => c.tagName === "TD" || c.tagName === "TH");
+      if (cells.length < 5) continue;
+
+      const getCol = (idx) => (idx >= 0 && idx < cells.length ? cleanText(cells[idx].textContent) : "");
+
+      const course = getCol(colIndex.course);
+      const title = getCol(colIndex.title);
+      if (!course && !title) continue;
+
+      const instructor = getCol(colIndex.instructor);
+      const category = getCol(colIndex.category);
+      const maxGradeRaw = getCol(colIndex.maxGrade);
+      const deadline = getCol(colIndex.deadline);
+      const gradeRaw = getCol(colIndex.grade);
+
+      const maxGrade = toEnglishDigits(maxGradeRaw).trim();
+      const grade = toEnglishDigits(gradeRaw).trim();
+      const hasGrade = grade !== "" && grade !== "-" && grade !== "—" && !isNaN(parseFloat(grade));
+
+      // Generate a stable unique key for this assignment / quiz
+      const key = `${course}_${title}_${category}`.replace(/[\s\-_.]+/g, "_");
+
+      items.push({
+        id: key,
+        course,
+        instructor,
+        title,
+        category,
+        maxGrade,
+        deadline,
+        grade: hasGrade ? grade : null,
+        rawGrade: gradeRaw,
+        hasGrade,
+      });
+    }
+
+    return items;
+  }
+
+  async function fetchGradeItems() {
+    const page = await fetchPage(GRADE_ITEMS_URL);
+    if (isOAuthPage(page)) throw new VUError("NO_CREDENTIALS");
+    return parseGradeItems(page.doc);
+  }
+
+  async function syncGrades(items = null, { notify = true } = {}) {
+    try {
+      let gradeItems = items;
+      if (!gradeItems) {
+        gradeItems = await fetchGradeItems();
+      }
+      if (!Array.isArray(gradeItems) || gradeItems.length === 0) {
+        return { count: 0, newGrades: 0 };
+      }
+
+      const stored = await store.get([KEYS.gradesCache]);
+      const cache = stored[KEYS.gradesCache] || null;
+
+      // First run ever: seed cache with current grades without spamming notifications
+      if (!cache) {
+        const initialCache = {};
+        gradeItems.forEach((item) => {
+          initialCache[item.id] = { grade: item.grade, updatedAt: Date.now() };
+        });
+        await store.set({ [KEYS.gradesCache]: initialCache });
+        return { count: gradeItems.length, newGrades: 0 };
+      }
+
+      let newGradesCount = 0;
+      const updatedCache = { ...cache };
+
+      for (const item of gradeItems) {
+        if (!item.hasGrade) continue;
+
+        const prev = cache[item.id];
+        const isNew = !prev || (prev.grade === null && item.grade !== null);
+        const isUpdated = prev && prev.grade !== null && prev.grade !== item.grade;
+
+        if (isNew || isUpdated) {
+          newGradesCount++;
+          updatedCache[item.id] = { grade: item.grade, updatedAt: Date.now() };
+
+          if (global.StudashNotifications) {
+            const gradeTitle = isUpdated ? `تغییر نمره: ${item.course}` : `ثبت نمره جدید: ${item.course}`;
+            const gradeMsg = `${item.title}${item.category ? ` (${item.category})` : ""} • نمره: ${item.grade}${item.maxGrade ? ` از ${item.maxGrade}` : ""}`;
+
+            await global.StudashNotifications.add(
+              {
+                id: `grade_${item.id}_${item.grade}`,
+                type: "grade",
+                title: gradeTitle,
+                message: gradeMsg,
+                icon: "🎓",
+                url: GRADE_ITEMS_URL,
+                meta: {
+                  course: item.course,
+                  instructor: item.instructor,
+                  title: item.title,
+                  category: item.category,
+                  grade: item.grade,
+                  maxGrade: item.maxGrade,
+                },
+                timestamp: Date.now(),
+              },
+              { notify }
+            );
+          }
+        }
+      }
+
+      await store.set({ [KEYS.gradesCache]: updatedCache });
+      return { count: gradeItems.length, newGrades: newGradesCount };
+    } catch (err) {
+      console.warn("[Pooya] syncGrades failed:", err);
+      return { ok: false, error: err.message };
+    }
   }
 
   global.Pooya = {
     POOYA_ORIGIN,
+    GRADE_ITEMS_URL,
     KEYS,
     checkSession,
     connect,
     connectExistingSession,
     disconnect,
-    removeImportedClasses,
     getCredentials,
     importSchedule,
     parseSchedule,
+    parseGradeItems,
+    fetchGradeItems,
+    syncGrades,
     readTermInfo,
     parityForDate,
     makeParityRef,

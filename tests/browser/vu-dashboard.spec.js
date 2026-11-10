@@ -271,7 +271,6 @@ function test(name, fn) {
   document.documentElement.dataset.theme = 'studash-' + mode;
   vuState.data.items = items; renderVuSection();
   document.querySelector('.clock').textContent = '12:45';
-  document.querySelector('.greeting').textContent = 'روز خوبی داشته باشی';
   calendar.renderCalendar();
   for (const scale of ['compact', 'normal', 'large']) {
     document.documentElement.dataset.scale = scale;

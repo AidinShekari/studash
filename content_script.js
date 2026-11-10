@@ -3,10 +3,101 @@
 // ===============================================================
 
 (function () {
-  // Prevent duplicate injection
+  // ===============================================================
+  // Pooya Portal - Gradebook (دفتر نمره) Live Auto-Scraper
+  // Runs in any frame belonging to pooya.um.ac.ir
+  // ===============================================================
+  if (window.location.hostname === "pooya.um.ac.ir") {
+    function tryScrapePooyaGrades() {
+      try {
+        const isGradePage = window.location.pathname.includes("GradeItems.php");
+        const tables = [...document.querySelectorAll("table")];
+        const gradeTable = tables.find((t) => {
+          const txt = t.textContent;
+          return (txt.includes("درس") || txt.includes("عنوان")) && (txt.includes("نمره") || txt.includes("بارم"));
+        });
+
+        if (!gradeTable && !isGradePage) return;
+        if (!gradeTable) return;
+
+        const rows = [...gradeTable.querySelectorAll("tr")];
+        if (rows.length < 2) return;
+
+        const headerRow = rows.find(
+          (r) => r.querySelector("th") || (r.children.length >= 5 && (r.textContent.includes("درس") || r.textContent.includes("عنوان")))
+        );
+        if (!headerRow) return;
+
+        const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
+        const toEngDigits = (s) => (s || "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+
+        const headerCells = [...headerRow.children].map((c) => clean(c.textContent));
+        const colIndex = {
+          course: headerCells.findIndex((t) => t.includes("درس")),
+          instructor: headerCells.findIndex((t) => t.includes("استاد")),
+          title: headerCells.findIndex((t) => t.includes("عنوان")),
+          category: headerCells.findIndex((t) => t.includes("دسته")),
+          maxGrade: headerCells.findIndex((t) => t.includes("بارم")),
+          deadline: headerCells.findIndex((t) => t.includes("مهلت")),
+          grade: headerCells.findIndex((t) => t.includes("نمره")),
+        };
+
+        const items = [];
+        for (const tr of rows) {
+          if (tr === headerRow) continue;
+          const cells = [...tr.children].filter((c) => c.tagName === "TD" || c.tagName === "TH");
+          if (cells.length < 5) continue;
+
+          const getCol = (idx) => (idx >= 0 && idx < cells.length ? clean(cells[idx].textContent) : "");
+          const course = getCol(colIndex.course);
+          const title = getCol(colIndex.title);
+          if (!course && !title) continue;
+
+          const instructor = getCol(colIndex.instructor);
+          const category = getCol(colIndex.category);
+          const maxGradeRaw = getCol(colIndex.maxGrade);
+          const deadline = getCol(colIndex.deadline);
+          const gradeRaw = getCol(colIndex.grade);
+
+          const maxGrade = toEngDigits(maxGradeRaw).trim();
+          const grade = toEngDigits(gradeRaw).trim();
+          const hasGrade = grade !== "" && grade !== "-" && grade !== "—" && !isNaN(parseFloat(grade));
+
+          const key = `${course}_${title}_${category}`.replace(/[\s\-_.]+/g, "_");
+          items.push({
+            id: key,
+            course,
+            instructor,
+            title,
+            category,
+            maxGrade,
+            deadline,
+            grade: hasGrade ? grade : null,
+            rawGrade: gradeRaw,
+            hasGrade,
+          });
+        }
+
+        if (items.length > 0) {
+          chrome.runtime.sendMessage({
+            action: "POOYA_GRADES_SCRAPED",
+            items,
+          }).catch(() => {});
+        }
+      } catch (err) {
+        console.warn("[StuDash ContentScript] Pooya scrape error:", err);
+      }
+    }
+
+    tryScrapePooyaGrades();
+    setTimeout(tryScrapePooyaGrades, 1500);
+    setTimeout(tryScrapePooyaGrades, 3500);
+  }
+
+  // Prevent duplicate injection for floating timer
   if (document.getElementById("studash-floating-root")) return;
 
-  // Don't inject in iframe or extension pages
+  // Don't inject floating timer in iframe or extension pages
   if (window !== window.top) return;
   if (window.location.protocol === "chrome-extension:") return;
 
@@ -24,25 +115,7 @@
   rootHost.style.zIndex = "2147483647";
   rootHost.style.bottom = "24px";
   rootHost.style.left = "24px";
-  rootHost.style.fontFamily = "'StuDash Twemoji', 'StuDash Estedad', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
-  // The widget lives on other sites, so register the bundled Estedad under a private
-  // family name (no clash with the page's own fonts). Failure just keeps the fallback.
-  try {
-    for (const [subset, range] of [["arabic", "U+0600-06FF,U+200C-200E,U+FB50-FDFF,U+FE70-FEFC"], ["latin", "U+0000-00FF,U+2000-206F"]]) {
-      for (const weight of ["400", "700", "800"]) {
-        const url = chrome.runtime.getURL(`fonts/estedad/estedad-${subset}-${weight}-normal.woff2`);
-        const face = new FontFace("StuDash Estedad", `url("${url}") format("woff2")`, { weight, unicodeRange: range, display: "swap" });
-        document.fonts.add(face);
-        face.load().catch(() => {});
-      }
-    }
-    const emoji = new FontFace("StuDash Twemoji", `url("${chrome.runtime.getURL("fonts/twemoji/twemoji.woff2")}") format("woff2")`, {
-      unicodeRange: "U+200D,U+20E3,U+FE0F,U+231A-23FA,U+2600-27BF,U+2B05-2B55,U+1F000-1FAFF",
-      display: "swap",
-    });
-    document.fonts.add(emoji);
-    emoji.load().catch(() => {});
-  } catch (e) {}
+  rootHost.style.fontFamily = "'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   rootHost.style.userSelect = "none";
   rootHost.style.lineHeight = "1.4";
   document.documentElement.appendChild(rootHost);
