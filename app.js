@@ -882,7 +882,10 @@ function renderCalendar() {
       calendarGrid.appendChild(row);
     }
     const cellIso = visibleIsos[index];
+    const occasions = StudashIranCalendar.forDate(cell.date);
     const flags = {
+      occasions,
+      holiday: occasions.some(event => event.holiday),
       outside: cell.outside,
       today: sameDay(cell.date, today),
       selected: sameDay(cell.date, selectedDate),
@@ -901,6 +904,8 @@ function renderCalendar() {
     if (flags.today) btn.setAttribute("aria-current", "date");
     btn.setAttribute("aria-label", calendarCellLabel(cell.date, flags));
     btn.classList.toggle("outside", flags.outside);
+    btn.classList.toggle("is-holiday", flags.holiday);
+    if (occasions.length) btn.title = occasions.map(event => event.title).join("، ");
     btn.classList.toggle("today", flags.today);
     btn.classList.toggle("selected", flags.selected);
     btn.classList.toggle("has-tasks", flags.tasks);
@@ -928,6 +933,17 @@ function renderCalendar() {
     btn.addEventListener("click", () => selectCalendarDate(cell.date, cell));
     row.appendChild(btn);
   });
+
+  const occasionLabel = document.getElementById("calendarOccasion");
+  if (occasionLabel) {
+    const events = isInVisibleMonth(selectedDate) ? StudashIranCalendar.forDate(selectedDate) : [];
+    const holiday = events.some(event => event.holiday);
+    const message = events.map(event => event.title).join("، ");
+    const text = holiday ? `تعطیل رسمی · ${message}` : message;
+    if (occasionLabel.textContent !== text) occasionLabel.textContent = text;
+    occasionLabel.classList.toggle("is-holiday", holiday);
+    occasionLabel.hidden = !events.length;
+  }
 }
 
 // Full, screen-reader friendly description of a calendar day.
@@ -943,6 +959,8 @@ function calendarCellLabel(date, flags) {
   if (flags.exam) parts.push("دارای امتحان");
   if (flags.tasks) parts.push("دارای کار");
   if (flags.vu) parts.push("مهلت تکلیف VU");
+  if (flags.holiday) parts.push("تعطیل رسمی");
+  if (flags.occasions?.length) parts.push(...flags.occasions.map(event => event.title));
   return faDigits(parts.join("، "));
 }
 

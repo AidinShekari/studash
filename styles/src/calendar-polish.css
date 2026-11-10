@@ -28,3 +28,29 @@
 .page .calendar-panel .cal-mode-btn { padding-block: 5px; min-height: 28px; font-size: 11px; }
 .page :is(.card__title, .class-title, .personal-event-title, .vu-task-title) { display: block; min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .page .sd-titlerow { min-width: 0; max-width: 100%; }
+
+.page .calendar-panel .cal-day.is-holiday .cal-day__num {
+  color: var(--danger-soft-foreground, var(--danger));
+  background: var(--danger-soft, transparent);
+  font-weight: 700;
+}
+.page .calendar-panel .cal-day.is-holiday:is(.today, .selected) .cal-day__num {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.page .calendar-panel .cal-day.is-holiday.outside { opacity: 0.65; }
+.cal-legend__mark--holiday { border-radius: 50%; background: var(--danger); }
+.cal-occasion { margin: 0; font-size: 11px; line-height: 1.6; text-align: center; color: var(--muted); }
+.cal-occasion.is-holiday { color: var(--danger-soft-foreground, var(--danger)); }
+
+.page .calendar-panel .cal-mode-toggle {
+  max-inline-size: 12rem;
+  padding: 2px;
+  background: color-mix(in srgb, var(--surface-secondary) 55%, transparent);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.page .calendar-panel .cal-mode-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+  box-shadow: none;
+}

@@ -44,7 +44,9 @@
               <div class="calendar-grid" id="calendarGrid" role="rowgroup"></div>
             </div>
             <p id="calendarHelp" class="sr-only">با کلیدهای جهت بین روزها حرکت کن، Enter برای انتخاب روز، Page Up و Page Down برای ماه قبل و بعد.</p>
+            <p class="cal-occasion" id="calendarOccasion" aria-live="polite" hidden></p>
             <ul class="cal-legend" aria-label="راهنمای نشانگرها">
+              <li><span class="cal-legend__mark cal-legend__mark--holiday" aria-hidden="true"></span>تعطیل رسمی</li>
               <li><span class="cal-legend__mark cal-legend__mark--task" aria-hidden="true"></span>کار</li>
               <li><span class="cal-legend__mark cal-legend__mark--exam" aria-hidden="true"></span>امتحان</li>
               <li><span class="cal-legend__mark cal-legend__mark--vu" aria-hidden="true"></span>مهلت VU</li>
@@ -2112,6 +2114,7 @@
   </dialog>
 
   <script src="jalali.js"></script>
+  <script src="data/iran-calendar.js"></script>
   <script src="notifications.js"></script>
   <script src="weather.js"></script>
   <script src="ui-kit.js"></script>

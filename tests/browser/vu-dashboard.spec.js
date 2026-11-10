@@ -83,6 +83,7 @@ function test(name, fn) {
     calendarFocusIso: null, selectedDate: new Date(2026, 10, 5),
     daysWithTasksThisMonth: new Set(['2026-11-05']),
     updateCalendarModeButtons() {},
+    isInVisibleMonth: () => true,
     toJalali: StudashDate.toJalali, toGregorian: StudashDate.toGregorian,
     jalaliMonthDays: StudashDate.jalaliMonthLength, isoDate: StudashDate.isoDate,
     sameDay: (a, b) => StudashDate.isoDate(a) === StudashDate.isoDate(b),
@@ -105,6 +106,26 @@ function test(name, fn) {
       eq(document.querySelectorAll('.cal-day').length, 42);
       eq(/[۰-۹٠-٩]/.test(calendarState.calendarGrid.textContent + calendarState.monthLabel.textContent + calendarState.monthSubLabel.textContent), false);
       eq(document.querySelectorAll('.cal-day[tabindex="0"]').length, 1);
+    }
+  });
+  test('Iranian holidays appear in both calendar modes and name the selected occasion', () => {
+    const previous = { ...calendarState };
+    try {
+      calendarState.selectedDate = StudashDate.toGregorian(1405, 1, 1);
+      const iso = StudashDate.isoDate(calendarState.selectedDate);
+      for (const mode of ['shamsi', 'gregorian']) {
+        Object.assign(calendarState, { calendarMode: mode, shamsiYear: 1405, shamsiMonth: 1, viewYear: 2026, viewMonth: 2 });
+        calendar.renderCalendar();
+        const day = document.querySelector(`.cal-day[data-iso="${iso}"]`);
+        eq(day.classList.contains('is-holiday'), true);
+        eq(day.title.includes('نوروز') && day.title.includes('فطر'), true);
+        eq(day.getAttribute('aria-label').includes('تعطیل رسمی'), true);
+        eq(document.getElementById('calendarOccasion').hidden, false);
+      }
+      eq(StudashIranCalendar.forDate(StudashDate.toGregorian(1405, 12, 19)).some(event => event.holiday), true);
+      eq(StudashIranCalendar.forDate(StudashDate.toGregorian(1405, 9, 16)).some(event => event.holiday), false);
+    } finally {
+      Object.assign(calendarState, previous);
     }
   });
   test('calendar preserves event markers, selection, and date click targets', () => {

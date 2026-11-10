@@ -60,7 +60,7 @@
 /* When Weather Advisor pill is visible, drop below it cleanly */
 .top-clock-header.has-weather-active .notif-dropdown-menu,
 .top-clock-header:has(.weather-advisor-wrap:not([hidden])) .notif-dropdown-menu {
-  top: calc(100% + 46px) !important;
+  top: calc(100% + 56px) !important;
 }
 
 .notif-dropdown-menu[hidden] {
@@ -479,3 +479,11 @@
   inset-inline-start: 0;
   inset-inline-end: auto;
 }
+
+.top-clock-header .weather-advisor-wrap { margin-block: 10px 4px; }
+.top-clock-header .weather-advisor-pill {
+  max-inline-size: min(100%, 28rem) !important;
+  min-inline-size: 0;
+  padding-block: 7px !important;
+}
+.weather-advisor-pill .weather-advice-text { min-inline-size: 0; }
