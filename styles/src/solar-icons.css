@@ -1,0 +1,18 @@
+/* Solar Linear icons inherit the control's color and size. */
+.sd-icon, .solar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 1.2em;
+  block-size: 1.2em;
+  vertical-align: -0.18em;
+  line-height: 1;
+}
+.google-app-icon-wrap .solar-icon, .pin-favicon .solar-icon { font-size: 30px; }
+.google-header-logo .solar-icon { font-size: 24px; }
+.hub-link-favicon .solar-icon { font-size: 18px; }
+.dialog-close-btn .solar-icon { font-size: 12px; }
+.solar-icon.pp-spinner { animation: sd-solar-spin 1s linear infinite; }
+@keyframes sd-solar-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .solar-icon.pp-spinner { animation: none; } }

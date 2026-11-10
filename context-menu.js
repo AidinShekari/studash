@@ -65,7 +65,7 @@
       button.type = 'button'; button.setAttribute('role', 'menuitem');
       button.className = 'sd-context-item' + (action.danger ? ' sd-context-item--danger' : '');
       button.disabled = Boolean(action.disabled);
-      const icon = document.createElement('span'); icon.className = 'twemoji-icon'; icon.setAttribute('aria-hidden', 'true'); icon.textContent = action.icon;
+      const icon = document.createElement('span'); icon.className = 'solar-icon'; icon.setAttribute('aria-hidden', 'true'); icon.textContent = action.icon;
       const label = document.createElement('span'); label.textContent = action.label;
       button.append(icon, label);
       button.addEventListener('click', event => {

@@ -12,7 +12,7 @@
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles/studash.css" />
 </head>
-<body>
+<body data-studash-solar>
 
   <div class="horizon-bar" id="horizonBar" aria-hidden="true"></div>
 
@@ -32,8 +32,8 @@
             </div>
             <div class="cal-navigation" aria-label="پیمایش تقویم">
               <button id="calendarToday" type="button" class="cal-today-btn">امروز</button>
-              <button id="prevMonth" type="button" class="nav-btn" aria-label="ماه قبل" title="ماه قبل"><span class="twemoji-icon" aria-hidden="true">▶️</span></button>
-              <button id="nextMonth" type="button" class="nav-btn" aria-label="ماه بعد" title="ماه بعد"><span class="twemoji-icon" aria-hidden="true">◀️</span></button>
+              <button id="prevMonth" type="button" class="nav-btn" aria-label="ماه قبل" title="ماه قبل"><span class="solar-icon" data-solar="alt-arrow-right" aria-hidden="true"></span></button>
+              <button id="nextMonth" type="button" class="nav-btn" aria-label="ماه بعد" title="ماه بعد"><span class="solar-icon" data-solar="alt-arrow-left" aria-hidden="true"></span></button>
             </div>
           </header>
           <div class="card__content">
@@ -68,26 +68,17 @@
             <!-- Row 1: Top Utility Actions Bar (Profile, Settings, Notifications, Tools) -->
             <div class="clock-top-actions" id="clockTopActions">
               <button type="button" class="profile-edit-btn" id="profileEditBtn" title="ویرایش مشخصات دانشجو" aria-label="ویرایش مشخصات">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
+                <span class="solar-icon" data-solar="pen" aria-hidden="true"></span>
               </button>
 
               <button type="button" class="profile-edit-btn settings-launch-btn" id="settingsLaunchBtn" title="تنظیمات داشبورد و انتخاب پوسته" aria-label="تنظیمات داشبورد">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
+                <span class="solar-icon" data-solar="settings" aria-hidden="true"></span>
               </button>
 
               <!-- Notification Center: Bell with pulsing red beacon for new grades and reminders -->
               <div class="notif-wrap" id="notifWrap">
                 <button type="button" class="profile-edit-btn notif-trigger-btn" id="notifTriggerBtn" title="اعلان‌ها" aria-label="اعلان‌ها" aria-expanded="false">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                  </svg>
+                  <span class="solar-icon" data-solar="bell" aria-hidden="true"></span>
                   <span class="notif-pulse-dot" id="notifPulseDot" hidden></span>
                 </button>
 
@@ -111,9 +102,7 @@
               <!-- Quick Tools Access: wrench icon -> dropdown to pin tools to main screen OR launch them directly -->
               <div class="quick-tools-wrap" id="quickToolsWrap">
                 <button type="button" class="profile-edit-btn quick-tools-trigger-btn" id="quickToolsTriggerBtn" title="ابزارها و امکانات" aria-label="ابزارها و امکانات" aria-expanded="false">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                  </svg>
+                  <span class="solar-icon" data-solar="settings-minimalistic" aria-hidden="true"></span>
                 </button>
 
                 <div class="quick-tools-menu" id="quickToolsMenu" hidden>
@@ -232,13 +221,7 @@
                 <span>تایمر مطالعه</span>
               </button>
               <button type="button" class="side-tool-btn report-launch-btn" id="studyReportLaunchBtn" data-tool="report" title="گزارش و آمار ساعات مطالعه">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="13" width="4.2" height="7" rx="1"></rect>
-                  <rect x="10.4" y="9" width="4.2" height="11" rx="1"></rect>
-                  <rect x="16.8" y="4.5" width="4.2" height="15.5" rx="1"></rect>
-                  <path d="M5.2 11.5 11.5 7 18.9 3"></path>
-                  <circle cx="18.9" cy="3" r="1.4" fill="currentColor" stroke="none"></circle>
-                </svg>
+                <span class="solar-icon" data-solar="chart" aria-hidden="true"></span>
                 <span>گزارش مطالعه</span>
               </button>
             </div>
@@ -253,10 +236,7 @@
             <!-- Left Wing: Tools & Webmail -->
             <div class="clock-wing clock-wing-left">
               <a href="https://webmail.um.ac.ir" target="_blank" rel="noopener noreferrer" class="side-tool-btn webmail-btn" id="headerWebmailBtn" data-tool="webmail" title="ورود به ایمیل دانشگاهی (Webmail)">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                </svg>
+                <span class="solar-icon" data-solar="letter" aria-hidden="true"></span>
                 <span>ایمیل دانشگاهی</span>
               </a>
               <button type="button" class="side-tool-btn idea-launch-btn" id="headerIdeaLabBtn" data-tool="idea" title="آزمایشگاه ایده و مسیر راه">
@@ -275,7 +255,7 @@
 
         <form class="search-form" id="searchForm" role="search">
           <span class="search-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="solar-icon" data-solar="magnifier" aria-hidden="true"></span>
           </span>
           <input id="searchInput" type="text" placeholder="جستجو در وب…" autocomplete="off" autofocus />
         </form>
@@ -338,7 +318,7 @@
             </div>
             <div class="sd-card__actions vu-header-actions" id="vuHeaderActions" hidden>
               <div class="vu-stats" id="vuStats" role="list" aria-label="خلاصه تکالیف"></div>
-              <button type="button" class="vu-sync-btn" id="vuSyncBtn" aria-label="همگام‌سازی با VU" title="همگام‌سازی با VU"><span class="twemoji-icon" aria-hidden="true">🔄</span></button>
+              <button type="button" class="vu-sync-btn" id="vuSyncBtn" aria-label="همگام‌سازی با VU" title="همگام‌سازی با VU"><span class="solar-icon" aria-hidden="true">🔄</span></button>
             </div>
           </header>
           <div class="card__content">
@@ -395,19 +375,11 @@
           <!-- Segmented Tab Switcher -->
           <div class="schedule-mode-toggle" id="scheduleModeToggle" role="tablist" aria-label="نوع برنامه">
             <button type="button" class="sched-mode-btn active" id="schedModeUnivBtn" data-mode="university" role="tab" aria-selected="true" aria-controls="scheduleGrid">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              </svg>
+              <span class="solar-icon" data-solar="square-academic-cap" aria-hidden="true"></span>
               <span>برنامه کلاسی دانشگاه</span>
             </button>
             <button type="button" class="sched-mode-btn" id="schedModePersonalBtn" data-mode="personal" role="tab" aria-selected="false" aria-controls="scheduleGrid" tabindex="-1">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
+              <span class="solar-icon" data-solar="calendar" aria-hidden="true"></span>
               <span>برنامه جامع هفتگی (Google Calendar & Routine)</span>
             </button>
           </div>
@@ -464,10 +436,7 @@
     <footer class="app-footer">
       <div class="footer-inner">
         <div class="footer-brand" dir="ltr">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="footer-logo">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-          </svg>
+          <span class="solar-icon footer-logo" data-solar="square-academic-cap" aria-hidden="true"></span>
           <span>StuDash</span>
         </div>
         <div class="footer-meta" dir="ltr">
@@ -1099,7 +1068,7 @@
         <section class="settings-section settings-footer-section">
           <div class="settings-app-info">
             <div class="sd-row-between">
-              <span class="settings-app-version" dir="ltr">StuDash v1.2.0 Beta 1 — Academic Workspace for Students</span>
+              <span class="settings-app-version" dir="ltr">StuDash v1.2.0 Beta 2 — Academic Workspace for Students</span>
               <button type="button" class="ghost-btn-sm" id="settingsOpenTourBtn">🚀 راهنمای قابلیت‌های جدید</button>
             </div>
             <div class="settings-support-link">
@@ -1405,13 +1374,7 @@
       <header class="focus-modal-header">
         <div class="focus-modal-title-group">
           <div class="focus-icon-title">
-            <svg class="focus-flame-icon report-title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="13" width="4.2" height="7" rx="1"></rect>
-              <rect x="10.4" y="9" width="4.2" height="11" rx="1"></rect>
-              <rect x="16.8" y="4.5" width="4.2" height="15.5" rx="1"></rect>
-              <path d="M5.2 11.5 11.5 7 18.9 3"></path>
-              <circle cx="18.9" cy="3" r="1.4" fill="currentColor" stroke="none"></circle>
-            </svg>
+            <span class="solar-icon focus-flame-icon report-title-icon" data-solar="chart" aria-hidden="true"></span>
             <h2>گزارش مطالعه هفتگی</h2>
           </div>
           <span class="focus-stats-badge" id="reportStreakBadge">🔥 هنوز استریکی نداری</span>
@@ -1460,12 +1423,7 @@
       <header class="google-apps-header">
         <div class="google-apps-title-group">
           <div class="google-header-logo">
-            <svg width="24" height="24" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-            </svg>
+            <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
             <h2>Google Apps</h2>
           </div>
           <span class="google-apps-subtitle">سرویس‌های ابری، تحصیلی و ارتباطی گوگل</span>
@@ -1477,7 +1435,7 @@
         <!-- 1. Google Search -->
         <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+            <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Search</span>
         </a>
@@ -1485,7 +1443,7 @@
         <!-- 2. Gmail -->
         <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4caf50" d="M45,16.2l-5,2.75l-5,4.75L35,40h7c1.657,0,3-1.343,3-3V16.2z"/><path fill="#1e88e5" d="M3,16.2l3.65,2.01L13,23.7V40H6c-1.657,0-3-1.343-3-3V16.2z"/><polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/><path fill="#c62828" d="M3,12.298V16.2l10,7.5V11.2L4.676,5.172C3.654,4.406,3,3.22,3,1.902V12.298z"/><path fill="#fbc02d" d="M45,12.298V16.2l-10,7.5V11.2l8.324-6.028C44.346,4.406,45,3.22,45,1.902V12.298z"/></svg>
+            <span class="solar-icon" data-solar="letter" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Gmail</span>
         </a>
@@ -1493,7 +1451,7 @@
         <!-- 3. Google Calendar -->
         <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="38" height="38" x="5" y="5" fill="#fff" rx="6"/><path fill="#1a73e8" d="M37 5H11A6 6 0 0 0 5 11v5h38v-5a6 6 0 0 0-6-6z"/><path fill="#ea4335" d="M35 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6zM13 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/><text x="24" y="36" font-family="'Vazirmatn', sans-serif" font-size="18" font-weight="bold" fill="#1a73e8" text-anchor="middle">31</text></svg>
+            <span class="solar-icon" data-solar="calendar" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Calendar</span>
         </a>
@@ -1501,7 +1459,7 @@
         <!-- 4. Google Drive -->
         <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#FFC107" d="M17 6L31 6 45 30 31 30z"/><path fill="#2196F3" d="M31 30L45 30 38 42 10 42z"/><path fill="#4CAF50" d="M17 6L3 30 10 42 24 18z"/></svg>
+            <span class="solar-icon" data-solar="folder-cloud" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Drive</span>
         </a>
@@ -1509,7 +1467,7 @@
         <!-- 5. Google Meet -->
         <a href="https://meet.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="26" height="26" x="4" y="11" fill="#00832d" rx="4"/><polygon fill="#0066da" points="30,19 44,11 44,37 30,29"/><polygon fill="#2684fc" points="30,19 37,24 30,29"/><rect width="22" height="22" x="6" y="13" fill="#00ac47" rx="3"/><path fill="#ffba00" d="M28 15v18h-4V15z"/><path fill="#ea4335" d="M6 13h18v4H6z"/></svg>
+            <span class="solar-icon" data-solar="videocamera" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Meet</span>
         </a>
@@ -1517,7 +1475,7 @@
         <!-- 6. Google Scholar -->
         <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 6L2 18l22 12 18-9.82V34h4V18L24 6z"/><polygon fill="#34A853" points="14,24.5 14,35 24,40.5 34,35 34,24.5 24,30"/></svg>
+            <span class="solar-icon" data-solar="square-academic-cap" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Scholar</span>
         </a>
@@ -1525,7 +1483,7 @@
         <!-- 7. Google Docs -->
         <a href="https://docs.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M30 4H12A4 4 0 0 0 8 8v32a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V14z"/><path fill="#A1C2FA" d="M30 4l10 10H30z"/><path fill="#fff" d="M16 22h16v2.5H16zm0 6h16v2.5H16zm0 6h10v2.5H16z"/></svg>
+            <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Docs</span>
         </a>
@@ -1533,7 +1491,7 @@
         <!-- 8. Google Sheets -->
         <a href="https://sheets.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#0F9D58" d="M30 4H12A4 4 0 0 0 8 8v32a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V14z"/><path fill="#87CEAC" d="M30 4l10 10H30z"/><path fill="#fff" d="M16 22h16v16H16zm2 2v3h5v-3zm7 0v3h5v-3zm-7 5v3h5v-3zm7 0v3h5v-3zm-7 5v4h5v-4zm7 0v4h5v-4z"/></svg>
+            <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Sheets</span>
         </a>
@@ -1541,7 +1499,7 @@
         <!-- 9. Google Slides -->
         <a href="https://slides.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#F4B400" d="M30 4H12A4 4 0 0 0 8 8v32a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V14z"/><path fill="#FCD770" d="M30 4l10 10H30z"/><rect width="18" height="13" x="15" y="22" fill="#fff" rx="1.5"/></svg>
+            <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Slides</span>
         </a>
@@ -1549,7 +1507,7 @@
         <!-- 10. Google Classroom -->
         <a href="https://classroom.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="40" height="30" x="4" y="9" fill="#0f9d58" rx="4"/><rect width="36" height="26" x="6" y="11" fill="#137333" rx="3"/><path fill="#f4b400" d="M24 16a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-8 14c0-3 5.33-4.5 8-4.5s8 1.5 8 4.5v1.5H16z"/></svg>
+            <span class="solar-icon" data-solar="users-group-rounded" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Classroom</span>
         </a>
@@ -1557,7 +1515,7 @@
         <!-- 11. Google Translate -->
         <a href="https://translate.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M4 10h22v28H4z" rx="3"/><path fill="#E8F0FE" d="M22 14h22v28H22z" rx="3"/><path fill="#1A73E8" d="M33 22h-8v-2h3.5v-2h2v2H34v2h-1zm-4 8a6 6 0 0 1-5-3h2.2a4 4 0 0 0 2.8 1.8l2.2-2.3-1.4-3.5h2.2l.8 2 2.2-2.5 1.5 1.5-3.5 4a6 6 0 0 1-4 1.5z"/><text x="15" y="28" font-family="'Vazirmatn', sans-serif" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">G</text></svg>
+            <span class="solar-icon" data-solar="translation" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Translate</span>
         </a>
@@ -1565,7 +1523,7 @@
         <!-- 12. Google Keep -->
         <a href="https://keep.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#FBBC04" d="M12 6h24a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z"/><path fill="#fff" d="M24 13a7 7 0 0 0-4 12.7V29a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3.3A7 7 0 0 0 24 13zm-2 19h4v1.5h-4z"/></svg>
+            <span class="solar-icon" data-solar="notebook" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Keep</span>
         </a>
@@ -1573,7 +1531,7 @@
         <!-- 13. YouTube -->
         <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#FF0000" d="M43.2 14.8c-.5-1.9-2-3.4-3.9-3.9C35.8 10 24 10 24 10s-11.8 0-15.3.9c-1.9.5-3.4 2-3.9 3.9C4 18.3 4 24 4 24s0 5.7.8 9.2c.5 1.9 2 3.4 3.9 3.9 3.5.9 15.3.9 15.3.9s11.8 0 15.3-.9c1.9-.5 3.4-2 3.9-3.9.8-3.5.8-9.2.8-9.2s0-5.7-.8-9.2z"/><polygon fill="#fff" points="20,18 30,24 20,30"/></svg>
+            <span class="solar-icon" data-solar="play-circle" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">YouTube</span>
         </a>
@@ -1581,7 +1539,7 @@
         <!-- 14. Google Maps -->
         <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4385F4" d="M24 4C15.2 4 8 11.2 8 20c0 11.5 14 23.2 15 24 .6.5 1.4.5 2 0 1-.8 15-12.5 15-24 0-8.8-7.2-16-16-16z"/><circle cx="24" cy="20" r="7" fill="#fff"/><circle cx="24" cy="20" r="5" fill="#EA4335"/></svg>
+            <span class="solar-icon" data-solar="map-point" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Maps</span>
         </a>
@@ -1589,7 +1547,7 @@
         <!-- 15. Gemini -->
         <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 24 24"><path fill="url(#gemini-grad-apps)" d="M12 0C12 6.627 6.627 12 0 12c6.627 0 12 5.373 12 12 0-6.627 5.373-12 12-12-6.627 0-12-5.373-12-12z"/><defs><linearGradient id="gemini-grad-apps" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#4E93FF"/><stop offset=".5" stop-color="#9965FF"/><stop offset="1" stop-color="#E273FF"/></linearGradient></defs></svg>
+            <span class="solar-icon" data-solar="stars" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Gemini</span>
         </a>
@@ -1603,12 +1561,7 @@
       <header class="google-apps-header">
         <div class="google-apps-title-group">
           <div class="google-header-logo research-header-logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269z" fill="#FFFFFF"/>
-              <path d="M12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z" fill="#38BDF8"/>
-              <path d="M9.5 15H14.5M9.5 17.5H14.5M9.5 20H13" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round"/>
-              <circle cx="15.5" cy="18.5" r="1.5" fill="#FBBF24"/>
-            </svg>
+            <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
             <h2>Research & Paper Hub</h2>
           </div>
           <span class="google-apps-subtitle">پایگاه‌های بین‌المللی و داخلی مقالات، ژورنال‌ها و مراجع علمی</span>
@@ -1620,7 +1573,7 @@
         <!-- 1. IEEE Xplore -->
         <a href="https://ieeexplore.ieee.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#00629B" rx="8"/><path fill="#fff" d="M14 12h20v4H14zm0 8h20v4H14zm0 8h20v4H14zm0 8h12v4H14z"/><path fill="#6fc8f2" d="M30 28l6 6-6 6V28z"/></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">IEEE Xplore</span>
         </a>
@@ -1628,7 +1581,7 @@
         <!-- 2. Google Scholar -->
         <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 6L2 18l22 12 18-9.82V34h4V18L24 6z"/><polygon fill="#34A853" points="14,24.5 14,35 24,40.5 34,35 34,24.5 24,30"/></svg>
+            <span class="solar-icon" data-solar="square-academic-cap" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Google Scholar</span>
         </a>
@@ -1636,7 +1589,7 @@
         <!-- 3. ScienceDirect -->
         <a href="https://www.sciencedirect.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#FF6C00" rx="8"/><path fill="#fff" d="M12 14h24v4H12zm0 8h24v4H12zm0 8h16v4H12z"/></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">ScienceDirect</span>
         </a>
@@ -1644,7 +1597,7 @@
         <!-- 4. arXiv.org -->
         <a href="https://arxiv.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#B31B1B" rx="8"/><text x="24" y="31" font-family="'Courier New', monospace" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">arXiv</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">arXiv.org</span>
         </a>
@@ -1652,7 +1605,7 @@
         <!-- 5. ResearchGate -->
         <a href="https://www.researchgate.net" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#00CCBB" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="22" font-weight="900" fill="#fff" text-anchor="middle">RG</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">ResearchGate</span>
         </a>
@@ -1660,7 +1613,7 @@
         <!-- 6. SpringerLink -->
         <a href="https://link.springer.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#013B7B" rx="8"/><path fill="#FFA500" d="M24 10l9 16H15z"/><path fill="#fff" d="M18 28h12v10H18z"/></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">SpringerLink</span>
         </a>
@@ -1668,7 +1621,7 @@
         <!-- 7. ACM Digital Library -->
         <a href="https://dl.acm.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#005A9C" rx="8"/><polygon fill="#6fc8f2" points="24,10 38,24 24,38 10,24"/><text x="24" y="29" font-family="sans-serif" font-size="12" font-weight="900" fill="#fff" text-anchor="middle">ACM</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">ACM DL</span>
         </a>
@@ -1676,7 +1629,7 @@
         <!-- 8. Semantic Scholar -->
         <a href="https://www.semanticscholar.org" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#1C3D5A" rx="8"/><path fill="#2E90FA" d="M14 16h20v4H14zm6 8h14v4H20zm-6 8h20v4H14z"/></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Semantic Scholar</span>
         </a>
@@ -1684,7 +1637,7 @@
         <!-- 9. Scopus -->
         <a href="https://www.scopus.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#E9711C" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Sc</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Scopus</span>
         </a>
@@ -1692,7 +1645,7 @@
         <!-- 10. Web of Science -->
         <a href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#5E2750" rx="8"/><circle cx="24" cy="24" r="14" fill="#fff"/><circle cx="24" cy="24" r="10" fill="#5E2750"/></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Web of Science</span>
         </a>
@@ -1700,7 +1653,7 @@
         <!-- 11. Wiley Online Library -->
         <a href="https://onlinelibrary.wiley.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#000" rx="8"/><text x="24" y="33" font-family="'Times New Roman', serif" font-size="24" font-weight="bold" fill="#fff" text-anchor="middle">W</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Wiley</span>
         </a>
@@ -1708,7 +1661,7 @@
         <!-- 12. Sci-Hub -->
         <a href="https://sci-hub.se" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#8B0000" rx="8"/><path fill="#FFD700" d="M24 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-2 10h4v14h-4z"/></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Sci-Hub</span>
         </a>
@@ -1716,7 +1669,7 @@
         <!-- 13. Civilica (سیویلیکا) -->
         <a href="https://civilica.com" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#205493" rx="8"/><text x="24" y="30" font-family="'Vazirmatn', sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">سیویلیکا</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Civilica</span>
         </a>
@@ -1724,7 +1677,7 @@
         <!-- 14. IranDoc (ایران‌داک) -->
         <a href="https://irandoc.ac.ir" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#008080" rx="8"/><text x="24" y="30" font-family="'Vazirmatn', sans-serif" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">ایران‌داک</text></svg>
+            <span class="solar-icon" data-solar="book" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">IranDoc</span>
         </a>
@@ -1732,7 +1685,7 @@
         <!-- 15. SID (جهاد دانشگاهی) -->
         <a href="https://www.sid.ir" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#1B4D3E" rx="8"/><text x="24" y="31" font-family="sans-serif" font-size="18" font-weight="900" fill="#fff" text-anchor="middle">SID</text></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">SID.ir</span>
         </a>
@@ -1740,7 +1693,7 @@
         <!-- 16. PubMed -->
         <a href="https://pubmed.ncbi.nlm.nih.gov" target="_blank" rel="noopener noreferrer" class="google-app-card research-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#205493" rx="8"/><path fill="#fff" d="M16 16h16v16H16z"/><path fill="#205493" d="M20 20h8v8h-8z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">PubMed</span>
         </a>
@@ -1754,14 +1707,7 @@
       <header class="google-apps-header">
         <div class="google-apps-title-group">
           <div class="google-apps-icon-title">
-            <svg width="22" height="22" viewBox="0 0 36 36" fill="none" class="hub-header-icon">
-              <path d="M18 6L20.2 13.8L28 16L20.2 18.2L18 26L15.8 18.2L8 16L15.8 13.8L18 6Z" fill="#A855F7"/>
-              <circle cx="10" cy="10" r="2" fill="#38BDF8"/>
-              <circle cx="26" cy="10" r="1.8" fill="#F472B6"/>
-              <circle cx="26" cy="24" r="1.6" fill="#FBBF24"/>
-              <circle cx="10" cy="24" r="1.6" fill="#A78BFA"/>
-              <path d="M10 10L14 14M26 10L22 14M26 24L22 20M10 24L14 20" stroke="rgba(168,85,247,0.5)" stroke-width="1" stroke-dasharray="1.5 1.5"/>
-            </svg>
+            <span class="solar-icon hub-header-icon" data-solar="cpu" aria-hidden="true"></span>
             <h2>AI Suite & Tools Hub</h2>
           </div>
           <span class="google-apps-subtitle">برترین ابزارها و مدل‌های هوش مصنوعی برای مطالعه، کدنویسی و تحقیق</span>
@@ -1773,12 +1719,7 @@
         <!-- 1. ChatGPT -->
         <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
-              <rect width="36" height="36" rx="8" fill="#10A37F" />
-              <g transform="translate(6, 6) scale(1)">
-                <path fill="#FFFFFF" d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.2502-4.9729 6.0462 6.0462 0 0 0-.9998-5.0002zm-9.022 10.1581a3.6749 3.6749 0 0 1-2.0718-1.0028l.115-.066 3.8697-2.2334a1.0028 1.0028 0 0 0 .5072-.8715v-5.4526l3.4116 1.9705c.0339.019.0573.0494.066.085v4.5222c-.0044 2.0125-1.6322 3.6403-3.6447 3.6447h-.3529zm-10.428-5.3282a3.6558 3.6558 0 0 1-.3975-2.2598l.115.068 3.8697 2.2334a1.0074 1.0074 0 0 0 1.0144 0l4.7214-2.7262v3.9412c0 .0385-.021.0743-.0535.0932l-3.9118 2.2575c-1.7412 1.0055-3.9669.4124-4.9724-1.3288l-.3859-.6685zm1.5358-8.9137a3.6841 3.6841 0 0 1 1.9568-1.5959v4.5936a1.0051 1.0051 0 0 0 .5096.8715l4.719 2.7262-3.4116 1.9705c-.0315.019-.0715.0214-.1052.0048L4.6293 8.3585c-1.7388-1.0079-2.3318-3.236-1.324-4.9748l.3859-.6685zm13.149 5.378-4.7214-2.7262 3.4116-1.9705c.0339-.019.0739-.0214.1076-.0048l3.9118 2.2575c1.7412 1.0055 2.3342 3.2336 1.3264 4.9724l-.3859.6685a3.6702 3.6702 0 0 1-1.9568 1.5959V8.0438a1.0074 1.0074 0 0 0-.5073-.8715zm-7.9042 3.5152-3.4116-1.9705c-.0339-.019-.0573-.0494-.066-.085V5.513c.0044-2.0125 1.6322-3.6403 3.6447-3.6447h.3529a3.6749 3.6749 0 0 1 2.0718 1.0028l-.115.066-3.8697 2.2334a1.0028 1.0028 0 0 0-.5072.8715v5.4526zm1.7226-2.5855 2.1064-1.2162 2.1064 1.2162v2.4325l-2.1064 1.2162-2.1064-1.2162v-2.4325z"/>
-              </g>
-            </svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">ChatGPT</span>
         </a>
@@ -1786,12 +1727,7 @@
         <!-- 2. Claude -->
         <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
-              <rect width="36" height="36" rx="8" fill="#D97757" />
-              <g transform="translate(6, 6) scale(0.24)">
-                <path fill="#FFFFFF" d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"/>
-              </g>
-            </svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Claude</span>
         </a>
@@ -1799,19 +1735,7 @@
         <!-- 3. Google Gemini -->
         <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
-              <rect width="36" height="36" rx="8" fill="#0F172A" />
-              <g transform="translate(6, 6) scale(0.857)">
-                <path d="M14 28C14 26.0633 13.6267 24.2433 12.88 22.54C12.1567 20.8367 11.165 19.355 9.905 18.095C8.645 16.835 7.16333 15.8433 5.46 15.12C3.75667 14.3733 1.93667 14 0 14C1.93667 14 3.75667 13.6383 5.46 12.915C7.16333 12.1683 8.645 11.165 9.905 9.905C11.165 8.645 12.1567 7.16333 12.88 5.46C13.6267 3.75667 14 1.93667 14 0C14 1.93667 14.3617 3.75667 15.085 5.46C15.8317 7.16333 16.835 8.645 18.095 9.905C19.355 11.165 20.8367 12.1683 22.54 12.915C24.2433 13.6383 26.0633 14 28 14C26.0633 14 24.2433 14.3733 22.54 15.12C20.8367 15.8433 19.355 16.835 18.095 18.095C16.835 19.355 15.8317 20.8367 15.085 22.54C14.3617 24.2433 14 26.0633 14 28Z" fill="url(#geminiGradAIDialog)"/>
-              </g>
-              <defs>
-                <radialGradient id="geminiGradAIDialog" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(2.77876 11.3795) rotate(18.6832) scale(29.8025 238.737)">
-                  <stop offset="0.067" stop-color="#F472B6"/>
-                  <stop offset="0.342" stop-color="#A78BFA"/>
-                  <stop offset="0.672" stop-color="#38BDF8"/>
-                </radialGradient>
-              </defs>
-            </svg>
+            <span class="solar-icon" data-solar="stars" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Gemini</span>
         </a>
@@ -1819,7 +1743,7 @@
         <!-- 4. Microsoft Copilot -->
         <a href="https://copilot.microsoft.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#0078D4" rx="8"/><circle cx="20" cy="24" r="7" fill="#00BCF2"/><circle cx="28" cy="24" r="7" fill="#FFB900" fill-opacity="0.9"/><path d="M20 17a7 7 0 0 1 8 7 7 7 0 0 1-8 7z" fill="#0078D4"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">MS Copilot</span>
         </a>
@@ -1827,7 +1751,7 @@
         <!-- 5. Perplexity AI -->
         <a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#13343B" rx="8"/><path fill="#22B8CD" d="M24 10v28M14 16l20 16M34 16L14 32" stroke="#22B8CD" stroke-width="4" stroke-linecap="round"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Perplexity</span>
         </a>
@@ -1835,7 +1759,7 @@
         <!-- 6. DeepSeek -->
         <a href="https://chat.deepseek.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#0284C7" rx="8"/><path fill="#fff" d="M24 12c-6.6 0-12 5.4-12 12s5.4 12 12 12c4.4 0 8.3-2.4 10.4-6h-4.6c-1.6 1.8-3.9 3-6.4 3-4.8 0-8.8-3.7-9-8.4h21.4c.1-.5.2-1.1.2-1.6 0-6.6-5.4-12-12-12zm-8.8 9.5c.5-3.8 3.8-6.7 7.8-6.7s7.3 2.9 7.8 6.7H15.2z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">DeepSeek</span>
         </a>
@@ -1843,7 +1767,7 @@
         <!-- 7. v0 by Vercel -->
         <a href="https://v0.dev" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#000000" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">v0</text></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">v0 (UI Dev)</span>
         </a>
@@ -1851,7 +1775,7 @@
         <!-- 8. Hugging Face -->
         <a href="https://huggingface.co" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#FFD21E" rx="8"/><text x="24" y="32" font-size="22" text-anchor="middle">🤗</text></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Hugging Face</span>
         </a>
@@ -1859,7 +1783,7 @@
         <!-- 9. Phind -->
         <a href="https://www.phind.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#6366F1" rx="8"/><path fill="#fff" d="M16 14h10c4.4 0 8 3.6 8 8s-3.6 8-8 8H20v6h-4V14zm4 12h6c2.2 0 4-1.8 4-4s-1.8-4-4-4h-6v8z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Phind (Code)</span>
         </a>
@@ -1867,7 +1791,7 @@
         <!-- 10. Leonardo.Ai -->
         <a href="https://leonardo.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#8B5CF6" rx="8"/><path fill="#F43F5E" d="M24 10l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Leonardo.Ai</span>
         </a>
@@ -1875,7 +1799,7 @@
         <!-- 11. Grok (xAI) -->
         <a href="https://x.ai" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#14171A" rx="8"/><text x="24" y="32" font-family="'Segoe UI', sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Grok</text></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Grok (xAI)</span>
         </a>
@@ -1883,7 +1807,7 @@
         <!-- 12. Consensus AI -->
         <a href="https://consensus.app" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#0D9488" rx="8"/><path fill="#fff" d="M16 24a8 8 0 1 1 16 0 8 8 0 0 1-16 0zm8-5a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Consensus</span>
         </a>
@@ -1891,7 +1815,7 @@
         <!-- 13. Elicit -->
         <a href="https://elicit.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#BE185D" rx="8"/><path fill="#fff" d="M14 16h20v4H14zm0 6h14v4H14zm0 6h18v4H14z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Elicit (Papers)</span>
         </a>
@@ -1899,7 +1823,7 @@
         <!-- 14. QuillBot -->
         <a href="https://quillbot.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#499557" rx="8"/><path fill="#fff" d="M30 14c-4 0-7 2-9 5l-7 13 4 2 6-11c1-2 3-3 6-3 3 0 5 2 5 5v1h4v-1c0-5-4-8-9-8z"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">QuillBot</span>
         </a>
@@ -1907,7 +1831,7 @@
         <!-- 15. Poe (Quora) -->
         <a href="https://poe.com" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#8E24AA" rx="8"/><text x="24" y="32" font-family="sans-serif" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Poe</text></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Poe</span>
         </a>
@@ -1915,7 +1839,7 @@
         <!-- 16. Gamma App -->
         <a href="https://gamma.app" target="_blank" rel="noopener noreferrer" class="google-app-card ai-card">
           <div class="google-app-icon-wrap">
-            <svg width="34" height="34" viewBox="0 0 48 48"><rect width="44" height="44" x="2" y="2" fill="#E11D48" rx="8"/><polygon fill="#fff" points="24,12 36,34 12,34"/></svg>
+            <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
           </div>
           <span class="google-app-name">Gamma (Slides)</span>
         </a>
@@ -2043,11 +1967,11 @@
         <div class="note-form-row">
           <select id="noteColorPicker" class="note-color-select">
             <option value="default">🗒️ پیش‌فرض</option>
-            <option value="yellow">🟡 زرد</option>
-            <option value="blue">🔵 آبی</option>
-            <option value="green">🟢 سبز</option>
-            <option value="red">🔴 قرمز</option>
-            <option value="purple">🟣 بنفش</option>
+            <option value="yellow">زرد</option>
+            <option value="blue">آبی</option>
+            <option value="green">سبز</option>
+            <option value="red">قرمز</option>
+            <option value="purple">بنفش</option>
           </select>
           <button type="submit" class="note-add-btn">+ افزودن یادداشت</button>
         </div>
@@ -2113,6 +2037,8 @@
     </form>
   </dialog>
 
+  <script src="icons/solar-data.js"></script>
+  <script src="solar-icons.js"></script>
   <script src="jalali.js"></script>
   <script src="data/iran-calendar.js"></script>
   <script src="notifications.js"></script>

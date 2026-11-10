@@ -189,6 +189,16 @@ function test(name, fn) {
     const roomOffsets = cards.map(card => card.querySelector('.class-room').getBoundingClientRect().top - card.getBoundingClientRect().top);
     eq(Math.abs(roomOffsets[0] - roomOffsets[1]) < 1, true);
     eq(getComputedStyle(cards[0].querySelector('.class-instructor')).textAlign, 'start');
+    const card = cards[0];
+    const titleEdge = card.querySelector('.class-title').getBoundingClientRect().right;
+    for (const selector of ['.class-instructor', '.class-room']) {
+      const row = card.querySelector(selector);
+      const label = row.querySelector('.schedule-card-label');
+      eq(Math.abs(label.getBoundingClientRect().right - titleEdge) < 1, true);
+      eq(getComputedStyle(label).whiteSpace, 'nowrap');
+      eq(getComputedStyle(label).textOverflow, 'ellipsis');
+      eq(row.lastElementChild.matches('[data-solar][aria-hidden="true"]'), true);
+    }
   });
   test('midnight deadlines stay below the cards and do not widen the weekly hours', () => {
     const due = (h, m) => { const d = new Date(); d.setHours(h,m,0,0); return d.getTime(); };
@@ -272,19 +282,18 @@ function test(name, fn) {
     eq(getComputedStyle(link).display,'flex');
     eq(getComputedStyle(link).columnGap,'8px');
   });
-  const loadedEmojiFonts = await document.fonts.load('16px "Twemoji"', '🛠️👨‍🏫🇮🇷');
-  test('local Twemoji font loads and replaces line icons', () => {
-    eq(loadedEmojiFonts.length > 0, true);
-    eq(loadedEmojiFonts.every(font => font.status === 'loaded'), true);
-    const icon = document.querySelector('.twemoji-icon');
-    eq(!!icon, true);
-    eq(getComputedStyle(icon).fontFamily.startsWith('Twemoji'), true);
-    const masked = document.createElement('span');
-    masked.className = 'sd-icon sd-icon--calendar';
-    document.body.append(masked);
-    eq(getComputedStyle(masked).maskImage, 'none');
-    masked.remove();
+  const iconFixture = document.createElement('div');
+  iconFixture.innerHTML = '<span class="sd-icon sd-icon--calendar"></span><span class="weather-icon"></span><p class="note-card-body">یادداشت 🌤️</p>';
+  document.body.append(iconFixture);
+  iconFixture.querySelector('.weather-icon').textContent = '🌤️';
+  await Promise.resolve();
+  test('Solar replaces static and dynamic UI symbols while preserving notes', () => {
+    eq(document.querySelector('#prevMonth svg')?.dataset.solarRendered, 'alt-arrow-right');
+    eq(iconFixture.querySelector('.sd-icon svg')?.dataset.solarRendered, 'calendar');
+    eq(iconFixture.querySelector('.weather-icon svg')?.dataset.solarRendered, 'sun-fog');
+    eq(iconFixture.querySelector('.note-card-body').textContent, 'یادداشت 🌤️');
   });
+  iconFixture.remove();
   const width = Number(new URLSearchParams(location.search).get('width') || 1440);
   if (width < innerWidth) { document.body.style.width = width + 'px'; document.body.style.marginRight = 'auto'; }
   const mode = new URLSearchParams(location.search).get('mode') || 'dark';

@@ -6,7 +6,7 @@ StuDash is a Persian-language Chrome new-tab dashboard for student planning. It 
 
 ## Install the release ZIP
 
-1. Download `StuDash-v1.0.0-beta.1.zip` from the [v1.0.0-beta.1 release](https://github.com/AidinShekari/studash/releases/tag/v1.0.0-beta.1) and extract it to a folder you will keep. `manifest.json` should be directly inside that folder.
+1. Download `StuDash-v1.2.0-beta.2.zip` from the [v1.2.0-beta.2 release](https://github.com/AidinShekari/studash/releases/tag/v1.2.0-beta.2) and extract it to a folder you will keep. `manifest.json` should be directly inside that folder.
 2. Open `chrome://extensions` in Chrome and turn on **Developer mode**.
 3. Select **Load unpacked** and choose the extracted folder.
 4. Open a new tab to start StuDash. Pin the extension if you want quick access to its popup.
@@ -17,7 +17,7 @@ Chrome reads the extracted files in place. Keep that folder after installation; 
 
 - **Check notifications and weather:** the dashboard includes a notification center for Pooya grade updates, meal reminders, and weather alerts. The optional weather advisor fetches forecasts for the city selected in settings.
 - **Use card actions:** right-click classes, tasks, notes, ideas, and links for their available actions. On a keyboard use **Shift+F10**; on touch screens press and hold.
-- **Read a compact dashboard:** assignments and quizzes have course names beside their titles, filters, and five-item pages. The weekly timetable fits its occupied hours; midnight deadlines appear beneath the day instead of extending the time axis. UI symbols use locally bundled Twemoji.
+- **Read a compact dashboard:** assignments and quizzes have course names beside their titles, filters, and five-item pages. The weekly timetable fits its occupied hours; midnight deadlines appear beneath the day instead of extending the time axis. UI symbols use locally bundled [Solar Linear icons](icons/solar-LICENSE.md).
 - **Plan your week:** add courses and meeting times to the class schedule. Open a course to keep its assignments, notes, useful links, and attendance count together. The calendar can display Jalali or Gregorian dates.
 - **Track work:** add personal tasks by date, review course deadlines, and use the focus timer. The timer can appear as a movable widget on ordinary web pages.
 - **Customize the dashboard:** rearrange quick links and change theme, color, spacing, and corner style under **Settings → Appearance**.

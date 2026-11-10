@@ -1,9 +1,4 @@
-// Copies the bundled fonts into fonts/ and writes styles/src/fonts.css:
-//  • Estedad (OFL-1.1, via @fontsource/estedad): one @font-face per subset/weight
-//  • Twemoji (COLR colour font, OFL-1.1 font / CC-BY-4.0 artwork, via
-//    twemoji-colr-font): emoji code points only, so every emoji in the UI —
-//    including text inserted at runtime and user notes — renders as Twemoji.
-// Fonts ship inside the extension: no network request.
+// Bundle Estedad for offline use and generate styles/src/fonts.css.
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -25,21 +20,5 @@ for (const subset of SUBSETS) {
   }
 }
 
-// Twemoji: emoji blocks only. ASCII digits, #, *, ©, ®, ™ stay in the text font.
-const EMOJI_RANGE = [
-  "U+200D", "U+20E3", "U+FE0F",
-  "U+231A-231B", "U+2328", "U+23CF", "U+23E9-23F3", "U+23F8-23FA", "U+24C2",
-  "U+25AA-25AB", "U+25B6", "U+25C0", "U+25FB-25FE", "U+2600-27BF", "U+2934-2935",
-  "U+2B05-2B07", "U+2B1B-2B1C", "U+2B50", "U+2B55", "U+3030", "U+303D", "U+3297", "U+3299",
-  "U+1F000-1FAFF", "U+E0020-E007F",
-].join(",");
-const TW_SRC = "node_modules/twemoji-colr-font";
-const TW_OUT = "fonts/twemoji";
-mkdirSync(TW_OUT, { recursive: true });
-copyFileSync(join(TW_SRC, "twemoji.woff2"), join(TW_OUT, "twemoji.woff2"));
-copyFileSync(join(TW_SRC, "LICENSE"), join(TW_OUT, "LICENSE.txt"));
-css += `/* Twemoji © Twitter, Inc. and other contributors, graphics CC-BY-4.0 (fonts/twemoji/LICENSE.txt). */\n`;
-css += `@font-face{font-family:"Twemoji";font-style:normal;font-display:swap;src:url("../fonts/twemoji/twemoji.woff2") format("woff2");unicode-range:${EMOJI_RANGE};}\n`;
-
 writeFileSync("styles/src/fonts.css", css);
-console.log(`Estedad: ${SUBSETS.length * WEIGHTS.length} files → ${OUT}; Twemoji → ${TW_OUT}`);
+console.log(`Estedad: ${SUBSETS.length * WEIGHTS.length} files → ${OUT}`);

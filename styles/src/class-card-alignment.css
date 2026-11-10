@@ -33,7 +33,7 @@
 .page .class-card-details {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: 1.7em 1.7em;
+  grid-template-rows: repeat(2, 1.7em);
   gap: 0;
   min-width: 0;
   width: 100%;
@@ -42,7 +42,10 @@
   text-align: start;
 }
 .page .class-card-details :is(.class-instructor, .class-room) {
-  display: block;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.2em;
+  align-items: center;
+  column-gap: 4px;
   min-width: 0;
   width: 100%;
   max-width: 100%;
@@ -59,6 +62,20 @@
 .page .class-card-details .class-instructor { grid-row: 1; }
 .page .class-card-details .class-room { grid-row: 2; }
 .page .class-card-bottom { min-width: 0; width: 100%; align-items: center; }
+.page .class-card .class-card-bottom { justify-content: flex-start; }
+.page .personal-event-card .personal-event-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.2em;
+  align-items: center;
+  column-gap: 4px;
+}
+.page .schedule-card-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: match-parent;
+}
 .page .class-card .class-card-actions {
   margin-inline-start: auto;
   opacity: 0.65;

@@ -446,7 +446,7 @@
       <div class="pill-header">
         <span class="pill-mode-tag ${modeClass}">${modeLabel}</span>
         <div class="pill-actions">
-          <button type="button" class="pill-btn-icon" id="btnMinimize" title="کوچک کردن ویجت">_</button>
+          <button type="button" class="pill-btn-icon" id="btnMinimize" title="کوچک کردن ویجت"><span data-solar="minus-circle"></span></button>
           <button type="button" class="pill-btn-icon" id="btnClose" title="مخفی‌سازی در این صفحه">×</button>
         </div>
       </div>
@@ -475,6 +475,8 @@
         <span class="mini-bubble-time">${faDigits(timeFormatted.split(":")[0])}m</span>
       </div>
     `;
+
+    StudashSolar.render(container);
 
     // Event Handlers
     const btnMinimize = container.querySelector("#btnMinimize");

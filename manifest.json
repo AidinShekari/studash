@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "StuDash - Student Dashboard (Beta)",
   "short_name": "StuDash",
-  "version": "1.2.0",
+  "version": "1.2.0.2",
   "description": "داشبورد جامع دانشجویی در تب جدید کروم: تقویم شمسی/میلادی، تسک روزانه، تایمر مطالعه، یادداشت سریع و سایت‌های پرکاربرد دانشگاه.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1C/kP6VAFlV9IufqwJXeLrRKSbXKQC6Z8K+Lhmhgb32mC0JSe4/C8Eb+Q9n0R+YoT/NVXYE8U2FKSvIUHoILS2jPRPBFqDh2/6KhkY4d7eqLIhQo/3+Ms1RxlFycfBRNJhedUgBefdeZZV/35v4MZyHE+X8soJviJxigtwmuWI2mEXxGN01RIAM5qxUnMVWLwwLg/UKu4TznIZ6eyDg/4UvlUpAGGLIyM+FEkp7vk0A0lbUpLjO4Oub88N6rK9QiA0rMrko+r76lIb2bbZTsEeMAmz5S5qPK2m/+oILnyVCckuUELcrWoffCoYUGYPEoeww8tSJ8pXQdR2MyjHapXQIDAQAB",
   "chrome_url_overrides": {
@@ -36,6 +36,8 @@
         "<all_urls>"
       ],
       "js": [
+        "icons/solar-data.js",
+        "solar-icons.js",
         "content_script.js"
       ],
       "all_frames": true,
@@ -50,8 +52,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "fonts/estedad/*.woff2",
-        "fonts/twemoji/twemoji.woff2"
+        "fonts/estedad/*.woff2"
       ],
       "matches": [
         "<all_urls>"
@@ -59,5 +60,5 @@
       "use_dynamic_url": true
     }
   ],
-  "version_name": "1.2.0-beta.1"
+  "version_name": "1.2.0-beta.2"
 }

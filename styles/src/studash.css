@@ -57,7 +57,7 @@
 @import "./popup.css" layer(studash);
 @import "./release-dashboard.css";
 @import "./assignment-spacing.css";
-@import "./twemoji-icons.css";
+@import "./solar-icons.css";
 @import "./calendar-polish.css";
 @import "./schedule-range.css";
 @import "./class-card-alignment.css";
@@ -69,5 +69,5 @@
 @source "../../islands/islands.js";
 
 @theme {
-  --font-sans: "Twemoji", "Estedad", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  --font-sans: "Estedad", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
 }
