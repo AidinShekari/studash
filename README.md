@@ -6,7 +6,7 @@ StuDash is a Persian-language Chrome new-tab dashboard for student planning. It 
 
 ## Install the release ZIP
 
-1. Download `StuDash-v1.2.0-beta.2.zip` from the [v1.2.0-beta.2 release](https://github.com/AidinShekari/studash/releases/tag/v1.2.0-beta.2) and extract it to a folder you will keep. `manifest.json` should be directly inside that folder.
+1. Download `StuDash-v1.2.0-beta.3.zip` from the [v1.2.0-beta.3 release](https://github.com/AidinShekari/studash/releases/tag/v1.2.0-beta.3) and extract it to a folder you will keep. `manifest.json` should be directly inside that folder.
 2. Open `chrome://extensions` in Chrome and turn on **Developer mode**.
 3. Select **Load unpacked** and choose the extracted folder.
 4. Open a new tab to start StuDash. Pin the extension if you want quick access to its popup.
