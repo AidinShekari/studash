@@ -3,7 +3,7 @@
   const { icons, glyphs, roles } = root.StudashSolarData;
   const ns = "http://www.w3.org/2000/svg";
   const slots = "[data-solar], .sd-icon";
-  const excluded = "script, style, svg, textarea, input, option, select, [contenteditable], .note-card-title, .note-card-body, .idea-step-text";
+  const excluded = "script, style, svg, textarea, input, option, select, [contenteditable], .note-card-title, .note-card-body, .idea-step-text, .task-text, .hub-task-title, .gcal-event-title, [data-user-text]";
   const escaped = Object.keys(glyphs)
     .sort((a, b) => b.length - a.length)
     .map(glyph => glyph.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
@@ -48,8 +48,20 @@
     for (const match of matches) {
       const icon = makeIcon(glyphs[match[0].replaceAll("\uFE0F", "")]);
       if (!icon) continue;
-      fragment.append(node.data.slice(end, match.index), icon);
+      if (match.index < end) continue;
+      fragment.append(node.data.slice(end, match.index));
       end = match.index + match[0].length;
+      const next = /^[ \t]+([^\s\p{Extended_Pictographic}]+)/u.exec(node.data.slice(end));
+      if (next && !node.parentElement.closest("button, .chip, .sd-filter__option")) {
+        const lead = document.createElement("span");
+        lead.className = "solar-text-lead";
+        lead.style.whiteSpace = "nowrap";
+        lead.append(icon, "\u00a0", next[1]);
+        fragment.append(lead);
+        end += next[0].length;
+      } else {
+        fragment.append(icon);
+      }
     }
     if (end) {
       fragment.append(node.data.slice(end));

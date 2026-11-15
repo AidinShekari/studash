@@ -9,6 +9,9 @@
   vertical-align: -0.18em;
   line-height: 1;
 }
+svg[data-solar-rendered] { display: inline-block; }
+.solar-text-lead { unicode-bidi: isolate; }
+
 .google-app-icon-wrap .solar-icon, .pin-favicon .solar-icon { font-size: 30px; }
 .google-header-logo .solar-icon { font-size: 24px; }
 .hub-link-favicon .solar-icon { font-size: 18px; }

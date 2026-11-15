@@ -1038,6 +1038,8 @@ body.modal-open {
   display: block;
 }
 
+.pin-favicon:has(> img) { background: transparent; }
+
 .pin-favicon img {
   width: 100%;
   height: 100%;
@@ -1239,10 +1241,32 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
   padding: 0 4px;
+  line-height: 1.45;
+}
+
+.unified-group-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-inline-size: 0;
+}
+
+.unified-group-label > span:last-child,
+.task-item > .task-text,
+.gcal-event-title,
+.sidebar-day-exam-title > strong,
+.hub-task-title {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .unified-group-count {
+  flex: none;
+  white-space: nowrap;
   font-size: 10px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-soft);
@@ -1412,6 +1436,7 @@ body.modal-open {
 }
 
 .gcal-event time {
+  white-space: nowrap;
   color: var(--accent-soft-foreground);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
@@ -1485,10 +1510,10 @@ body.modal-open {
   flex-shrink: 0;
 }
 
-.task-item span {
+.task-item > .task-text {
   flex: 1;
   font-size: 13px;
-  word-break: break-word;
+  line-height: 1.45;
 }
 
 .task-item.done {
@@ -1496,7 +1521,7 @@ body.modal-open {
   background: color-mix(in oklab, var(--foreground) 15%, transparent);
 }
 
-.task-item.done span {
+.task-item.done > .task-text {
   color: var(--text-faint);
   text-decoration: line-through;
 }
@@ -2821,6 +2846,7 @@ body.modal-open {
 
 .hub-task-item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -2850,10 +2876,12 @@ body.modal-open {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1;
+  flex: 1 1 8rem;
+  min-inline-size: 0;
 }
 
 .hub-task-left input[type="checkbox"] {
+  flex: none;
   width: 16px;
   height: 16px;
   accent-color: var(--accent);
@@ -2869,7 +2897,9 @@ body.modal-open {
 .hub-task-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px 8px;
+  flex-wrap: wrap;
+  max-inline-size: 100%;
 }
 
 .hub-item-delete {
@@ -3239,6 +3269,13 @@ body.modal-open {
   color: var(--accent-soft-foreground);
 }
 
+.footer-developer {
+  color: inherit;
+  text-decoration: none;
+}
+.footer-developer:hover,
+.footer-developer:focus-visible { color: var(--accent); }
+
 .footer-divider {
   color: var(--text-faint);
 }
@@ -3541,8 +3578,25 @@ body.modal-open {
 }
 
 .sidebar-day-exam-details {
+  display: grid;
+  gap: 3px;
   font-size: 11.5px;
   color: var(--text-muted);
+}
+
+.sidebar-day-exam-details > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.sidebar-day-exam-details .solar-icon {
+  margin-block-start: 0.15em;
+}
+
+.sidebar-day-exam-details [data-user-text] {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 
 .settings-title-group h2 {

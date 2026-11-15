@@ -1084,7 +1084,10 @@ async function renderAllTasksUnified() {
     group.className = "unified-section-group";
     group.innerHTML = `
       <div class="unified-group-title">
-        <span>🎯 امتحانات و کوئیزهای این روز</span>
+        <span class="unified-group-label">
+          <span class="solar-icon" data-solar="target"></span>
+          <span title="امتحانات و کوئیزهای این روز">امتحانات و کوئیزهای این روز</span>
+        </span>
         <span class="unified-group-count">${faDigits(dayExams.length)} آزمون</span>
       </div>
     `;
@@ -1095,15 +1098,29 @@ async function renderAllTasksUnified() {
       examCard.className = "sidebar-day-exam-card";
       examCard.innerHTML = `
         <div class="sidebar-day-exam-title">
-          <span>🎯</span>
-          <strong>${de.exam.title} (${de.courseTitle})</strong>
+          <span class="solar-icon" data-solar="target"></span>
+          <strong data-user-text dir="auto"></strong>
         </div>
-        <div class="sidebar-day-exam-details">
-          <span>⏰ ${de.exam.time ? `ساعت ${faDigits(de.exam.time)}` : "بدون ساعت مشخص"}</span>
-          ${de.exam.location ? ` • 📍 ${de.exam.location}` : ""}
-          ${de.exam.syllabus ? `<div style="margin-top: 4px; font-size: 11px; color: var(--accent);">📚 مباحث: ${de.exam.syllabus}</div>` : ""}
-        </div>
+        <div class="sidebar-day-exam-details"></div>
       `;
+      const title = examCard.querySelector("strong");
+      title.textContent = `${de.exam.title} (${de.courseTitle})`;
+      title.title = title.textContent;
+
+      const details = examCard.querySelector(".sidebar-day-exam-details");
+      const examDetails = [
+        ["clock-circle", de.exam.time ? `ساعت ${faDigits(de.exam.time)}` : "بدون ساعت مشخص"],
+        ["map-point", de.exam.location],
+        ["book", de.exam.syllabus && `مباحث: ${de.exam.syllabus}`],
+      ];
+      for (const [icon, value] of examDetails) {
+        if (!value) continue;
+        const detail = document.createElement("div");
+        detail.innerHTML = '<span class="solar-icon"></span><span data-user-text dir="auto"></span>';
+        detail.firstElementChild.dataset.solar = icon;
+        detail.lastElementChild.textContent = value;
+        details.appendChild(detail);
+      }
       wrap.appendChild(examCard);
     });
     group.appendChild(wrap);
@@ -1117,7 +1134,10 @@ async function renderAllTasksUnified() {
     group.className = "unified-section-group";
     group.innerHTML = `
       <div class="unified-group-title">
-        <span>📅 رویدادهای تقویم گوگل</span>
+        <span class="unified-group-label">
+          <span class="solar-icon" data-solar="calendar"></span>
+          <span title="رویدادهای تقویم گوگل">رویدادهای تقویم گوگل</span>
+        </span>
         <span class="unified-group-count">${faDigits(cachedGcalEventsForSelectedDate.length)} رویداد</span>
       </div>
     `;
@@ -1134,7 +1154,10 @@ async function renderAllTasksUnified() {
         time.textContent = "تمام روز";
       }
       const title = document.createElement("span");
+      title.className = "gcal-event-title";
+      title.dir = "auto";
       title.textContent = ev.summary || "(بدون عنوان)";
+      title.title = title.textContent;
       row.appendChild(time);
       row.appendChild(title);
       wrap.appendChild(row);
@@ -1150,7 +1173,10 @@ async function renderAllTasksUnified() {
     group.className = "unified-section-group";
     group.innerHTML = `
       <div class="unified-group-title">
-        <span>✅ کارهای روزانه</span>
+        <span class="unified-group-label">
+          <span class="solar-icon" data-solar="check-circle"></span>
+          <span title="کارهای روزانه">کارهای روزانه</span>
+        </span>
         <span class="unified-group-count">${faDigits(undoneDaily)} باز / ${faDigits(tasks.length)} کل</span>
       </div>
     `;
@@ -1182,7 +1208,9 @@ async function renderAllTasksUnified() {
       });
 
       const span = document.createElement("span");
+      span.className = "task-text";
       span.textContent = task.text;
+      span.title = span.textContent;
 
       const removeBtn = document.createElement("button");
       removeBtn.className = "task-remove";
@@ -1365,7 +1393,10 @@ function renderGoogleEvents(events) {
       time.textContent = "تمام روز";
     }
     const title = document.createElement("span");
+    title.className = "gcal-event-title";
+    title.dir = "auto";
     title.textContent = ev.summary || "(بدون عنوان)";
+    title.title = title.textContent;
     row.appendChild(time);
     row.appendChild(title);
     gcalEvents.appendChild(row);
@@ -2636,7 +2667,9 @@ function renderHubTasks() {
 
     const titleSpan = document.createElement("span");
     titleSpan.className = "hub-task-title";
+    titleSpan.dir = "auto";
     titleSpan.textContent = task.title;
+    titleSpan.title = titleSpan.textContent;
 
     left.appendChild(chk);
     left.appendChild(titleSpan);

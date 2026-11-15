@@ -30,8 +30,30 @@
 .page #vuConnectedBody { display: flex; flex-direction: column; gap: 12px; }
 .page #vuConnectedBody[hidden] { display: none; }
 .page .vu-toolbar { align-items: stretch; gap: 8px; }
-.page .vu-filter-chips { width: 100%; gap: 2px; }
-.page .vu-filter-chips .vu-chip { flex: 1; padding-inline: 6px; font-size: 12px; }
+.page .vu-filter-chips {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  gap: 4px;
+}
+.page .vu-filter-chips .vu-chip {
+  justify-content: center;
+  min-inline-size: 0;
+  padding-inline: 3px;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+.page .vu-filter-chips .vu-chip[aria-checked="true"] {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.page .vu-filter-chips .vu-chip[aria-checked="true"]::before { content: none; }
+.page .vu-section .vu-sync-btn {
+  display: inline-grid;
+  place-items: center;
+  align-self: center;
+  padding: 0;
+}
 .page .vu-toolbar .sd-field { width: 100%; min-width: 0; }
 .page .vu-toolbar .vu-course-filter { flex: 1; min-width: 0; max-width: 100%; }
 .page .vu-connect-empty { padding: 12px; gap: 10px; }

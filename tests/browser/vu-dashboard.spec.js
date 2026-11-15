@@ -274,6 +274,102 @@ function test(name, fn) {
     eq(agendaState.badgeAllTasksCount.textContent,faDigits(1));
     eq(document.querySelectorAll('#vuTaskList .vu-task-row').length > 0,true);
   });
+  test('daily task labels and their Solar heading stay on one line', () => {
+    const list = agendaState.allTasksUnifiedList;
+    const icon = list.querySelector('.unified-group-label svg');
+    const label = list.querySelector('.unified-group-label > span:last-child');
+    const task = list.querySelector('.task-item > .task-text');
+    eq(icon?.dataset.solarRendered, 'check-circle');
+    eq(label.textContent, 'کارهای روزانه');
+    eq(getComputedStyle(label).whiteSpace, 'nowrap');
+    eq(getComputedStyle(task).whiteSpace, 'nowrap');
+    eq(getComputedStyle(task).textOverflow, 'ellipsis');
+    eq(task.title, task.textContent);
+    const iconBox = icon.getBoundingClientRect();
+    const labelBox = label.getBoundingClientRect();
+    eq(iconBox.left >= labelBox.right, true);
+    eq(Math.abs(iconBox.top + iconBox.height / 2 - labelBox.top - labelBox.height / 2) < 1, true);
+  });
+  const longTitle = 'آزمون یا رویداد با عنوان طولانی برای بررسی نمایش در عرض کم ';
+  agendaState.getAllScheduledExams = () => [{
+    exam: { date: agendaState.isoDate(agendaState.selectedDate), title: longTitle.repeat(3), location: 'اتاق آزمون' },
+    courseTitle: 'درس نمونه',
+  }];
+  agendaState.cachedGcalEventsForSelectedDate = [{ summary: longTitle.repeat(3) }];
+  await renderAgenda();
+  test('exam and Google event titles ellipsize without pushing out their icon or time', () => {
+    const list = agendaState.allTasksUnifiedList;
+    list.style.inlineSize = '210px';
+    try {
+      for (const selector of ['.sidebar-day-exam-title > strong', '.gcal-event-title']) {
+        const label = list.querySelector(selector);
+        eq(getComputedStyle(label).whiteSpace, 'nowrap');
+        eq(label.scrollWidth > label.clientWidth, true);
+        eq(label.title, label.textContent);
+      }
+      eq(list.querySelector('.sidebar-day-exam-title svg')?.dataset.solarRendered, 'target');
+      eq(list.querySelector('.sidebar-day-exam-details svg')?.dataset.solarRendered, 'clock-circle');
+      eq(list.querySelector('.gcal-event time').textContent, 'تمام روز');
+      eq(list.scrollWidth <= list.clientWidth, true);
+    } finally {
+      list.style.removeProperty('inline-size');
+    }
+  });
+  test('long course tasks keep their title and badges intact in a narrow row', () => {
+    const dialog = document.importNode(parsed.querySelector('#courseHubDialog'), true);
+    document.body.append(dialog);
+    try {
+      dialog.show();
+      const list = dialog.querySelector('#hubTasksList');
+      const panel = list.closest('[role="tabpanel"]');
+      panel.hidden = false;
+      list.style.inlineSize = '210px';
+      const title = longTitle.repeat(3);
+      const state = {
+        getActiveHubCourse: () => ({ tasks: [{ id: 'task', title, dueDate: '2026-11-28' }] }),
+        hubTasksCount: dialog.querySelector('#hubTasksCount'),
+        hubTasksList: list,
+        hubTasksEmpty: dialog.querySelector('#hubTasksEmpty'),
+        typeChip: label => SDUI.chip(label),
+        dueChip: () => SDUI.chip('فردا (۲۸ آبان)'),
+        formatDueDays: () => ({}),
+      };
+      const start = appSource.indexOf('const TASK_TYPE_LABELS =');
+      const end = appSource.indexOf('if (hubTaskForm)', start);
+      new Function('state', 'with (state) {' + appSource.slice(start, end) + 'renderHubTasks();}')(state);
+      const label = list.querySelector('.hub-task-title');
+      eq(getComputedStyle(label).whiteSpace, 'nowrap');
+      eq(label.scrollWidth > label.clientWidth, true);
+      eq(label.title, title);
+      eq(list.querySelectorAll('.hub-task-right .chip').length, 2);
+      eq(list.scrollWidth <= list.clientWidth, true);
+    } finally {
+      dialog.remove();
+    }
+  });
+  test('settings and sign-in headings keep their icon and label on one row', () => {
+    for (const selector of ['#settingsDialog', '#vuLoginDialog', '#pooyaDialog']) {
+      const dialog = document.importNode(parsed.querySelector(selector), true);
+      document.body.append(dialog);
+      try {
+        SDUI.enhanceDialogs();
+        dialog.show();
+        StudashSolar.render(dialog);
+        const headings = dialog.querySelectorAll('.sd-section-title:has(.sd-heading-label)');
+        eq(headings.length > 0, true);
+        for (const heading of headings) {
+          const icon = heading.querySelector('.solar-icon');
+          const label = heading.querySelector('.sd-heading-label');
+          eq(icon.querySelector('svg')?.dataset.solarRendered, icon.dataset.solar);
+          eq(getComputedStyle(heading).display, 'flex');
+          eq(getComputedStyle(label).whiteSpace, 'nowrap');
+          eq(icon.getBoundingClientRect().left >= label.getBoundingClientRect().right, true);
+        }
+      } finally {
+        dialog.remove();
+      }
+    }
+  });
   test('course name precedes its assignment title with spacing on the same line', () => {
     const link=document.querySelector('.vu-task-title');
     eq(link.firstElementChild.className,'vu-task-course');

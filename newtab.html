@@ -318,7 +318,7 @@
             </div>
             <div class="sd-card__actions vu-header-actions" id="vuHeaderActions" hidden>
               <div class="vu-stats" id="vuStats" role="list" aria-label="خلاصه تکالیف"></div>
-              <button type="button" class="vu-sync-btn" id="vuSyncBtn" aria-label="همگام‌سازی با VU" title="همگام‌سازی با VU"><span class="solar-icon" aria-hidden="true">🔄</span></button>
+              <button type="button" class="vu-sync-btn" id="vuSyncBtn" aria-label="همگام‌سازی با VU" title="همگام‌سازی با VU"><span class="solar-icon" data-solar="refresh" aria-hidden="true"></span></button>
             </div>
           </header>
           <div class="card__content">
@@ -337,7 +337,7 @@
           <div id="vuConnectedBody" hidden>
             <div class="vu-toolbar">
               <div class="sd-filter vu-filter-chips" id="vuFilterChips" role="radiogroup" aria-label="فیلتر وضعیت تکالیف">
-                <button type="button" class="sd-filter__option vu-chip active" data-filter="upcoming" role="radio" aria-checked="true">پیش رو</button>
+                <button type="button" class="sd-filter__option vu-chip active" data-filter="upcoming" role="radio" aria-checked="true">پیش‌رو</button>
                 <button type="button" class="sd-filter__option vu-chip" data-filter="submitted" role="radio" aria-checked="false" tabindex="-1">ارسال‌شده</button>
                 <button type="button" class="sd-filter__option vu-chip" data-filter="overdue" role="radio" aria-checked="false" tabindex="-1">گذشته</button>
                 <button type="button" class="sd-filter__option vu-chip" data-filter="all" role="radio" aria-checked="false" tabindex="-1">همه</button>
@@ -440,7 +440,7 @@
           <span>StuDash</span>
         </div>
         <div class="footer-meta" dir="ltr">
-          <span>Developed by <strong>Iliya Abdollahzadeh</strong></span>
+          <span>Developed by <strong>Iliya Abdollahzadeh &amp; <a class="footer-developer" href="https://shekari.me/" title="Shekari.me" target="_blank" rel="noopener noreferrer">Aidin Shekari</a></strong></span>
           <span class="footer-divider">•</span>
           <a href="mailto:iliyaabdollahzade@gmail.com" class="footer-contact">iliyaabdollahzade@gmail.com</a>
         </div>
@@ -823,7 +823,10 @@
     <div class="settings-container">
       <header class="settings-header">
         <div class="settings-title-group">
-          <h2>⚙️ تنظیمات داشبورد</h2>
+          <h2 class="sd-section-title">
+            <span class="solar-icon" data-solar="settings"></span>
+            <span class="sd-heading-label" title="تنظیمات داشبورد">تنظیمات داشبورد</span>
+          </h2>
           <span class="settings-subtitle">ظاهر، حساب دانشگاه، ابزارها و پروفایل</span>
         </div>
         <button type="button" class="dialog-close-btn" id="settingsCloseBtn" aria-label="بستن">×</button>
@@ -919,7 +922,10 @@
         <!-- Section 2: Pinned Tools on Main Screen -->
         <section class="settings-section">
           <div class="settings-section-header">
-            <h3>⚡ دکمه‌های ابزار در صفحه اصلی (کنار ساعت)</h3>
+            <h3 class="sd-section-title">
+              <span class="solar-icon" data-solar="bolt"></span>
+              <span class="sd-heading-label" title="دکمه‌های ابزار در صفحه اصلی (کنار ساعت)">دکمه‌های ابزار در صفحه اصلی (کنار ساعت)</span>
+            </h3>
             <span class="settings-header-hint">دکمه‌هایی که می‌خواهید مستقیماً روی صفحه اصلی و کنار ساعت نمایش داده شوند را انتخاب کنید:</span>
           </div>
           <div class="settings-tools-toggles-grid">
@@ -978,7 +984,10 @@
         <!-- Section: VU Account -->
         <section class="settings-section">
           <div class="settings-section-header">
-            <h3>🎓 حساب دانشگاه (VU و پویا)</h3>
+            <h3 class="sd-section-title">
+              <span class="solar-icon" data-solar="square-academic-cap"></span>
+              <span class="sd-heading-label" title="حساب دانشگاه (VU و پویا)">حساب دانشگاه (VU و پویا)</span>
+            </h3>
             <p>همگام‌سازی خودکار تکالیف و آزمون‌ها از vu.um.ac.ir</p>
           </div>
           <div class="settings-profile-row">
@@ -1023,7 +1032,10 @@
         <!-- Section: Smart Weather & Clothing Advisor -->
         <section class="settings-section">
           <div class="settings-section-header">
-            <h3>☀️❄️ دستیار هوشمند هواشناسی و لباس</h3>
+            <h3 class="sd-section-title">
+              <span class="solar-icon" data-solar="sun"></span>
+              <span class="sd-heading-label" title="دستیار هوشمند هواشناسی و لباس">دستیار هوشمند هواشناسی و لباس</span>
+            </h3>
             <p>راهنمای روزانه و شبانه متناسب با وضعیت آب‌وهوای دانشگاه (مشهد و سایر شهرها)</p>
           </div>
           <div class="settings-profile-row">
@@ -1053,7 +1065,10 @@
         <!-- Section 3: Student Profile Shortcut -->
         <section class="settings-section">
           <div class="settings-section-header">
-            <h3>👤 مشخصات و رشته تحصیلی</h3>
+            <h3 class="sd-section-title">
+              <span class="solar-icon" data-solar="user-rounded"></span>
+              <span class="sd-heading-label" title="مشخصات و رشته تحصیلی">مشخصات و رشته تحصیلی</span>
+            </h3>
           </div>
           <div class="settings-profile-row">
             <div class="settings-profile-info">
@@ -1993,7 +2008,10 @@
   <dialog id="vuLoginDialog" class="pin-dialog vu-login-dialog">
     <form id="vuLoginForm" class="pin-form" autocomplete="on">
       <div class="dialog-header">
-        <h3>🎓 اتصال به سامانه VU</h3>
+        <h3 class="sd-section-title">
+          <span class="solar-icon" data-solar="square-academic-cap"></span>
+          <span class="sd-heading-label" title="اتصال به سامانه VU">اتصال به سامانه VU</span>
+        </h3>
         <button type="button" class="dialog-close-btn" id="vuLoginCloseBtn" aria-label="بستن">×</button>
       </div>
       <label class="vu-field">
@@ -2017,7 +2035,10 @@
   <dialog id="pooyaDialog" class="pin-dialog vu-login-dialog">
     <form id="pooyaDialogForm" class="pin-form" autocomplete="on">
       <div class="dialog-header">
-        <h3>📥 وارد کردن برنامه کلاسی از پویا</h3>
+        <h3 class="sd-section-title">
+          <span class="solar-icon" data-solar="download"></span>
+          <span class="sd-heading-label" title="وارد کردن برنامه کلاسی از پویا">وارد کردن برنامه کلاسی از پویا</span>
+        </h3>
         <button type="button" class="dialog-close-btn" id="pooyaDialogCloseBtn" aria-label="بستن">×</button>
       </div>
       <p class="vu-note">ورود پویا همان حساب دانشگاه (oauth.um.ac.ir) است. بعد از ورود، برنامه هفتگی و زوج یا فرد بودن هفته جاری از پویا خوانده و در جدول برنامه کلاسی وارد می‌شود. درس‌هایی که قبلاً دستی اضافه کرده‌ای حفظ می‌شوند.</p>

@@ -137,7 +137,14 @@ a { color: inherit; }
   font-size: var(--sd-text-section);
   font-weight: var(--sd-weight-heading);
 }
-.sd-section-title .sd-icon { color: var(--accent-soft-foreground); }
+.sd-section-title :is(.sd-icon, .solar-icon) { color: var(--accent-soft-foreground); }
+.sd-section-title > .sd-heading-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sd-modal .modal__heading.sd-section-title { display: flex; min-inline-size: 0; }
 .sd-subtle { color: var(--muted); font-size: var(--sd-text-caption); line-height: 1.6; }
 
 /* ---------- Head groups: title + description. Title↔description = --sd-heading-gap;
