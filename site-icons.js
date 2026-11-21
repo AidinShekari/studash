@@ -48,6 +48,7 @@
       return;
     }
     const image = document.createElement("img");
+    image.className = source === "icons/sites/fum.png" ? "site-logo--fum" : "";
     image.alt = "";
     image.loading = "lazy";
     image.decoding = "async";

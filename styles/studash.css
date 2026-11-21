@@ -3181,3 +3181,12 @@ body { min-inline-size: 0; }
 .pin-favicon.site-monogram { font-size: 26px; }
 .preset-site-icon.site-monogram { font-size: 12px; }
 .hub-link-favicon.site-monogram { font-size: 18px; }
+
+/* The university's blue emblem needs a light backing in every theme. */
+:is(.pin-favicon, .preset-site-icon, .hub-link-favicon) > img.site-logo--fum {
+  box-sizing: border-box;
+  padding: 8%;
+  background: #fff;
+  border-radius: 22%;
+  object-fit: contain;
+}
