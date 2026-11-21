@@ -149,83 +149,6 @@ function normalizeUrl(raw) {
   }
 }
 
-function faviconFor(url) {
-  return StudashSiteIcons.urlFor(url);
-}
-
-function getCustomBrandIcon(site) {
-  const url = (site.url || "").toLowerCase();
-  const title = (site.title || "").toLowerCase();
-  const id = (site.id || "").toLowerCase();
-
-  // 1. Google Apps (Official 4-color Google G inside crisp frosted squircle)
-  if (site.isGooglePackage || id.includes("google") || title.includes("google apps")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="#FFFFFF" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(0,0,0,0.08)" stroke-width="1" />
-        <g transform="translate(6.5, 6.5) scale(0.958)">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-        </g>
-      </svg>
-    `;
-  }
-
-  // 2. Research Hub (Google Scholar & Academic Papers Hub)
-  if (site.isResearchPackage || id.includes("research") || title.includes("research hub")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#researchBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
-        <g transform="translate(6, 6) scale(1)">
-          <path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269z" fill="#FFFFFF"/>
-          <path d="M12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z" fill="#38BDF8"/>
-          <path d="M9.5 15H14.5M9.5 17.5H14.5M9.5 20H13" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round"/>
-          <circle cx="15.5" cy="18.5" r="1.5" fill="#FBBF24"/>
-        </g>
-        <defs>
-          <linearGradient id="researchBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#0284C7"/>
-            <stop offset="1" stop-color="#075985"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 3. AI Hub (AI Suite & Multi-Model Constellation)
-  if (site.isAiPackage || id.includes("ai-hub") || title.includes("ai hub") || title.includes("ai suite")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#aiHubBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
-        <path d="M18 6L20.2 13.8L28 16L20.2 18.2L18 26L15.8 18.2L8 16L15.8 13.8L18 6Z" fill="url(#aiSparkleGrad)"/>
-        <circle cx="10" cy="10" r="2" fill="#38BDF8"/>
-        <circle cx="26" cy="10" r="1.8" fill="#F472B6"/>
-        <circle cx="26" cy="24" r="1.6" fill="#FBBF24"/>
-        <circle cx="10" cy="24" r="1.6" fill="#A78BFA"/>
-        <path d="M10 10L14 14M26 10L22 14M26 24L22 20M10 24L14 20" stroke="rgba(255,255,255,0.45)" stroke-width="1" stroke-dasharray="1.5 1.5"/>
-        <defs>
-          <linearGradient id="aiHubBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#7C3AED"/>
-            <stop offset="1" stop-color="#4C1D95"/>
-          </linearGradient>
-          <linearGradient id="aiSparkleGrad" x1="8" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FFFFFF"/>
-            <stop offset="0.6" stop-color="#E0E7FF"/>
-            <stop offset="1" stop-color="#A5B4FC"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  return null;
-}
-
 function updatePresetChipsUI() {
   const chips = document.querySelectorAll(".preset-chip");
   chips.forEach((chip) => {
@@ -386,7 +309,7 @@ function renderPinned() {
     } else if (site.isAiPackage || site.title === "AI Hub" || site.id === "def-ai-hub") {
       a.classList.add("ai-suite-tile");
       a.title = "پکیج ابزارهای هوش مصنوعی (AI Suite & Hub)";
-      iconWrap.innerHTML = getCustomBrandIcon(site);
+      iconWrap.hidden = true;
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -2922,14 +2845,7 @@ function renderHubLinks() {
 
     const favWrap = document.createElement("div");
     favWrap.className = "hub-link-favicon";
-    const img = document.createElement("img");
-    img.src = faviconFor(l.url);
-    img.alt = "";
-    img.loading = "lazy";
-    img.onerror = () => {
-      favWrap.textContent = "🔗";
-    };
-    favWrap.appendChild(img);
+    StudashSiteIcons.render(favWrap, l.url);
 
     const details = document.createElement("div");
     details.className = "hub-link-details";

@@ -10,7 +10,6 @@
                              },
     "permissions":  [
                         "storage",
-                        "favicon",
                         "identity",
                         "alarms",
                         "notifications",

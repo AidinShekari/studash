@@ -3162,3 +3162,4 @@ body { min-inline-size: 0; }
 .vu-sidebar-done { opacity: 1; }
 .vu-row-submitted .vu-td-title a,
 .vu-sched-submitted .vu-sched-title { text-decoration: none; }
+:is(.pin-favicon, .preset-site-icon, .hub-link-favicon)[hidden] { display: none !important; }

@@ -8,24 +8,48 @@ vm.runInNewContext(readFileSync(path.join(__dirname, "../site-icons.js"), "utf8"
 const { urlFor } = sandbox.StudashSiteIcons;
 
 test("website icons resolve to existing downloaded assets", () => {
-  for (const host of ["www.google.com", "vu.um.ac.ir", "pooya.um.ac.ir", "www.um.ac.ir", "chatgpt.com", "claude.ai", "gemini.google.com", "mail.google.com", "drive.google.com", "calendar.google.com", "meet.google.com", "classroom.google.com", "github.com"]) {
+  for (const host of ["www.google.com", "vu.um.ac.ir", "www.um.ac.ir", "chatgpt.com", "claude.ai", "gemini.google.com", "mail.google.com", "classroom.google.com", "github.com"]) {
     const file = urlFor("https://" + host + "/");
     assert.ok(file.startsWith("icons/sites/"), host);
-    assert.ok(existsSync(path.join(__dirname, "..", file)), file);
+    const location = path.join(__dirname, "..", file);
+    assert.ok(existsSync(location), file);
+    const png = readFileSync(location);
+    assert.equal(png.subarray(1, 4).toString(), "PNG");
+    assert.ok(png.readUInt32BE(16) >= 128 && png.readUInt32BE(20) >= 128, "low-resolution logo: " + host);
   }
 });
 
-test("custom website icons use Chrome's cache with the website origin only", () => {
-  const icon = new URL(urlFor("https://example.org/private?token=sample"));
-  assert.equal(icon.protocol, "chrome-extension:");
-  assert.equal(icon.pathname, "/_favicon/");
-  assert.equal(icon.searchParams.get("pageUrl"), "https://example.org/");
-  assert.equal(icon.searchParams.get("size"), "64");
+test("sites without a high-quality PNG have no replacement icon", () => {
+  for (const host of ["example.org", "pooya.um.ac.ir", "scholar.google.com", "calendar.google.com", "drive.google.com"]) {
+    assert.equal(urlFor("https://" + host + "/"), "");
+  }
 });
 
 test("website matching is exact and rejects non-website URLs", () => {
-  assert.ok(urlFor("https://fakechatgpt.com/").startsWith("chrome-extension:"));
+  assert.equal(urlFor("https://fakechatgpt.com/"), "");
   for (const url of ["javascript:alert(1)", "file:///private/file", "not a URL", "data:image/png,test"]) {
     assert.equal(urlFor(url), "");
   }
+});
+
+test("missing or broken images hide their slot without fallback text", () => {
+  let onError;
+  sandbox.document = { createElement: () => ({
+    addEventListener: (event, callback) => { if (event === "error") onError = callback; },
+  }) };
+  const container = {
+    hidden: false,
+    child: null,
+    replaceChildren() { this.child = null; },
+    append(image) { this.child = image; },
+  };
+  sandbox.StudashSiteIcons.render(container, "https://example.org/", "Example");
+  assert.equal(container.hidden, true);
+  assert.equal(container.child, null);
+  sandbox.StudashSiteIcons.render(container, "https://chatgpt.com/", "ChatGPT");
+  assert.equal(container.hidden, false);
+  assert.ok(container.child.src.endsWith("chatgpt.png"));
+  onError();
+  assert.equal(container.hidden, true);
+  assert.equal(container.child, null);
 });
