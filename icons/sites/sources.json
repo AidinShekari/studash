@@ -1,0 +1,54 @@
+{
+  "google": {
+    "file": "icons/sites/google.png",
+    "source": "https://www.google.com/favicon.ico"
+  },
+  "scholar": {
+    "file": "icons/sites/scholar.png",
+    "source": "https://scholar.google.com/favicon.ico"
+  },
+  "fum": {
+    "file": "icons/sites/fum.png",
+    "source": "https://www.um.ac.ir/assets/7c7106b7/images/favicon.png"
+  },
+  "pooya": {
+    "file": "icons/sites/pooya.png",
+    "source": "https://pooya.um.ac.ir/favicon.ico"
+  },
+  "chatgpt": {
+    "file": "icons/sites/chatgpt.png",
+    "source": "https://openai.com/favicon.ico"
+  },
+  "claude": {
+    "file": "icons/sites/claude.png",
+    "source": "https://claude.ai/favicon.ico"
+  },
+  "gemini": {
+    "file": "icons/sites/gemini.png",
+    "source": "https://www.gstatic.com/lamda/images/gemini_sparkle_4g_512_lt_f94943af3be039176192d.png"
+  },
+  "gmail": {
+    "file": "icons/sites/gmail.png",
+    "source": "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
+  },
+  "drive": {
+    "file": "icons/sites/drive.png",
+    "source": "https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png"
+  },
+  "calendar": {
+    "file": "icons/sites/calendar.png",
+    "source": "https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico"
+  },
+  "meet": {
+    "file": "icons/sites/meet.png",
+    "source": "https://www.gstatic.com/meet/icons/favicon-2026-v2.png"
+  },
+  "classroom": {
+    "file": "icons/sites/classroom.png",
+    "source": "https://ssl.gstatic.com/classroom/favicon.png"
+  },
+  "github": {
+    "file": "icons/sites/github.png",
+    "source": "https://github.githubassets.com/favicons/favicon.png"
+  }
+}

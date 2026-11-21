@@ -3138,3 +3138,20 @@ body { min-inline-size: 0; }
   #onboardDialog .onboard-feat-item { flex-direction: column; }
   #courseHubDialog .course-hub-nav { padding-inline: 16px; }
 }
+
+/* Preserve each website's own icon, without an extra logo frame. */
+.pin-favicon:has(> img) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+.pin-favicon > img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  border-radius: 0;
+}
+.preset-chip:has(.preset-site-icon) { display: inline-flex; align-items: center; gap: 6px; }
+.preset-site-icon { display: inline-flex; align-items: center; justify-content: center; inline-size: 18px; block-size: 18px; flex: none; }
+.preset-site-icon > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
+.hub-link-favicon img { object-fit: contain; }

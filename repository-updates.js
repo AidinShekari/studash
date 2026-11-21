@@ -1,6 +1,6 @@
-// Public announcements are maintained in this repository's data/announcements.json.
+// Public announcements are maintained in AidinShekari/studash-updates.
 (function (root) {
-  const SOURCE = "https://raw.githubusercontent.com/AidinShekari/studash/main/data/announcements.json";
+  const SOURCE = "https://raw.githubusercontent.com/AidinShekari/studash-updates/main/announcements.json";
   const CACHE_KEY = "studashAnnouncements";
   const CACHE_AGE = 30 * 60 * 1000;
   let pending = null;
@@ -28,14 +28,14 @@
     pending = (async () => {
       const stored = await chrome.storage.local.get(CACHE_KEY);
       const cache = stored[CACHE_KEY];
-      if (!force && cache && Date.now() - cache.checkedAt < CACHE_AGE) return { ...cache, stale: false };
+      if (!force && cache?.source === SOURCE && Date.now() - cache.checkedAt < CACHE_AGE) return { ...cache, stale: false };
       try {
         const response = await fetch(SOURCE, { cache: "no-store", credentials: "omit", signal: AbortSignal.timeout(10000) });
         if (!response.ok) throw new Error("Announcement feed unavailable");
         const text = await response.text();
         if (text.length > 100000) throw new Error("Announcement feed too large");
         const items = normalize(JSON.parse(text));
-        const result = { items, checkedAt: Date.now() };
+        const result = { source: SOURCE, items, checkedAt: Date.now() };
         await chrome.storage.local.set({ [CACHE_KEY]: result });
         return { ...result, stale: false };
       } catch {

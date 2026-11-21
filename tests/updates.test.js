@@ -34,7 +34,7 @@ test("concurrent requests share one public fetch and cached loads avoid a second
   let requests = 0;
   const { client } = fixture(async (url, options) => {
     requests++;
-    assert.equal(url, "https://raw.githubusercontent.com/AidinShekari/studash/main/data/announcements.json");
+    assert.equal(url, "https://raw.githubusercontent.com/AidinShekari/studash-updates/main/announcements.json");
     assert.equal(options.credentials, "omit");
     assert.ok(options.signal instanceof AbortSignal);
     return new Response(JSON.stringify({ announcements: [entry] }));
@@ -71,4 +71,21 @@ test("an empty published feed clears old announcements", async () => {
   const result = await client.get();
   assert.equal(result.items.length, 0);
   assert.equal(result.stale, false);
+});
+
+test("changing the announcement repository bypasses an old repository cache", async () => {
+  let requests = 0;
+  const { client, stored } = fixture(async () => {
+    requests++;
+    return Response.json({ announcements: [entry] });
+  });
+  stored.studashAnnouncements = {
+    source: "https://raw.githubusercontent.com/AidinShekari/studash/main/data/announcements.json",
+    items: [{ ...entry, id: "old-source" }],
+    checkedAt: Date.now(),
+  };
+  const result = await client.get();
+  assert.equal(requests, 1);
+  assert.equal(result.items[0].id, "one");
+  assert.equal(result.source, "https://raw.githubusercontent.com/AidinShekari/studash-updates/main/announcements.json");
 });

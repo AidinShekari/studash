@@ -10,6 +10,7 @@
                              },
     "permissions":  [
                         "storage",
+                        "favicon",
                         "identity",
                         "alarms",
                         "notifications",
@@ -22,7 +23,7 @@
                              "https://pooya.um.ac.ir/*",
                              "https://www.googleapis.com/*",
                              "https://api.open-meteo.com/*",
-                             "https://raw.githubusercontent.com/AidinShekari/studash/main/data/announcements.json"
+                             "https://raw.githubusercontent.com/AidinShekari/studash-updates/main/announcements.json"
                          ],
     "action":  {
                    "default_title":  "StuDash",

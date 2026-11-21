@@ -150,12 +150,7 @@ function normalizeUrl(raw) {
 }
 
 function faviconFor(url) {
-  try {
-    const host = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${host}&sz=64`;
-  } catch {
-    return "";
-  }
+  return StudashSiteIcons.urlFor(url);
 }
 
 function getCustomBrandIcon(site) {
@@ -228,158 +223,6 @@ function getCustomBrandIcon(site) {
     `;
   }
 
-  // 4. Pooya Portal (پرتال جامع آموزشی و اداری پویای دانشگاه فردوسی مشهد)
-  if (url.includes("pooya.um.ac.ir") || title.includes("pooya") || title.includes("پویا")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#pooyaBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
-        <path d="M18 7L8 11.5L18 16L28 11.5L18 7Z" fill="#FFFFFF"/>
-        <path d="M11.5 13.5V18.5C11.5 21 14 23 18 23C22 23 24.5 21 24.5 18.5V13.5L18 16.5L11.5 13.5Z" fill="#E0F2FE"/>
-        <path d="M28 12V18.5" stroke="#FBBF24" stroke-width="1.6" stroke-linecap="round"/>
-        <circle cx="28" cy="19.5" r="1.3" fill="#FBBF24"/>
-        <path d="M13 25.5C14.8 24.8 16.5 25 18 25.8C19.5 25 21.2 24.8 23 25.5V28.5C21.2 27.8 19.5 28 18 28.8C16.5 28 14.8 27.8 13 28.5V25.5Z" fill="#FBBF24"/>
-        <path d="M18 23.5V28.5" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
-        <defs>
-          <linearGradient id="pooyaBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#0284C7"/>
-            <stop offset="1" stop-color="#1E3A8A"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 5. VU Portal (سامانه آموزش الکترونیکی و یادگیری مجازی فردوسی - Moodle LMS)
-  if (url.includes("vu.um.ac.ir") || title.includes("vu portal") || title.includes("سه‌با") || title.includes("مجازی")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#vuBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
-        <rect x="7" y="11" width="22" height="15" rx="2.5" fill="#FFFFFF"/>
-        <rect x="8.5" y="12.5" width="19" height="12" rx="1.5" fill="#1E1B4B"/>
-        <path d="M14 26H22M18 26V29M12 29H24" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M18 7L10 10.5L18 14L26 10.5L18 7Z" fill="#F97316"/>
-        <path d="M26 11V15" stroke="#FDE047" stroke-width="1.3" stroke-linecap="round"/>
-        <circle cx="26" cy="15.8" r="1" fill="#FDE047"/>
-        <polygon points="16,15.5 21,18.5 16,21.5" fill="#38BDF8"/>
-        <defs>
-          <linearGradient id="vuBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6366F1"/>
-            <stop offset="1" stop-color="#3730A3"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 6. Webmail (پست الکترونیک رسمی دانشگاه فردوسی مشهد)
-  if (url.includes("webmail.um.ac.ir") || title.includes("webmail") || title.includes("وب‌میل") || title.includes("ایمیل دانشگاه")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#webmailBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
-        <rect x="7" y="11" width="22" height="15" rx="2.5" fill="#FFFFFF"/>
-        <path d="M7 12L18 20L29 12" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M7 25L14 18M29 25L22 18" stroke="#FECDD3" stroke-width="1.4" stroke-linecap="round"/>
-        <circle cx="18" cy="20" r="3" fill="#F59E0B"/>
-        <path d="M18 18.5V21.5M16.8 19.8L19.2 19.8" stroke="#FFFFFF" stroke-width="0.9" stroke-linecap="round"/>
-        <defs>
-          <linearGradient id="webmailBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#E11D48"/>
-            <stop offset="1" stop-color="#9F1239"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 7. FUM Main Website (پرتال رسمی دانشگاه فردوسی مشهد - نماد آرامگاه حکیم فردوسی)
-  if (url.includes("um.ac.ir") || title.includes("fum") || title.includes("فردوسی")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#fumBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
-        <path d="M9 25H27V26.5H9V25Z" fill="#F59E0B"/>
-        <path d="M11 23H25V25H11V23Z" fill="#FDE68A"/>
-        <path d="M12.5 15H23.5V23H12.5V15Z" fill="#FFFFFF"/>
-        <path d="M11.5 13.5H24.5V15H11.5V13.5Z" fill="#F59E0B"/>
-        <path d="M13 11.5H23V13.5H13V11.5Z" fill="#FDE68A"/>
-        <path d="M15 9.5H21V11.5H15V9.5Z" fill="#F59E0B"/>
-        <path d="M15.5 18C15.5 16.6 16.6 15.5 18 15.5C19.4 15.5 20.5 16.6 20.5 18V23H15.5V18Z" fill="#1E3A8A"/>
-        <path d="M7 21C6.5 17 8 13 11 11M29 21C29.5 17 28 13 25 11" stroke="#FBBF24" stroke-width="1.4" stroke-linecap="round"/>
-        <defs>
-          <linearGradient id="fumBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#1E3A8A"/>
-            <stop offset="1" stop-color="#0F172A"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 8. ChatGPT (Official OpenAI Spiral Rosette)
-  if (url.includes("chatgpt.com") || url.includes("openai.com") || title.includes("chatgpt")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#chatgptBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
-        <g transform="translate(6, 6) scale(1)">
-          <path fill="#FFFFFF" d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.2502-4.9729 6.0462 6.0462 0 0 0-.9998-5.0002zm-9.022 10.1581a3.6749 3.6749 0 0 1-2.0718-1.0028l.115-.066 3.8697-2.2334a1.0028 1.0028 0 0 0 .5072-.8715v-5.4526l3.4116 1.9705c.0339.019.0573.0494.066.085v4.5222c-.0044 2.0125-1.6322 3.6403-3.6447 3.6447h-.3529zm-10.428-5.3282a3.6558 3.6558 0 0 1-.3975-2.2598l.115.068 3.8697 2.2334a1.0074 1.0074 0 0 0 1.0144 0l4.7214-2.7262v3.9412c0 .0385-.021.0743-.0535.0932l-3.9118 2.2575c-1.7412 1.0055-3.9669.4124-4.9724-1.3288l-.3859-.6685zm1.5358-8.9137a3.6841 3.6841 0 0 1 1.9568-1.5959v4.5936a1.0051 1.0051 0 0 0 .5096.8715l4.719 2.7262-3.4116 1.9705c-.0315.019-.0715.0214-.1052.0048L4.6293 8.3585c-1.7388-1.0079-2.3318-3.236-1.324-4.9748l.3859-.6685zm13.149 5.378-4.7214-2.7262 3.4116-1.9705c.0339-.019.0739-.0214.1076-.0048l3.9118 2.2575c1.7412 1.0055 2.3342 3.2336 1.3264 4.9724l-.3859.6685a3.6702 3.6702 0 0 1-1.9568 1.5959V8.0438a1.0074 1.0074 0 0 0-.5073-.8715zm-7.9042 3.5152-3.4116-1.9705c-.0339-.019-.0573-.0494-.066-.085V5.513c.0044-2.0125 1.6322-3.6403 3.6447-3.6447h.3529a3.6749 3.6749 0 0 1 2.0718 1.0028l-.115.066-3.8697 2.2334a1.0028 1.0028 0 0 0-.5072.8715v5.4526zm1.7226-2.5855 2.1064-1.2162 2.1064 1.2162v2.4325l-2.1064 1.2162-2.1064-1.2162v-2.4325z"/>
-        </g>
-        <defs>
-          <linearGradient id="chatgptBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#10A37F"/>
-            <stop offset="1" stop-color="#0B7C5F"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 9. Claude (Official Anthropic Claude Terracotta Spark)
-  if (url.includes("claude.ai") || title.includes("claude")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#claudeBrandGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
-        <g transform="translate(6, 6) scale(0.24)">
-          <path fill="#FFFFFF" d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"/>
-        </g>
-        <defs>
-          <linearGradient id="claudeBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#D97757"/>
-            <stop offset="1" stop-color="#B8593B"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
-  // 10. Gemini (Official Google Gemini Cosmos Sparkle)
-  if (url.includes("gemini.google.com") || title.includes("gemini")) {
-    return `
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="9" fill="url(#geminiBgGrad)" />
-        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.18)" stroke-width="1" />
-        <g transform="translate(6, 6) scale(0.857)">
-          <path d="M14 28C14 26.0633 13.6267 24.2433 12.88 22.54C12.1567 20.8367 11.165 19.355 9.905 18.095C8.645 16.835 7.16333 15.8433 5.46 15.12C3.75667 14.3733 1.93667 14 0 14C1.93667 14 3.75667 13.6383 5.46 12.915C7.16333 12.1683 8.645 11.165 9.905 9.905C11.165 8.645 12.1567 7.16333 12.88 5.46C13.6267 3.75667 14 1.93667 14 0C14 1.93667 14.3617 3.75667 15.085 5.46C15.8317 7.16333 16.835 8.645 18.095 9.905C19.355 11.165 20.8367 12.1683 22.54 12.915C24.2433 13.6383 26.0633 14 28 14C26.0633 14 24.2433 14.3733 22.54 15.12C20.8367 15.8433 19.355 16.835 18.095 18.095C16.835 19.355 15.8317 20.8367 15.085 22.54C14.3617 24.2433 14 26.0633 14 28Z" fill="url(#geminiBrandGrad)"/>
-        </g>
-        <defs>
-          <linearGradient id="geminiBgGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#0F172A"/>
-            <stop offset="1" stop-color="#1E1B4B"/>
-          </linearGradient>
-          <radialGradient id="geminiBrandGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(2.77876 11.3795) rotate(18.6832) scale(29.8025 238.737)">
-            <stop offset="0.067" stop-color="#F472B6"/>
-            <stop offset="0.342" stop-color="#A78BFA"/>
-            <stop offset="0.672" stop-color="#38BDF8"/>
-          </radialGradient>
-        </defs>
-      </svg>
-    `;
-  }
-
   return null;
 }
 
@@ -408,6 +251,12 @@ function updatePresetChipsUI() {
       } else {
         chip.innerHTML = `+ ${chip.dataset.title}`;
       }
+    }
+    if (chip.dataset.url) {
+      const icon = document.createElement("span");
+      icon.className = "preset-site-icon";
+      StudashSiteIcons.render(icon, chip.dataset.url, chip.dataset.title);
+      chip.prepend(icon);
     }
   });
 }
@@ -515,7 +364,7 @@ function renderPinned() {
     if (site.isGooglePackage || site.title === "Google Apps" || site.id === "def-google-apps") {
       a.classList.add("google-suite-tile");
       a.title = "پکیج سرویس‌های گوگل (Google Apps Suite)";
-      iconWrap.innerHTML = getCustomBrandIcon(site);
+      StudashSiteIcons.render(iconWrap, "https://www.google.com/", site.title);
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -526,7 +375,7 @@ function renderPinned() {
     } else if (site.isResearchPackage || site.title === "Research Hub" || site.id === "def-research-hub") {
       a.classList.add("research-suite-tile");
       a.title = "پکیج مقالات و مراجع علمی (Research & Paper Hub)";
-      iconWrap.innerHTML = getCustomBrandIcon(site);
+      StudashSiteIcons.render(iconWrap, "https://scholar.google.com/", site.title);
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -546,19 +395,7 @@ function renderPinned() {
         }
       });
     } else {
-      const customSvg = getCustomBrandIcon(site);
-      if (customSvg) {
-        iconWrap.innerHTML = customSvg;
-      } else {
-        const img = document.createElement("img");
-        img.src = faviconFor(site.url);
-        img.alt = "";
-        img.loading = "lazy";
-        img.onerror = () => {
-          iconWrap.textContent = site.title.slice(0, 1).toUpperCase();
-        };
-        iconWrap.appendChild(img);
-      }
+      StudashSiteIcons.render(iconWrap, site.url, site.title);
     }
 
     const titleEl = document.createElement("div");
