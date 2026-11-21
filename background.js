@@ -56,6 +56,10 @@ async function getTimerState() {
       }
       state.remainingSeconds = Math.max(0, left);
     }
+    const logged = await flushAccruedStudyTime(state);
+    if (logged > 0) {
+      await saveTimerState(state);
+    }
   }
 
   return state;
@@ -102,6 +106,41 @@ function broadcastState(state) {
   } catch (e) {}
 }
 
+async function flushAccruedStudyTime(state) {
+  if (!state || (state.mode !== "study" && state.mode !== "stopwatch")) return 0;
+
+  let currentElapsed = 0;
+  if (state.mode === "stopwatch") {
+    if (state.isRunning && !state.isPaused && state.startedAt) {
+      currentElapsed = Math.floor((Date.now() - state.startedAt) / 1000);
+    } else {
+      currentElapsed = state.elapsedSeconds || 0;
+    }
+  } else {
+    const total = state.totalSeconds || ((state.studyMinutes || 45) * 60);
+    let rem = state.remainingSeconds || 0;
+    if (state.isRunning && !state.isPaused && state.targetEndTime) {
+      rem = Math.max(0, Math.ceil((state.targetEndTime - Date.now()) / 1000));
+    }
+    currentElapsed = Math.max(0, total - rem);
+  }
+
+  state.loggedSeconds = state.loggedSeconds || 0;
+  const unloggedSecs = Math.max(0, currentElapsed - state.loggedSeconds);
+  const unloggedMins = Math.floor(unloggedSecs / 60);
+
+  if (unloggedMins >= 1) {
+    await logDailyStudyStat(unloggedMins, state.courseId || null, state.subjectTitle || "مطالعه آزاد");
+    if (state.courseId) {
+      await logStudyTimeToCourse(state.courseId, unloggedMins);
+    }
+    state.todayStudyMinutes = (state.todayStudyMinutes || 0) + unloggedMins;
+    state.loggedSeconds += unloggedMins * 60;
+  }
+
+  return unloggedMins;
+}
+
 async function handleTimerCompleted(state) {
   const completedMode = state.mode;
   state.isRunning = false;
@@ -110,15 +149,20 @@ async function handleTimerCompleted(state) {
 
   if (completedMode === "study") {
     state.todayCompletedSessions = (state.todayCompletedSessions || 0) + 1;
-    state.todayStudyMinutes = (state.todayStudyMinutes || 0) + (state.studyMinutes || 45);
 
-    // Log this session into the daily study history (powers the Study Report panel)
-    await logDailyStudyStat(state.studyMinutes || 45, state.courseId || null);
-
-    // If linked to a university course, log study minutes to course in scheduleClasses
-    if (state.courseId) {
-      await logStudyTimeToCourse(state.courseId, state.studyMinutes || 45);
+    // Flush any remaining unlogged minutes so the total exactly matches full session
+    const total = state.studyMinutes || 45;
+    const remainingToLog = Math.max(0, total - (Math.floor((state.loggedSeconds || 0) / 60)));
+    if (remainingToLog > 0) {
+      await logDailyStudyStat(remainingToLog, state.courseId || null, state.subjectTitle || "مطالعه آزاد");
+      if (state.courseId) {
+        await logStudyTimeToCourse(state.courseId, remainingToLog);
+      }
+      state.todayStudyMinutes = (state.todayStudyMinutes || 0) + remainingToLog;
     }
+
+    state.loggedSeconds = 0;
+    state.sessionStartedAt = null;
 
     // Send Chrome Notification
     showNotification(
@@ -140,10 +184,12 @@ async function handleTimerCompleted(state) {
     state.mode = "study";
     state.totalSeconds = (state.studyMinutes || 45) * 60;
     state.remainingSeconds = state.totalSeconds;
+    state.loggedSeconds = 0;
   }
 
   await saveTimerState(state);
   chrome.alarms.clear("focusTimerAlarm");
+  broadcastState(state);
 }
 
 function showNotification(title, message) {
@@ -160,6 +206,7 @@ function showNotification(title, message) {
 }
 
 async function logStudyTimeToCourse(courseId, minutes) {
+  if (!minutes || minutes <= 0) return;
   try {
     const data = await chrome.storage.local.get("scheduleClasses");
     const classes = data.scheduleClasses || [];
@@ -174,28 +221,49 @@ async function logStudyTimeToCourse(courseId, minutes) {
 // ---------------------------------------------------------------
 // Daily Study History (for the Study Report / weekly stats panel)
 // ---------------------------------------------------------------
-async function logDailyStudyStat(minutes, courseId) {
+async function logDailyStudyStat(minutes, courseId, subjectTitle) {
+  if (!minutes || minutes <= 0) return;
   try {
     const data = await chrome.storage.local.get("studyDailyLog");
     const log = data.studyDailyLog || {};
     const todayIso = StudashDate.todayIso();
 
     if (!log[todayIso]) {
-      log[todayIso] = { total: 0, courses: {} };
+      log[todayIso] = { total: 0, courses: {}, sessions: [] };
     }
+    if (!log[todayIso].courses) log[todayIso].courses = {};
+    if (!log[todayIso].sessions) log[todayIso].sessions = [];
+
     log[todayIso].total = (log[todayIso].total || 0) + minutes;
     if (courseId) {
       log[todayIso].courses[courseId] = (log[todayIso].courses[courseId] || 0) + minutes;
     }
 
-    // Keep storage lean: retain only the most recent 90 days of history
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    log[todayIso].sessions.unshift({
+      time: timeStr,
+      minutes: minutes,
+      courseId: courseId || null,
+      subject: subjectTitle || "مطالعه آزاد",
+      timestamp: Date.now()
+    });
+
+    if (log[todayIso].sessions.length > 30) {
+      log[todayIso].sessions = log[todayIso].sessions.slice(0, 30);
+    }
+
+    // Keep storage lean: retain only 90 days
     const dateKeys = Object.keys(log).sort();
     if (dateKeys.length > 90) {
       dateKeys.slice(0, dateKeys.length - 90).forEach((k) => delete log[k]);
     }
 
     await chrome.storage.local.set({ studyDailyLog: log });
-  } catch (e) {}
+  } catch (e) {
+    console.warn("Failed to log daily study stat", e);
+  }
 }
 
 // ---------------------------------------------------------------
@@ -214,7 +282,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 // Runtime Messages
 // ---------------------------------------------------------------
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // VU messages and offscreen traffic are handled by the VU section below.
   if (message && (message.target === "offscreen" || String(message.action || "").startsWith("VU_"))) return false;
   (async () => {
     let state = await getTimerState();
@@ -232,6 +299,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.courseId !== undefined) state.courseId = message.courseId;
         if (message.mode) state.mode = message.mode;
 
+        state.loggedSeconds = state.loggedSeconds || 0;
+
         if (state.mode === "stopwatch") {
           state.startedAt = Date.now() - (state.elapsedSeconds || 0) * 1000;
           state.targetEndTime = null;
@@ -248,6 +317,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         await saveTimerState(state);
         sendResponse(state);
+        broadcastState(state);
         break;
       }
 
@@ -262,9 +332,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
           state.targetEndTime = null;
           chrome.alarms.clear("focusTimerAlarm");
+
+          await flushAccruedStudyTime(state);
           await saveTimerState(state);
         }
         sendResponse(state);
+        broadcastState(state);
         break;
       }
 
@@ -281,13 +354,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           await saveTimerState(state);
         }
         sendResponse(state);
+        broadcastState(state);
         break;
       }
 
       case "RESET_TIMER": {
+        await flushAccruedStudyTime(state);
+
         state.isRunning = false;
         state.isPaused = false;
         state.targetEndTime = null;
+        state.loggedSeconds = 0;
+        state.sessionStartedAt = null;
         chrome.alarms.clear("focusTimerAlarm");
 
         if (state.mode === "stopwatch") {
@@ -300,10 +378,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         await saveTimerState(state);
         sendResponse(state);
+        broadcastState(state);
         break;
       }
 
       case "SET_PRESET": {
+        await flushAccruedStudyTime(state);
+
         state.preset = message.preset;
         state.studyMinutes = message.studyMinutes || state.studyMinutes;
         state.breakMinutes = message.breakMinutes || state.breakMinutes;
@@ -311,6 +392,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         state.isRunning = false;
         state.isPaused = false;
         state.targetEndTime = null;
+        state.loggedSeconds = 0;
         chrome.alarms.clear("focusTimerAlarm");
 
         if (state.mode === "stopwatch") {
@@ -323,14 +405,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         await saveTimerState(state);
         sendResponse(state);
+        broadcastState(state);
         break;
       }
 
       case "SWITCH_MODE": {
+        await flushAccruedStudyTime(state);
+
         state.mode = message.mode; // "study" | "break" | "stopwatch"
         state.isRunning = false;
         state.isPaused = false;
         state.targetEndTime = null;
+        state.loggedSeconds = 0;
+        state.sessionStartedAt = null;
         chrome.alarms.clear("focusTimerAlarm");
 
         if (state.mode === "stopwatch") {
@@ -343,6 +430,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         await saveTimerState(state);
         sendResponse(state);
+        broadcastState(state);
         break;
       }
 
@@ -362,13 +450,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       default:
-        sendResponse(state);
+        sendResponse({ error: "Unknown action" });
     }
   })();
 
   return true; // Keep message channel open for async response
 });
-
 
 // ===============================================================
 // VU (vu.um.ac.ir) integration: periodic sync, notifications, badge

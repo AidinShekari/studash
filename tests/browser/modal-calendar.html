@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles/studash.css">
+<body>
+<script src="../../theme.js"></script>
+<script src="../../ui-kit.js"></script>
+<script>
+window.addEventListener('error', event => {
+  const out = document.createElement('pre'); out.id = 'results';
+  out.textContent = JSON.stringify([{ name: 'page execution', ok: false, error: event.message }]);
+  document.body.append(out);
+});
+window.addEventListener('unhandledrejection', event => {
+  const out = document.createElement('pre'); out.id = 'results';
+  out.textContent = JSON.stringify([{ name: 'page execution', ok: false, error: String(event.reason?.stack || event.reason) }]);
+  document.body.append(out);
+});
+const results = [];
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+function assert(value, message) { if (!value) throw new Error(message); }
+async function test(name, run) {
+  document.body.dataset.phase = name;
+  try { await run(); results.push({ name, ok: true }); }
+  catch (error) { results.push({ name, ok: false, error: error.message }); }
+}
+(async () => {
+  document.body.dataset.phase = "fetch";
+  const html = await (await fetch('../../newtab.html')).text();
+  const parsed = new DOMParser().parseFromString(html, 'text/html');
+  for (const id of ['courseHubDialog', 'pinDialog', 'classDialog', 'vuLoginDialog', 'pooyaDialog']) {
+    document.body.append(document.importNode(parsed.getElementById(id), true));
+  }
+  SDUI.enhanceDialogs();
+  const script = document.createElement('script');
+  script.src = '../../islands/islands.js';
+  document.body.append(script);
+  await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
+  document.body.dataset.phase = "mounted";
+  await wait(250);
+
+  await test('modal footer buttons have a visible gap at the current viewport width', () => {
+    for (const id of ['pinDialog', 'classDialog', 'vuLoginDialog', 'pooyaDialog']) {
+      const dialog = document.getElementById(id);
+      dialog.showModal();
+      try {
+        const footer = dialog.querySelector('.sd-modal__footer');
+        const buttons = [...footer.querySelectorAll('button')].filter(el => el.offsetWidth);
+        assert(parseFloat(getComputedStyle(footer).columnGap) >= 8, id + ': missing gap');
+        assert(footer.scrollWidth <= footer.clientWidth + 1, id + ': footer overflow');
+        if (buttons.length > 1) {
+          const a = buttons[0].getBoundingClientRect(), b = buttons[1].getBoundingClientRect();
+          assert(a.right + 7 <= b.left || b.right + 7 <= a.left || a.bottom + 7 <= b.top || b.bottom + 7 <= a.top, id + ': buttons overlap');
+        }
+      } finally { dialog.close(); }
+    }
+  });
+
+  await test('calendar opens inside the modal top layer and selecting a day updates the native input', async () => {
+    const dialog = document.getElementById('courseHubDialog');
+    dialog.showModal();
+    try {
+      const date = dialog.querySelector('#hubTaskDueDate');
+      date.value = '2026-11-21';
+      await wait(100);
+      const host = date.nextElementSibling;
+      host.querySelector('button').click();
+      await wait(200);
+      const popover = dialog.querySelector('.sd-overlay-root [data-slot="date-picker-popover"]');
+      assert(popover, 'calendar portal is outside the modal');
+      const before = dialog.getBoundingClientRect();
+      const box = popover.getBoundingClientRect();
+      assert(box.width > 100 && box.height > 100, 'calendar is hidden');
+      assert(box.top >= 0 && box.bottom <= innerHeight + 1, 'calendar extends outside viewport');
+      assert(box.left >= 0 && box.right <= innerWidth + 1, 'calendar extends outside viewport');
+      let changes = 0;
+      date.addEventListener('change', () => changes++);
+      const day = popover.querySelector('[role="button"][data-rac]:not([aria-disabled="true"]):not([aria-selected="true"])')
+        || popover.querySelector('[role="gridcell"]:not([aria-disabled="true"]) [role="button"]');
+      assert(day, 'no selectable calendar day');
+      day.click();
+      await wait(150);
+      assert(changes === 1, 'selected date was not committed exactly once');
+      assert(/^\d{4}-\d{2}-\d{2}$/.test(date.value), 'date storage is not Gregorian ISO');
+      const after = dialog.getBoundingClientRect();
+      assert(Math.abs(before.width - after.width) < 1 && Math.abs(before.height - after.height) < 1, 'picker resized the modal');
+    } finally { dialog.close(); }
+  });
+
+  await test('a dropdown in the modal uses the same top-layer overlay container', async () => {
+    const dialog = document.getElementById('classDialog');
+    dialog.showModal();
+    try {
+      const trigger = dialog.querySelector('.sd-island--select button');
+      assert(trigger, 'select bridge missing');
+      trigger.click();
+      await wait(150);
+      assert(dialog.querySelector('.sd-overlay-root [role="listbox"]'), 'dropdown outside modal');
+    } finally { dialog.close(); }
+  });
+  const output = document.createElement('pre');
+  output.id = 'results'; output.textContent = JSON.stringify(results);
+  document.body.append(output);
+})();
+</script>
+</body>
+</html>

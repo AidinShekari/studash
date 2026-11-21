@@ -102,7 +102,17 @@ function useLabelRedirect(label, triggerRef) {
 
 function Providers({ host, children }) {
   // Inside a modal <dialog>, popovers must live in the dialog (the rest of the page is inert).
-  const getContainer = () => host.closest("dialog") || document.body;
+  const getContainer = () => {
+    const dialog = host.closest("dialog");
+    if (!dialog) return document.body;
+    let container = dialog.querySelector(":scope > .sd-overlay-root");
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "sd-overlay-root";
+      dialog.append(container);
+    }
+    return container;
+  };
   return (
     <I18nProvider locale={LOCALE}>
       <UNSAFE_PortalProvider getContainer={getContainer}>{children}</UNSAFE_PortalProvider>
@@ -159,7 +169,7 @@ function SelectBridge({ select, host }) {
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
-        <Select.Popover>
+        <Select.Popover placement="bottom start" offset={8} containerPadding={12}>
           <ListBox items={snap.options}>
             {(item) => (
               <ListBox.Item id={item.id} textValue={item.text}>
@@ -225,7 +235,7 @@ function DateBridge({ input, host }) {
             </DatePicker.Trigger>
           </DateField.Suffix>
         </DateField.Group>
-        <DatePicker.Popover>
+        <DatePicker.Popover placement="bottom start" offset={8} containerPadding={12}>
           <Calendar aria-label={labelText || "تقویم"}>
             <Calendar.Header>
               <Calendar.YearPickerTrigger>

@@ -1,16 +1,16 @@
 {
   "name": "studash",
-  "version": "1.2.0-beta.3",
+  "version": "1.3.0",
   "private": true,
   "description": "StuDash Chrome extension — build tooling (CSS + the small React island for HeroUI Select/DatePicker). The extension ships only built files.",
   "scripts": {
-    "build": "npm run build:fonts && npm run build:css && npm run build:islands",
+    "build": "npm run build:css && npm run build:islands",
     "build:fonts": "node scripts/build-fonts.mjs",
-    "build:css": "tailwindcss -i styles/src/studash.css -o styles/studash.css --minify",
-    "watch:css": "tailwindcss -i styles/src/studash.css -o styles/studash.css --watch",
+    "build:css": "node scripts/build-css.mjs",
+    "watch:css": "node scripts/build-css.mjs --watch",
     "build:islands": "esbuild islands/src/index.jsx --bundle --minify --format=iife --target=chrome120 --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --legal-comments=linked --outfile=islands/islands.js",
     "test": "node --test tests/*.test.js",
-    "test:browser": "node tests/browser/run.mjs && node tests/browser/run.mjs tests/browser/vu-dashboard.html && node tests/browser/run.mjs tests/browser/context-menu.html"
+    "test:browser": "node tests/browser/run.mjs && node tests/browser/run.mjs tests/browser/vu-dashboard.html && node tests/browser/run.mjs tests/browser/context-menu.html && node tests/browser/run.mjs tests/browser/modal-calendar.html && node tests/browser/run.mjs tests/browser/portal-sync.html"
   },
   "devDependencies": {
     "@fontsource/estedad": "^5.3.0",

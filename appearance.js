@@ -13,7 +13,6 @@
   const accentGroup = $("appearanceAccents");
   const densityGroup = $("appearanceDensity");
   const scaleGroup = $("appearanceScale");
-  const surfaceGroup = $("appearanceSurface");
   const radiusGroup = $("appearanceRadius");
   if (!modeGroup || !presetGroup) return;
 
@@ -121,12 +120,12 @@
     syncGroup(presetGroup, a.preset);
     syncGroup(accentGroup, a.accent);
     syncGroup(densityGroup, a.density);
-    syncGroup(scaleGroup, a.scale);
-    syncGroup(surfaceGroup, a.surface);
+    syncGroup(scaleGroup, a.scale || "normal");
     syncGroup(radiusGroup, a.radius);
     const accent = T.ACCENTS.find((x) => x.id === a.accent);
     $("appearanceAccentName").textContent = accent ? accent.name : "رنگ پیش‌فرض پوسته";
-    // Reset also restores the pinned clock shortcuts, so it stays available.
+    // Keep button always enabled and responsive to user clicks
+    if ($("appearanceResetBtn")) $("appearanceResetBtn").disabled = false;
   }
 
   renderPresets();
@@ -136,29 +135,34 @@
   setupGroup(accentGroup, "accent");
   setupGroup(densityGroup, "density");
   setupGroup(scaleGroup, "scale");
-  setupGroup(surfaceGroup, "surface");
   setupGroup(radiusGroup, "radius");
 
-  // Reset: appearance + pinned clock shortcuts, with a short confirmation
-  // shown on the button and announced to screen readers.
   const resetBtn = $("appearanceResetBtn");
-  const resetStatus = $("appearanceResetStatus");
-  let resetTimer = 0;
-  resetBtn.addEventListener("click", async () => {
-    T.reset();
-    if (typeof window.resetPinnedTools === "function") {
-      try {
-        await window.resetPinnedTools();
-      } catch (e) {}
-    }
-    resetBtn.classList.add("is-done");
-    if (resetStatus) resetStatus.textContent = "تنظیمات ظاهر و میان‌برها به حالت پیش‌فرض برگشت.";
-    clearTimeout(resetTimer);
-    resetTimer = setTimeout(() => {
-      resetBtn.classList.remove("is-done");
-      if (resetStatus) resetStatus.textContent = "";
-    }, 1800);
-  });
+  if (resetBtn) {
+    resetBtn.addEventListener("click", async () => {
+      // 1. Reset theme, mode, scale, density, preset, radius
+      T.reset();
+
+      // 2. Reset pinned shortcut tools if available
+      if (typeof window.resetPinnedTools === "function") {
+        try {
+          await window.resetPinnedTools();
+        } catch (e) {}
+      }
+
+      // 3. Clear, instant visual feedback
+      const originalHtml = resetBtn.innerHTML;
+      resetBtn.innerHTML = '<span class="sd-icon sd-icon--check" aria-hidden="true" style="color:var(--accent,#f2a65a)"></span>به پیش‌فرض بازگشت';
+      resetBtn.style.borderColor = "var(--accent, #f2a65a)";
+      resetBtn.style.color = "var(--accent, #f2a65a)";
+
+      setTimeout(() => {
+        resetBtn.innerHTML = originalHtml;
+        resetBtn.style.borderColor = "";
+        resetBtn.style.color = "";
+      }, 1800);
+    });
+  }
 
   T.onChange(sync);
   sync(T.get());

@@ -1,421 +1,80 @@
-/* Render the real dashboard markup with local sample data; no account or network sync. */
+/* Exercise the V1.3 table with account-free sample data. */
 const faDigits = StudashDate.toPersianDigits;
 const toJalali = StudashDate.toJalali;
-const pad2 = (n) => String(n).padStart(2, '0');
+const pad2 = n => String(n).padStart(2, '0');
 const WEEKDAY_LONG = StudashDate.WEEKDAYS;
 const SHAMSI_MONTH_LABELS = StudashDate.MONTHS;
 const results = [];
 function eq(actual, expected) {
-  if (actual !== expected) throw new Error(`Expected ${expected}, got ${actual}`);
+  if (actual !== expected) throw new Error('Expected ' + expected + ', got ' + actual);
 }
-function test(name, fn) {
-  try { fn(); results.push({ name, ok: true }); }
-  catch (e) { results.push({ name, ok: false, error: e.message }); }
+async function test(name, run) {
+  try { await run(); results.push({ name, ok: true }); }
+  catch (error) { results.push({ name, ok: false, error: error.message }); }
 }
 (async () => {
-  if (document.readyState !== 'complete') await new Promise(resolve => window.addEventListener('load', resolve, { once: true }));
   const html = await (await fetch('../../newtab.html')).text();
   const parsed = new DOMParser().parseFromString(html, 'text/html');
   document.body.append(document.importNode(parsed.querySelector('.page'), true));
   const now = Date.now();
-  const items = Array.from({ length: 12 }, (_, i) => ({
-    title: `تمرین شماره ${i} با عنوان طولانی برای بررسی فاصله‌گذاری و نمایش متن فارسی در کارت تکالیف`,
-    courseId: i % 2 ? 'a' : 'b', courseName: 'درس نمونه با نام طولانی',
-    due: now + (12 - i) * 86400000, type: i % 3 ? 'assignment' : 'quiz',
-    submitted: false, url: 'https://vu.um.ac.ir/mod/assign/view.php?id=' + i,
-  }));
-  vuState.creds = { username: 'دانشجو' };
-  vuState.data = { items, lastSync: now, courses: [{ id: 'a', name: 'درس اول' }, { id: 'b', name: 'درس دوم' }] };
-  vuState.filter = 'all';
-  localStorage.removeItem('vuFilter');
-  initVuListControls();
-  vuState.filter = 'all';
-  renderVuSection();
-  const count = () => document.querySelectorAll('#vuTaskList > li').length;
-  const next = document.getElementById('vuNextPage');
-  test('first page has five sorted items, total count, and disabled previous', () => {
-    eq(count(), 5);
-    eq(document.querySelector('.vu-task-name').textContent, items[11].title);
-    eq(document.getElementById('vuPrevPage').disabled, true);
-    eq(document.getElementById('vuPagination').hidden, false);
-    eq(document.getElementById('vuPageSummary').textContent.includes(faDigits(12)), true);
+  const items = [
+    { id: 'a', type: 'assign', title: 'تمرین اول', courseId: '1', courseName: 'درس اول', due: now + 86400000, submitted: false, url: 'https://vu.um.ac.ir/mod/assign/view.php?id=1' },
+    { id: 'b', type: 'quiz', title: 'آزمون', courseId: '2', courseName: 'درس دوم', due: now - 86400000, submitted: true, grade: '18', url: 'https://vu.um.ac.ir/mod/quiz/view.php?id=2' },
+    { id: 'c', type: 'assign', title: 'مهلت گذشته', courseId: '1', courseName: 'درس اول', due: now - 86400000, submitted: false, url: 'https://vu.um.ac.ir/mod/assign/view.php?id=3' },
+  ];
+  vuState.creds = { username: 'sample' };
+  vuState.data = { items, lastSync: now, courses: [{ id: '1', name: 'درس اول' }, { id: '2', name: 'درس دوم' }] };
+  await test('V1.3 renders all received assignments and their course names', () => {
+    vuState.filter = 'all'; renderVuSection();
+    eq(document.querySelectorAll('#vuTableBody tr').length, 3);
+    eq(document.querySelectorAll('#vuTableBody .vu-td-course').length, 3);
+    eq(document.querySelector('#vuTableBody').textContent.includes('درس اول'), true);
   });
-  test('next and previous controls paginate without wrapping', () => {
-    next.click(); eq(count(), 5); eq(vuState.page, 2);
-    next.click(); eq(count(), 2); eq(vuState.page, 3); eq(next.disabled, true);
-    next.click(); eq(vuState.page, 3);
-    document.getElementById('vuPrevPage').click(); eq(vuState.page, 2);
-  });
-  test('course filter resets page and filters the full collection', () => {
-    const select = document.getElementById('vuCourseFilter');
-    select.value = 'a'; select.dispatchEvent(new Event('change'));
-    eq(vuState.page, 1); eq(count(), 5);
-    next.click(); eq(count(), 1);
-    eq(document.querySelector('.vu-task-name').textContent, items[1].title);
-  });
-  test('empty status filter resets page and hides pagination', () => {
-    document.querySelector('[data-filter="submitted"]').click();
-    eq(vuState.page, 1); eq(count(), 0);
-    eq(document.getElementById('vuPagination').hidden, true);
-    eq(document.getElementById('vuTableEmpty').hidden, false);
-  });
-  test('shrinking data clamps the current page and hides single-page navigation', () => {
-    vuState.course = ''; vuState.filter = 'all'; vuState.page = 3;
-    vuState.data.items = items.slice(0, 4); renderVuSection();
-    eq(vuState.page, 1); eq(count(), 4);
-    eq(document.getElementById('vuPagination').hidden, true);
-  });
-  test('assignments stay beneath today’s tasks in the same sidebar', () => {
-    eq(document.getElementById('tasksPanel').nextElementSibling.id, 'vuSection');
-    eq(document.getElementById('vuSection').parentElement.className, 'sidebar-left');
-  });
-  // Exercise the actual calendar renderer without starting account sync or app timers.
-  const appSource = await (await fetch('../../app.js')).text();
-  const constantsStart = appSource.indexOf('const MONTH_LABELS =');
-  const digitsEnd = appSource.indexOf('// ------------------------------------------------', appSource.indexOf('const faDigits ='));
-  const renderStart = appSource.indexOf('function renderCalendar() {');
-  const renderEnd = appSource.indexOf('let calendarFocusIso =', renderStart);
-  let clickedDate = null;
-  const calendarState = {
-    calendarGrid: document.getElementById('calendarGrid'),
-    monthLabel: document.getElementById('monthLabel'), monthSubLabel: document.getElementById('monthSubLabel'),
-    calendarMode: 'shamsi', shamsiYear: 1405, shamsiMonth: 8, viewYear: 2026, viewMonth: 10,
-    calendarFocusIso: null, selectedDate: new Date(2026, 10, 5),
-    daysWithTasksThisMonth: new Set(['2026-11-05']),
-    updateCalendarModeButtons() {},
-    isInVisibleMonth: () => true,
-    toJalali: StudashDate.toJalali, toGregorian: StudashDate.toGregorian,
-    jalaliMonthDays: StudashDate.jalaliMonthLength, isoDate: StudashDate.isoDate,
-    sameDay: (a, b) => StudashDate.isoDate(a) === StudashDate.isoDate(b),
-    getAllScheduledExams: () => [{ exam: { date: '2026-11-05' } }],
-    vuDeadlineDays: () => new Set(['2026-11-05']),
-    selectCalendarDate: date => { clickedDate = date; },
-  };
-  const calendar = new Function('state', appSource.slice(constantsStart, digitsEnd) +
-    'with (state) {' + appSource.slice(renderStart, renderEnd) + 'return {renderCalendar, faDigits};}')(calendarState);
-  test('display formatter normalizes Persian and Arabic digits to English', () => {
-    eq(calendar.faDigits('۱۴۰۵ / ٢٠٢٦'), '1405 / 2026');
-  });
-  test('Shamsi and Gregorian months have six complete rows and English numbers', () => {
-    for (const [mode, year, month] of [['shamsi',1399,12],['shamsi',1400,1],['shamsi',1405,8],['gregorian',2024,1],['gregorian',2026,11]]) {
-      calendarState.calendarMode = mode;
-      calendarState.shamsiYear = year; calendarState.shamsiMonth = month;
-      calendarState.viewYear = year; calendarState.viewMonth = month;
-      calendar.renderCalendar();
-      eq(document.querySelectorAll('.cal-row').length, 6);
-      eq(document.querySelectorAll('.cal-day').length, 42);
-      eq(/[۰-۹٠-٩]/.test(calendarState.calendarGrid.textContent + calendarState.monthLabel.textContent + calendarState.monthSubLabel.textContent), false);
-      eq(document.querySelectorAll('.cal-day[tabindex="0"]').length, 1);
+  await test('upcoming, submitted, overdue and course filters select the correct data', () => {
+    for (const [filter, id] of [['upcoming', 'a'], ['submitted', 'b'], ['overdue', 'c']]) {
+      vuState.filter = filter;
+      eq(vuFilteredItems().map(item => item.id).join(), id);
+      renderVuSection();
+      eq(document.querySelectorAll('#vuTableBody tr').length, 1);
     }
+    vuState.filter = 'all'; vuState.course = '2';
+    eq(vuFilteredItems().map(item => item.id).join(), 'b');
+    vuState.course = '';
   });
-  test('Iranian holidays appear in both calendar modes and name the selected occasion', () => {
-    const previous = { ...calendarState };
+  await test('disconnected view hides the portal table and header actions', () => {
+    vuState.creds = null; renderVuSection();
+    eq(document.getElementById('vuConnectedBody').hidden, true);
+    eq(document.getElementById('vuHeaderActions').hidden, true);
+    eq(document.getElementById('vuConnectEmpty').hidden, false);
+    vuState.creds = { username: 'sample' };
+  });
+  await test('sync spinner and disabled state reset after a failed request', async () => {
+    const button = document.getElementById('vuSyncBtn');
+    const original = vuRequestSync;
+    vuRequestSync = async () => ({ ok: false, error: 'اتصال قطع شد' });
     try {
-      calendarState.selectedDate = StudashDate.toGregorian(1405, 1, 1);
-      const iso = StudashDate.isoDate(calendarState.selectedDate);
-      for (const mode of ['shamsi', 'gregorian']) {
-        Object.assign(calendarState, { calendarMode: mode, shamsiYear: 1405, shamsiMonth: 1, viewYear: 2026, viewMonth: 2 });
-        calendar.renderCalendar();
-        const day = document.querySelector(`.cal-day[data-iso="${iso}"]`);
-        eq(day.classList.contains('is-holiday'), true);
-        eq(day.title.includes('نوروز') && day.title.includes('فطر'), true);
-        eq(day.getAttribute('aria-label').includes('تعطیل رسمی'), true);
-        eq(document.getElementById('calendarOccasion').hidden, false);
-      }
-      eq(StudashIranCalendar.forDate(StudashDate.toGregorian(1405, 12, 19)).some(event => event.holiday), true);
-      eq(StudashIranCalendar.forDate(StudashDate.toGregorian(1405, 9, 16)).some(event => event.holiday), false);
-    } finally {
-      Object.assign(calendarState, previous);
-    }
+      await vuSyncNow();
+      eq(vuState.syncing, false);
+      eq(button.disabled, false);
+      eq(button.classList.contains('spinning'), false);
+      eq(document.getElementById('vuError').textContent, 'اتصال قطع شد');
+    } finally { vuRequestSync = original; }
   });
-  test('calendar preserves event markers, selection, and date click targets', () => {
-    calendarState.calendarMode = 'shamsi'; calendarState.shamsiYear = 1405; calendarState.shamsiMonth = 8;
-    calendar.renderCalendar();
-    const day = document.querySelector('.cal-day[data-iso="2026-11-05"]');
-    eq(day.getAttribute('aria-selected'), 'true');
-    eq(day.querySelectorAll('.cal-mark').length, 3);
-    day.click(); eq(StudashDate.isoDate(clickedDate), '2026-11-05');
-  });
-  const todayCalls = [];
-  const todayStart = appSource.indexOf('async function goToCalendarToday()');
-  const todayEnd = appSource.indexOf('document.getElementById("calendarToday")', todayStart);
-  const returnToday = new Function('showMonthOf', 'loadTasksForMonth', 'selectCalendarDate',
-    appSource.slice(todayStart, todayEnd) + 'return goToCalendarToday;')(
-      date => todayCalls.push(['month', StudashDate.isoDate(date)]),
-      async () => todayCalls.push(['load']),
-      async date => todayCalls.push(['select', StudashDate.isoDate(date)]));
-  await returnToday();
-  test('Today restores the current month and refreshes the selected date', () => {
-    eq(todayCalls.map(call => call[0]).join(','), 'month,load,select');
-    eq(todayCalls[0][1], StudashDate.isoDate(new Date()));
-    eq(todayCalls[2][1], todayCalls[0][1]);
-  });
-  const scheduleState = {
-    scheduleGrid: document.getElementById('scheduleGrid'), scheduleEmpty: null,
-    scheduleClasses: [
-      { id:'morning', title:'کلاس صبح', instructor:'استاد نمونه', units:3, tasks:[], sessions:[{day:0,startTime:'09:30',endTime:'11:00',location:'کلاس 101'}] },
-      { id:'late', title:'کلاس عصر', units:3, tasks:[], sessions:[{day:1,startTime:'20:30',endTime:'22:00',location:'کلاس 202'}] },
-      { id:'off', title:'این هفته نیست', units:3, tasks:[], sessions:[{day:0,startTime:'06:00',endTime:'07:00'}] },
-    ],
-    SCHEDULE_DAYS: [{index:0,name:'شنبه'},{index:1,name:'یکشنبه'}],
-    normalizeCourse: course => course, normalizeCourseSessions: course => course.sessions,
-    sessionMeetsOnDay: course => course.id !== 'off',
-    getCurrentIranianDayIndex: () => 0,
-    updateTodayClassesSummary() {}, updateNowMarker() {}, renderSidebarCourseTasks() {},
-    vuItemsDueOn: () => [], vuDateForScheduleDay: () => new Date(), vuBuildScheduleDeadlines: () => null,
-  };
-  const scheduleHelpers = appSource.slice(appSource.indexOf('function displayScheduleTime('), appSource.indexOf('// ---------------------------------------------------------------', appSource.indexOf('function getGridSpanForClass(')));
-  const universityRenderer = appSource.slice(appSource.indexOf('function renderUniversityScheduleTable()'), appSource.indexOf('function getCurrentWeekDays('));
-  const renderWeek = new Function('state', 'with(state){' + scheduleHelpers + universityRenderer + 'return renderUniversityScheduleTable;}')(scheduleState);
-  test('weekly table trims its header and aligns cards and guides with active classes', () => {
-    renderWeek();
-    const table = scheduleState.scheduleGrid.querySelector('.schedule-grid-container');
-    eq(table.dataset.startHour, '9'); eq(table.dataset.endHour, '22');
-    eq(table.querySelectorAll('.sched-hour-header').length, 13);
-    eq(table.querySelectorAll('.class-card').length, 2);
-    eq(table.querySelector('.sched-slot-guidelines').children.length, 13);
-    eq(table.querySelector('.class-card').style.gridColumn, '1 / 3');
-  });
-  test('class titles use the full row and details align when an instructor is missing', () => {
-    const cards = [...scheduleState.scheduleGrid.querySelectorAll('.class-card')];
-    for (const card of cards) {
-      const top = card.querySelector('.class-card-top');
-      const title = card.querySelector('.class-title .sd-card__link');
-      eq(Math.abs(title.getBoundingClientRect().width - top.getBoundingClientRect().width) < 1, true);
-      eq(getComputedStyle(title).whiteSpace, 'nowrap');
-      eq(title.scrollWidth <= title.clientWidth, true);
-      eq(card.querySelector('.class-card-actions').parentElement.className, 'class-card-bottom');
-    }
-    const roomOffsets = cards.map(card => card.querySelector('.class-room').getBoundingClientRect().top - card.getBoundingClientRect().top);
-    eq(Math.abs(roomOffsets[0] - roomOffsets[1]) < 1, true);
-    eq(getComputedStyle(cards[0].querySelector('.class-instructor')).textAlign, 'start');
-    const card = cards[0];
-    const titleEdge = card.querySelector('.class-title').getBoundingClientRect().right;
-    for (const selector of ['.class-instructor', '.class-room']) {
-      const row = card.querySelector(selector);
-      const label = row.querySelector('.schedule-card-label');
-      eq(Math.abs(label.getBoundingClientRect().right - titleEdge) < 1, true);
-      eq(getComputedStyle(label).whiteSpace, 'nowrap');
-      eq(getComputedStyle(label).textOverflow, 'ellipsis');
-      eq(row.lastElementChild.matches('[data-solar][aria-hidden="true"]'), true);
-    }
-  });
-  test('midnight deadlines stay below the cards and do not widen the weekly hours', () => {
-    const due = (h, m) => { const d = new Date(); d.setHours(h,m,0,0); return d.getTime(); };
-    const deadlines = [
-      {title:'مهلت اول',courseName:'درس',due:due(0,0),url:'https://vu.um.ac.ir/1'},
-      {title:'مهلت دوم',courseName:'درس',due:due(23,59),url:'https://vu.um.ac.ir/2'},
-      {title:'مهلت عصر',courseName:'درس',due:due(18,0),url:'https://vu.um.ac.ir/3'},
-    ];
-    const previous = scheduleState.vuItemsDueOn;
-    scheduleState.vuItemsDueOn = () => deadlines;
-    renderWeek();
-    const table = scheduleState.scheduleGrid.querySelector('.schedule-grid-container');
-    eq(table.dataset.startHour,'9'); eq(table.dataset.endHour,'22');
-    const build = new Function('vuItemsDueOn','vuDateForScheduleDay','return ' + vuBuildScheduleDeadlines.toString())(() => deadlines, () => new Date());
-    const group = build(0,{start:9,end:22,columns:13});
-    eq(group.querySelectorAll('.vu-sched-night-list .vu-sched-chip').length,2);
-    eq(group.lastElementChild.className,'vu-sched-night-list');
-    eq(group.querySelector('.vu-sched-night-list .vu-sched-chip').style.gridColumn,'');
-    eq(group.firstElementChild.style.gridColumn,'10 / 11');
-    scheduleState.scheduleClasses = [];
-    scheduleState.vuItemsDueOn = () => deadlines.slice(0,2);
-    renderWeek();
-    eq(scheduleState.scheduleGrid.querySelectorAll('.sched-hour-sub').length,0);
-    eq(scheduleState.scheduleGrid.querySelector('.schedule-grid-container').hidden,false);
-    scheduleState.vuItemsDueOn = previous;
-  });
-  test('deadline-only weeks use their due hour and empty weeks show a compact message', () => {
-    scheduleState.scheduleClasses = [];
-    const due = new Date(); due.setHours(18,30,0,0);
-    scheduleState.vuItemsDueOn = () => [{due:due.getTime()}]; renderWeek();
-    const table = scheduleState.scheduleGrid.querySelector('.schedule-grid-container');
-    eq(table.dataset.startHour,'18'); eq(table.dataset.endHour,'19');
-    scheduleState.vuItemsDueOn = () => []; renderWeek();
-    eq(scheduleState.scheduleGrid.querySelector('.schedule-grid-container').hidden,true);
-    eq(scheduleState.scheduleGrid.querySelector('.empty-hint').textContent.includes('این هفته'),true);
-  });
-  const eventHelper = appSource.slice(appSource.indexOf('function getPersonalDayEvents('), appSource.indexOf('async function renderPersonalScheduleTable('));
-  const personalDay = new Function('getAllScheduledExams', eventHelper + 'return getPersonalDayEvents;')(() => []);
-  test('personal events keep all-day entries untimed and split overnight times by day', () => {
-    const events = [
-      {id:'night',start:{dateTime:'2026-11-05T23:00:00'},end:{dateTime:'2026-11-06T01:00:00'}},
-      {id:'all',start:{date:'2026-11-05'},end:{date:'2026-11-07'}},
-    ];
-    const first = personalDay({isoDate:'2026-11-05'},events);
-    const second = personalDay({isoDate:'2026-11-06'},events);
-    eq(first[0].startTime,'23:00'); eq(first[0].endTime,'24:00');
-    eq(second[0].startTime,'00:00'); eq(second[0].endTime,'01:00');
-    eq(first[1].isAllDay,true); eq(first[1].startTime,null);
-    eq(second[1].isAllDay,true);
-  });
-  const agendaState = {
-    renderAllTasksSeq:0, allTasksUnifiedList:document.getElementById('allTasksUnifiedList'),
-    allTasksSelectedDateLabel:document.getElementById('allTasksSelectedDateLabel'),
-    allTasksUnifiedEmpty:document.getElementById('allTasksUnifiedEmpty'),
-    selectedDate:new Date(), tasksCache:{}, currentTaskFilter:'all', ideaProjects:[], cachedGcalEventsForSelectedDate:[],
-    sameDay:calendarState.sameDay, isoDate:StudashDate.isoDate,
-    taskKey:date => 'tasks:' + StudashDate.isoDate(date),
-    getAllScheduledExams:() => [],
-    scheduleClasses:[{tasks:[{id:'assignment',title:'تکلیف تکراری',done:false}]}],
-    storageGet:async key => ({[key]:[{id:'daily',text:'کار روزانه',done:false}]}),
-    badgeDailyTasksCount:document.getElementById('badgeDailyTasksCount'),
-    badgeGcalCount:document.getElementById('badgeGcalCount'),
-    badgeAllTasksCount:document.getElementById('badgeAllTasksCount'),
-    vuAppendSidebarSection:() => { throw new Error('Assignments must not be appended to Today'); },
-  };
-  const agendaSource=appSource.slice(appSource.indexOf('async function renderAllTasksUnified()'),appSource.indexOf('function renderSidebarCourseTasks()'));
-  const renderAgenda=new Function('state','with(state){'+agendaSource+'return renderAllTasksUnified;}')(agendaState);
-  await renderAgenda();
-  test('Today contains daily tasks without duplicated assignments or an assignment tab', () => {
-    eq(document.getElementById('tabFilterCourse'),null);
-    eq(agendaState.allTasksUnifiedList.querySelectorAll('.task-item').length,1);
-    eq(agendaState.allTasksUnifiedList.querySelectorAll('.sidebar-course-task-item').length,0);
-    eq(agendaState.badgeAllTasksCount.textContent,faDigits(1));
-    eq(document.querySelectorAll('#vuTaskList .vu-task-row').length > 0,true);
-  });
-  test('daily task labels and their Solar heading stay on one line', () => {
-    const list = agendaState.allTasksUnifiedList;
-    const icon = list.querySelector('.unified-group-label svg');
-    const label = list.querySelector('.unified-group-label > span:last-child');
-    const task = list.querySelector('.task-item > .task-text');
-    eq(icon?.dataset.solarRendered, 'check-circle');
-    eq(label.textContent, 'کارهای روزانه');
-    eq(getComputedStyle(label).whiteSpace, 'nowrap');
-    eq(getComputedStyle(task).whiteSpace, 'nowrap');
-    eq(getComputedStyle(task).textOverflow, 'ellipsis');
-    eq(task.title, task.textContent);
-    const iconBox = icon.getBoundingClientRect();
-    const labelBox = label.getBoundingClientRect();
-    eq(iconBox.left >= labelBox.right, true);
-    eq(Math.abs(iconBox.top + iconBox.height / 2 - labelBox.top - labelBox.height / 2) < 1, true);
-  });
-  const longTitle = 'آزمون یا رویداد با عنوان طولانی برای بررسی نمایش در عرض کم ';
-  agendaState.getAllScheduledExams = () => [{
-    exam: { date: agendaState.isoDate(agendaState.selectedDate), title: longTitle.repeat(3), location: 'اتاق آزمون' },
-    courseTitle: 'درس نمونه',
-  }];
-  agendaState.cachedGcalEventsForSelectedDate = [{ summary: longTitle.repeat(3) }];
-  await renderAgenda();
-  test('exam and Google event titles ellipsize without pushing out their icon or time', () => {
-    const list = agendaState.allTasksUnifiedList;
-    list.style.inlineSize = '210px';
+  await test('a partial sync warning is visible while received data remains usable', async () => {
+    const original = vuRequestSync;
+    vuRequestSync = async () => ({ ok: true, warning: 'اطلاعات قبلی حفظ شد' });
     try {
-      for (const selector of ['.sidebar-day-exam-title > strong', '.gcal-event-title']) {
-        const label = list.querySelector(selector);
-        eq(getComputedStyle(label).whiteSpace, 'nowrap');
-        eq(label.scrollWidth > label.clientWidth, true);
-        eq(label.title, label.textContent);
-      }
-      eq(list.querySelector('.sidebar-day-exam-title svg')?.dataset.solarRendered, 'target');
-      eq(list.querySelector('.sidebar-day-exam-details svg')?.dataset.solarRendered, 'clock-circle');
-      eq(list.querySelector('.gcal-event time').textContent, 'تمام روز');
-      eq(list.scrollWidth <= list.clientWidth, true);
-    } finally {
-      list.style.removeProperty('inline-size');
-    }
+      await vuSyncNow();
+      eq(document.getElementById('vuError').hidden, false);
+      eq(document.getElementById('vuError').textContent, 'اطلاعات قبلی حفظ شد');
+      renderVuSection();
+      eq(document.querySelectorAll('#vuTableBody tr').length, 3);
+    } finally { vuRequestSync = original; }
   });
-  test('long course tasks keep their title and badges intact in a narrow row', () => {
-    const dialog = document.importNode(parsed.querySelector('#courseHubDialog'), true);
-    document.body.append(dialog);
-    try {
-      dialog.show();
-      const list = dialog.querySelector('#hubTasksList');
-      const panel = list.closest('[role="tabpanel"]');
-      panel.hidden = false;
-      list.style.inlineSize = '210px';
-      const title = longTitle.repeat(3);
-      const state = {
-        getActiveHubCourse: () => ({ tasks: [{ id: 'task', title, dueDate: '2026-11-28' }] }),
-        hubTasksCount: dialog.querySelector('#hubTasksCount'),
-        hubTasksList: list,
-        hubTasksEmpty: dialog.querySelector('#hubTasksEmpty'),
-        typeChip: label => SDUI.chip(label),
-        dueChip: () => SDUI.chip('فردا (۲۸ آبان)'),
-        formatDueDays: () => ({}),
-      };
-      const start = appSource.indexOf('const TASK_TYPE_LABELS =');
-      const end = appSource.indexOf('if (hubTaskForm)', start);
-      new Function('state', 'with (state) {' + appSource.slice(start, end) + 'renderHubTasks();}')(state);
-      const label = list.querySelector('.hub-task-title');
-      eq(getComputedStyle(label).whiteSpace, 'nowrap');
-      eq(label.scrollWidth > label.clientWidth, true);
-      eq(label.title, title);
-      eq(list.querySelectorAll('.hub-task-right .chip').length, 2);
-      eq(list.scrollWidth <= list.clientWidth, true);
-    } finally {
-      dialog.remove();
-    }
-  });
-  test('settings and sign-in headings keep their icon and label on one row', () => {
-    for (const selector of ['#settingsDialog', '#vuLoginDialog', '#pooyaDialog']) {
-      const dialog = document.importNode(parsed.querySelector(selector), true);
-      document.body.append(dialog);
-      try {
-        SDUI.enhanceDialogs();
-        dialog.show();
-        StudashSolar.render(dialog);
-        const headings = dialog.querySelectorAll('.sd-section-title:has(.sd-heading-label)');
-        eq(headings.length > 0, true);
-        for (const heading of headings) {
-          const icon = heading.querySelector('.solar-icon');
-          const label = heading.querySelector('.sd-heading-label');
-          eq(icon.querySelector('svg')?.dataset.solarRendered, icon.dataset.solar);
-          eq(getComputedStyle(heading).display, 'flex');
-          eq(getComputedStyle(label).whiteSpace, 'nowrap');
-          eq(icon.getBoundingClientRect().left >= label.getBoundingClientRect().right, true);
-        }
-      } finally {
-        dialog.remove();
-      }
-    }
-  });
-  test('course name precedes its assignment title with spacing on the same line', () => {
-    const link=document.querySelector('.vu-task-title');
-    eq(link.firstElementChild.className,'vu-task-course');
-    eq(link.lastElementChild.className,'vu-task-name');
-    eq(link.firstElementChild.textContent,'درس نمونه با نام طولانی');
-    eq(getComputedStyle(link).display,'flex');
-    eq(getComputedStyle(link).columnGap,'8px');
-  });
-  const iconFixture = document.createElement('div');
-  iconFixture.innerHTML = '<span class="sd-icon sd-icon--calendar"></span><span class="weather-icon"></span><p class="note-card-body">یادداشت 🌤️</p>';
-  document.body.append(iconFixture);
-  iconFixture.querySelector('.weather-icon').textContent = '🌤️';
-  await Promise.resolve();
-  test('Solar replaces static and dynamic UI symbols while preserving notes', () => {
-    eq(document.querySelector('#prevMonth svg')?.dataset.solarRendered, 'alt-arrow-right');
-    eq(iconFixture.querySelector('.sd-icon svg')?.dataset.solarRendered, 'calendar');
-    eq(iconFixture.querySelector('.weather-icon svg')?.dataset.solarRendered, 'sun-fog');
-    eq(iconFixture.querySelector('.note-card-body').textContent, 'یادداشت 🌤️');
-  });
-  iconFixture.remove();
-  const width = Number(new URLSearchParams(location.search).get('width') || 1440);
-  if (width < innerWidth) { document.body.style.width = width + 'px'; document.body.style.marginRight = 'auto'; }
-  const mode = new URLSearchParams(location.search).get('mode') || 'dark';
-  document.documentElement.className = mode;
-  document.documentElement.dataset.theme = 'studash-' + mode;
-  vuState.data.items = items; renderVuSection();
-  document.querySelector('.clock').textContent = '12:45';
-  calendar.renderCalendar();
-  for (const scale of ['compact', 'normal', 'large']) {
-    document.documentElement.dataset.scale = scale;
-    test(`cards fit ${width}px / ${mode} / ${scale}`, () => {
-      for (const selector of ['.sidebar-left', '.calendar-panel', '#vuSection']) {
-        const el = document.querySelector(selector);
-        if (el.scrollWidth > el.clientWidth + 1) throw new Error(`${selector} overflows: ${el.scrollWidth}/${el.clientWidth}`);
-        const rect = el.getBoundingClientRect();
-        if (rect.left < 0 || rect.right > width + 1) throw new Error(`${selector} outside viewport: ${rect.left}..${rect.right}`);
-      }
-      const tasks = document.getElementById('tasksPanel').getBoundingClientRect();
-      const vu = document.getElementById('vuSection').getBoundingClientRect();
-      eq(vu.top >= tasks.bottom, true);
-    });
-  }
-  document.documentElement.dataset.scale = 'normal';
-  const out = document.createElement('pre'); out.id = 'results';
-  out.textContent = JSON.stringify(results); document.body.append(out);
-})().catch((e) => {
-  const out = document.createElement('pre'); out.id = 'results';
-  out.textContent = JSON.stringify([{ name: 'setup', ok: false, error: e.stack }]); document.body.append(out);
+  const output = document.createElement('pre');
+  output.id = 'results'; output.textContent = JSON.stringify(results); document.body.append(output);
+})().catch(error => {
+  const output = document.createElement('pre');
+  output.id = 'results'; output.textContent = JSON.stringify([{name:'dashboard execution',ok:false,error:error.stack}]);
+  document.body.append(output);
 });

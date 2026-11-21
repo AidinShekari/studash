@@ -300,12 +300,9 @@
   };
 
   // ---------------------------------------------------------------
-  // Choice modal (replaces window.confirm with a HeroUI modal)
-  //   SDUI.choose({ title, message, actions: [{ value, label, variant }],
-  //                 checkbox: { label, checked } })
-  //   → Promise<{ value, checked }>  (value is null on Escape / close)
-  // The first action with variant "primary" gets initial focus.
+  // Boot
   // ---------------------------------------------------------------
+
   SDUI.choose = function ({ title, message, actions = [], checkbox = null, tone = "default" } = {}) {
     return new Promise((resolve) => {
       const dialog = document.createElement("dialog");

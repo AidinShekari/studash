@@ -24,7 +24,7 @@ const SHAMSI_MONTH_LABELS = [
 const WEEKDAY_LONG = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"];
 const WEEKDAY_LONG_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const faDigits = (str) => String(str).replace(/[۰-۹٠-٩]/g, (d) => String(d.charCodeAt(0) - (d <= "٩" ? 0x660 : 0x6f0)));
+const faDigits = (str) => String(str).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 
 // ---------------------------------------------------------------
 // Jalali (Shamsi) conversion — exact arithmetic in jalali.js (StudashDate).
@@ -118,7 +118,7 @@ const DEFAULT_PINNED_SITES = [
 const PRESET_TITLE_MAP = {
   "https://pooya.um.ac.ir": "Pooya Portal",
   "https://vu.um.ac.ir": "VU Portal",
-  "https://webmail.um.ac.ir": "Webmail",
+  "https://webmail.um.ac.ir": "ایمیل دانشگاهی",
   "https://www.um.ac.ir": "FUM Website",
   "https://chatgpt.com": "ChatGPT",
   "https://claude.ai": "Claude",
@@ -149,68 +149,234 @@ function normalizeUrl(raw) {
   }
 }
 
-function getShortcutIcon(site) {
+function faviconFor(url) {
+  try {
+    const host = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${host}&sz=64`;
+  } catch {
+    return "";
+  }
+}
+
+function getCustomBrandIcon(site) {
   const url = (site.url || "").toLowerCase();
   const title = (site.title || "").toLowerCase();
   const id = (site.id || "").toLowerCase();
 
+  // 1. Google Apps (Official 4-color Google G inside crisp frosted squircle)
   if (site.isGooglePackage || id.includes("google") || title.includes("google apps")) {
     return `
-      <span class="solar-icon" data-solar="global" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="#FFFFFF" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(0,0,0,0.08)" stroke-width="1" />
+        <g transform="translate(6.5, 6.5) scale(0.958)">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </g>
+      </svg>
     `;
   }
 
+  // 2. Research Hub (Google Scholar & Academic Papers Hub)
   if (site.isResearchPackage || id.includes("research") || title.includes("research hub")) {
     return `
-      <span class="solar-icon" data-solar="telescope" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#researchBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+        <g transform="translate(6, 6) scale(1)">
+          <path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269z" fill="#FFFFFF"/>
+          <path d="M12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z" fill="#38BDF8"/>
+          <path d="M9.5 15H14.5M9.5 17.5H14.5M9.5 20H13" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="15.5" cy="18.5" r="1.5" fill="#FBBF24"/>
+        </g>
+        <defs>
+          <linearGradient id="researchBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0284C7"/>
+            <stop offset="1" stop-color="#075985"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 3. AI Hub (AI Suite & Multi-Model Constellation)
   if (site.isAiPackage || id.includes("ai-hub") || title.includes("ai hub") || title.includes("ai suite")) {
     return `
-      <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#aiHubBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+        <path d="M18 6L20.2 13.8L28 16L20.2 18.2L18 26L15.8 18.2L8 16L15.8 13.8L18 6Z" fill="url(#aiSparkleGrad)"/>
+        <circle cx="10" cy="10" r="2" fill="#38BDF8"/>
+        <circle cx="26" cy="10" r="1.8" fill="#F472B6"/>
+        <circle cx="26" cy="24" r="1.6" fill="#FBBF24"/>
+        <circle cx="10" cy="24" r="1.6" fill="#A78BFA"/>
+        <path d="M10 10L14 14M26 10L22 14M26 24L22 20M10 24L14 20" stroke="rgba(255,255,255,0.45)" stroke-width="1" stroke-dasharray="1.5 1.5"/>
+        <defs>
+          <linearGradient id="aiHubBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#7C3AED"/>
+            <stop offset="1" stop-color="#4C1D95"/>
+          </linearGradient>
+          <linearGradient id="aiSparkleGrad" x1="8" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFFFFF"/>
+            <stop offset="0.6" stop-color="#E0E7FF"/>
+            <stop offset="1" stop-color="#A5B4FC"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 4. Pooya Portal (پرتال جامع آموزشی و اداری پویای دانشگاه فردوسی مشهد)
   if (url.includes("pooya.um.ac.ir") || title.includes("pooya") || title.includes("پویا")) {
     return `
-      <span class="solar-icon" data-solar="square-academic-cap" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#pooyaBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+        <path d="M18 7L8 11.5L18 16L28 11.5L18 7Z" fill="#FFFFFF"/>
+        <path d="M11.5 13.5V18.5C11.5 21 14 23 18 23C22 23 24.5 21 24.5 18.5V13.5L18 16.5L11.5 13.5Z" fill="#E0F2FE"/>
+        <path d="M28 12V18.5" stroke="#FBBF24" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="28" cy="19.5" r="1.3" fill="#FBBF24"/>
+        <path d="M13 25.5C14.8 24.8 16.5 25 18 25.8C19.5 25 21.2 24.8 23 25.5V28.5C21.2 27.8 19.5 28 18 28.8C16.5 28 14.8 27.8 13 28.5V25.5Z" fill="#FBBF24"/>
+        <path d="M18 23.5V28.5" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="pooyaBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0284C7"/>
+            <stop offset="1" stop-color="#1E3A8A"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 5. VU Portal (سامانه آموزش الکترونیکی و یادگیری مجازی فردوسی - Moodle LMS)
   if (url.includes("vu.um.ac.ir") || title.includes("vu portal") || title.includes("سه‌با") || title.includes("مجازی")) {
     return `
-      <span class="solar-icon" data-solar="checklist" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#vuBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+        <rect x="7" y="11" width="22" height="15" rx="2.5" fill="#FFFFFF"/>
+        <rect x="8.5" y="12.5" width="19" height="12" rx="1.5" fill="#1E1B4B"/>
+        <path d="M14 26H22M18 26V29M12 29H24" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M18 7L10 10.5L18 14L26 10.5L18 7Z" fill="#F97316"/>
+        <path d="M26 11V15" stroke="#FDE047" stroke-width="1.3" stroke-linecap="round"/>
+        <circle cx="26" cy="15.8" r="1" fill="#FDE047"/>
+        <polygon points="16,15.5 21,18.5 16,21.5" fill="#38BDF8"/>
+        <defs>
+          <linearGradient id="vuBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6366F1"/>
+            <stop offset="1" stop-color="#3730A3"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 6. Webmail (پست الکترونیک رسمی دانشگاه فردوسی مشهد)
   if (url.includes("webmail.um.ac.ir") || title.includes("webmail") || title.includes("وب‌میل") || title.includes("ایمیل دانشگاه")) {
     return `
-      <span class="solar-icon" data-solar="letter" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#webmailBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+        <rect x="7" y="11" width="22" height="15" rx="2.5" fill="#FFFFFF"/>
+        <path d="M7 12L18 20L29 12" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 25L14 18M29 25L22 18" stroke="#FECDD3" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="18" cy="20" r="3" fill="#F59E0B"/>
+        <path d="M18 18.5V21.5M16.8 19.8L19.2 19.8" stroke="#FFFFFF" stroke-width="0.9" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="webmailBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#E11D48"/>
+            <stop offset="1" stop-color="#9F1239"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 7. FUM Main Website (پرتال رسمی دانشگاه فردوسی مشهد - نماد آرامگاه حکیم فردوسی)
   if (url.includes("um.ac.ir") || title.includes("fum") || title.includes("فردوسی")) {
     return `
-      <span class="solar-icon" data-solar="buildings" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#fumBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+        <path d="M9 25H27V26.5H9V25Z" fill="#F59E0B"/>
+        <path d="M11 23H25V25H11V23Z" fill="#FDE68A"/>
+        <path d="M12.5 15H23.5V23H12.5V15Z" fill="#FFFFFF"/>
+        <path d="M11.5 13.5H24.5V15H11.5V13.5Z" fill="#F59E0B"/>
+        <path d="M13 11.5H23V13.5H13V11.5Z" fill="#FDE68A"/>
+        <path d="M15 9.5H21V11.5H15V9.5Z" fill="#F59E0B"/>
+        <path d="M15.5 18C15.5 16.6 16.6 15.5 18 15.5C19.4 15.5 20.5 16.6 20.5 18V23H15.5V18Z" fill="#1E3A8A"/>
+        <path d="M7 21C6.5 17 8 13 11 11M29 21C29.5 17 28 13 25 11" stroke="#FBBF24" stroke-width="1.4" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="fumBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#1E3A8A"/>
+            <stop offset="1" stop-color="#0F172A"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 8. ChatGPT (Official OpenAI Spiral Rosette)
   if (url.includes("chatgpt.com") || url.includes("openai.com") || title.includes("chatgpt")) {
     return `
-      <span class="solar-icon" data-solar="cpu" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#chatgptBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+        <g transform="translate(6, 6) scale(1)">
+          <path fill="#FFFFFF" d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.2502-4.9729 6.0462 6.0462 0 0 0-.9998-5.0002zm-9.022 10.1581a3.6749 3.6749 0 0 1-2.0718-1.0028l.115-.066 3.8697-2.2334a1.0028 1.0028 0 0 0 .5072-.8715v-5.4526l3.4116 1.9705c.0339.019.0573.0494.066.085v4.5222c-.0044 2.0125-1.6322 3.6403-3.6447 3.6447h-.3529zm-10.428-5.3282a3.6558 3.6558 0 0 1-.3975-2.2598l.115.068 3.8697 2.2334a1.0074 1.0074 0 0 0 1.0144 0l4.7214-2.7262v3.9412c0 .0385-.021.0743-.0535.0932l-3.9118 2.2575c-1.7412 1.0055-3.9669.4124-4.9724-1.3288l-.3859-.6685zm1.5358-8.9137a3.6841 3.6841 0 0 1 1.9568-1.5959v4.5936a1.0051 1.0051 0 0 0 .5096.8715l4.719 2.7262-3.4116 1.9705c-.0315.019-.0715.0214-.1052.0048L4.6293 8.3585c-1.7388-1.0079-2.3318-3.236-1.324-4.9748l.3859-.6685zm13.149 5.378-4.7214-2.7262 3.4116-1.9705c.0339-.019.0739-.0214.1076-.0048l3.9118 2.2575c1.7412 1.0055 2.3342 3.2336 1.3264 4.9724l-.3859.6685a3.6702 3.6702 0 0 1-1.9568 1.5959V8.0438a1.0074 1.0074 0 0 0-.5073-.8715zm-7.9042 3.5152-3.4116-1.9705c-.0339-.019-.0573-.0494-.066-.085V5.513c.0044-2.0125 1.6322-3.6403 3.6447-3.6447h.3529a3.6749 3.6749 0 0 1 2.0718 1.0028l-.115.066-3.8697 2.2334a1.0028 1.0028 0 0 0-.5072.8715v5.4526zm1.7226-2.5855 2.1064-1.2162 2.1064 1.2162v2.4325l-2.1064 1.2162-2.1064-1.2162v-2.4325z"/>
+        </g>
+        <defs>
+          <linearGradient id="chatgptBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#10A37F"/>
+            <stop offset="1" stop-color="#0B7C5F"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 9. Claude (Official Anthropic Claude Terracotta Spark)
   if (url.includes("claude.ai") || title.includes("claude")) {
     return `
-      <span class="solar-icon" data-solar="stars" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#claudeBrandGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+        <g transform="translate(6, 6) scale(0.24)">
+          <path fill="#FFFFFF" d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"/>
+        </g>
+        <defs>
+          <linearGradient id="claudeBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#D97757"/>
+            <stop offset="1" stop-color="#B8593B"/>
+          </linearGradient>
+        </defs>
+      </svg>
     `;
   }
 
+  // 10. Gemini (Official Google Gemini Cosmos Sparkle)
   if (url.includes("gemini.google.com") || title.includes("gemini")) {
     return `
-      <span class="solar-icon" data-solar="stars" aria-hidden="true"></span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="url(#geminiBgGrad)" />
+        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255,255,255,0.18)" stroke-width="1" />
+        <g transform="translate(6, 6) scale(0.857)">
+          <path d="M14 28C14 26.0633 13.6267 24.2433 12.88 22.54C12.1567 20.8367 11.165 19.355 9.905 18.095C8.645 16.835 7.16333 15.8433 5.46 15.12C3.75667 14.3733 1.93667 14 0 14C1.93667 14 3.75667 13.6383 5.46 12.915C7.16333 12.1683 8.645 11.165 9.905 9.905C11.165 8.645 12.1567 7.16333 12.88 5.46C13.6267 3.75667 14 1.93667 14 0C14 1.93667 14.3617 3.75667 15.085 5.46C15.8317 7.16333 16.835 8.645 18.095 9.905C19.355 11.165 20.8367 12.1683 22.54 12.915C24.2433 13.6383 26.0633 14 28 14C26.0633 14 24.2433 14.3733 22.54 15.12C20.8367 15.8433 19.355 16.835 18.095 18.095C16.835 19.355 15.8317 20.8367 15.085 22.54C14.3617 24.2433 14 26.0633 14 28Z" fill="url(#geminiBrandGrad)"/>
+        </g>
+        <defs>
+          <linearGradient id="geminiBgGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0F172A"/>
+            <stop offset="1" stop-color="#1E1B4B"/>
+          </linearGradient>
+          <radialGradient id="geminiBrandGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(2.77876 11.3795) rotate(18.6832) scale(29.8025 238.737)">
+            <stop offset="0.067" stop-color="#F472B6"/>
+            <stop offset="0.342" stop-color="#A78BFA"/>
+            <stop offset="0.672" stop-color="#38BDF8"/>
+          </radialGradient>
+        </defs>
+      </svg>
     `;
   }
 
@@ -349,7 +515,7 @@ function renderPinned() {
     if (site.isGooglePackage || site.title === "Google Apps" || site.id === "def-google-apps") {
       a.classList.add("google-suite-tile");
       a.title = "پکیج سرویس‌های گوگل (Google Apps Suite)";
-      iconWrap.innerHTML = getShortcutIcon(site);
+      iconWrap.innerHTML = getCustomBrandIcon(site);
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -360,7 +526,7 @@ function renderPinned() {
     } else if (site.isResearchPackage || site.title === "Research Hub" || site.id === "def-research-hub") {
       a.classList.add("research-suite-tile");
       a.title = "پکیج مقالات و مراجع علمی (Research & Paper Hub)";
-      iconWrap.innerHTML = getShortcutIcon(site);
+      iconWrap.innerHTML = getCustomBrandIcon(site);
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -371,7 +537,7 @@ function renderPinned() {
     } else if (site.isAiPackage || site.title === "AI Hub" || site.id === "def-ai-hub") {
       a.classList.add("ai-suite-tile");
       a.title = "پکیج ابزارهای هوش مصنوعی (AI Suite & Hub)";
-      iconWrap.innerHTML = getShortcutIcon(site);
+      iconWrap.innerHTML = getCustomBrandIcon(site);
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -380,7 +546,19 @@ function renderPinned() {
         }
       });
     } else {
-      iconWrap.innerHTML = getShortcutIcon(site) || '<span class="solar-icon" data-solar="link" aria-hidden="true"></span>';
+      const customSvg = getCustomBrandIcon(site);
+      if (customSvg) {
+        iconWrap.innerHTML = customSvg;
+      } else {
+        const img = document.createElement("img");
+        img.src = faviconFor(site.url);
+        img.alt = "";
+        img.loading = "lazy";
+        img.onerror = () => {
+          iconWrap.textContent = site.title.slice(0, 1).toUpperCase();
+        };
+        iconWrap.appendChild(img);
+      }
     }
 
     const titleEl = document.createElement("div");
@@ -601,12 +779,7 @@ function renderCalendar() {
     const daysInPrevMonth = jalaliMonthDays(prevY, prevM);
 
     if (monthSubLabel) {
-      const lastOfMonthDate = toGregorian(shamsiYear, shamsiMonth, daysInMonth);
-      const start = MONTH_LABELS_EN[firstOfMonthDate.getMonth()];
-      const end = MONTH_LABELS_EN[lastOfMonthDate.getMonth()];
-      monthSubLabel.textContent = firstOfMonthDate.getFullYear() === lastOfMonthDate.getFullYear()
-        ? `${start} – ${end} ${lastOfMonthDate.getFullYear()}`
-        : `${start} ${firstOfMonthDate.getFullYear()} – ${end} ${lastOfMonthDate.getFullYear()}`;
+      monthSubLabel.textContent = `${MONTH_LABELS_EN[firstOfMonthDate.getMonth()]} - ${MONTH_LABELS_EN[(firstOfMonthDate.getMonth() + 1) % 12]} ${firstOfMonthDate.getFullYear()}`;
     }
 
     for (let i = 0; i < startOffset; i++) {
@@ -633,7 +806,7 @@ function renderCalendar() {
     if (nextM > 12) { nextM = 1; nextY++; }
     let nextDayNum = 1;
 
-    while (cells.length < 42) {
+    while (cells.length % 7 !== 0) {
       cells.push({
         date: toGregorian(nextY, nextM, nextDayNum),
         outside: true,
@@ -673,7 +846,7 @@ function renderCalendar() {
         displayNum: d,
       });
     }
-    while (cells.length < 42) {
+    while (cells.length % 7 !== 0) {
       const dayNum = cells.length - (startOffset + daysInMonth) + 1;
       cells.push({
         date: new Date(viewYear, viewMonth + 1, dayNum),
@@ -682,9 +855,6 @@ function renderCalendar() {
       });
     }
   }
-
-  monthLabel.title = monthLabel.textContent;
-  if (monthSubLabel) monthSubLabel.title = monthSubLabel.textContent;
 
   const allExams = getAllScheduledExams();
   const daysWithExams = new Set(allExams.map((e) => e.exam.date));
@@ -704,7 +874,7 @@ function renderCalendar() {
       calendarGrid.appendChild(row);
     }
     const cellIso = visibleIsos[index];
-    const occasions = StudashIranCalendar.forDate(cell.date);
+    const occasions = typeof StudashIranCalendar !== "undefined" ? StudashIranCalendar.forDate(cell.date) : [];
     const flags = {
       occasions,
       holiday: occasions.some(event => event.holiday),
@@ -758,7 +928,7 @@ function renderCalendar() {
 
   const occasionLabel = document.getElementById("calendarOccasion");
   if (occasionLabel) {
-    const events = isInVisibleMonth(selectedDate) ? StudashIranCalendar.forDate(selectedDate) : [];
+    const events = (typeof StudashIranCalendar !== "undefined" && isInVisibleMonth(selectedDate)) ? StudashIranCalendar.forDate(selectedDate) : [];
     const holiday = events.some(event => event.holiday);
     const message = events.map(event => event.title).join("، ");
     const text = holiday ? `تعطیل رسمی · ${message}` : message;
@@ -781,9 +951,7 @@ function calendarCellLabel(date, flags) {
   if (flags.exam) parts.push("دارای امتحان");
   if (flags.tasks) parts.push("دارای کار");
   if (flags.vu) parts.push("مهلت تکلیف VU");
-  if (flags.holiday) parts.push("تعطیل رسمی");
-  if (flags.occasions?.length) parts.push(...flags.occasions.map(event => event.title));
-  return faDigits(parts.join("، "));
+  return parts.join("، ");
 }
 
 let calendarFocusIso = null;
@@ -883,15 +1051,6 @@ async function loadTasksForMonth() {
   }
 }
 
-async function goToCalendarToday() {
-  const today = new Date();
-  showMonthOf(today);
-  await loadTasksForMonth();
-  await selectCalendarDate(today);
-}
-
-document.getElementById("calendarToday").addEventListener("click", goToCalendarToday);
-
 document.getElementById("prevMonth").addEventListener("click", async () => {
   if (calendarMode === "shamsi") {
     shamsiMonth--;
@@ -922,6 +1081,7 @@ document.getElementById("nextMonth").addEventListener("click", async () => {
 // ---------------------------------------------------------------
 const tasksFilterBtns = document.querySelectorAll(".tasks-tab-btn");
 const badgeAllTasksCount = document.getElementById("badgeAllTasksCount");
+const badgeCourseTasksCount = document.getElementById("badgeCourseTasksCount");
 const badgeDailyTasksCount = document.getElementById("badgeDailyTasksCount");
 const badgeGcalCount = document.getElementById("badgeGcalCount");
 const badgeIdeasCount = document.getElementById("badgeIdeasCount");
@@ -1062,6 +1222,75 @@ async function renderAllTasksUnified() {
   tasksCache[key] = tasks;
   const undoneDaily = tasks.filter((t) => !t.done).length;
 
+  // 3. Fetch Course Assignments (Undone)
+  let totalUndoneCourseTasks = 0;
+  for (const rawCourse of scheduleClasses) {
+    const course = normalizeCourse(rawCourse);
+    for (const task of course.tasks || []) {
+      if (!task.done) totalUndoneCourseTasks++;
+    }
+  }
+
+  const allCourseTasks = [];
+  const isSelectedDateToday = sameDay(selectedDate, today);
+
+  for (const rawCourse of scheduleClasses) {
+    const course = normalizeCourse(rawCourse);
+    for (const task of course.tasks || []) {
+      if (!task.done) {
+        if (currentTaskFilter === "course") {
+          // Dedicated Assignments view: show all pending tasks across semester
+          allCourseTasks.push({
+            courseId: course.id,
+            courseTitle: course.title,
+            courseColor: course.color || "var(--accent)",
+            task,
+          });
+        } else {
+          // Unified Daily Agenda: only show tasks due on selectedDate
+          if (task.dueDate === selectedIso) {
+            allCourseTasks.push({
+              courseId: course.id,
+              courseTitle: course.title,
+              courseColor: course.color || "var(--accent)",
+              task,
+            });
+          } else if (isSelectedDateToday) {
+            if (!task.dueDate) {
+              allCourseTasks.push({
+                courseId: course.id,
+                courseTitle: course.title,
+                courseColor: course.color || "var(--accent)",
+                task,
+              });
+            } else {
+              const due = new Date(task.dueDate + "T00:00:00");
+              const nowDate = new Date();
+              nowDate.setHours(0, 0, 0, 0);
+              if (due < nowDate) {
+                // Overdue task reminder for today
+                allCourseTasks.push({
+                  courseId: course.id,
+                  courseTitle: course.title,
+                  courseColor: course.color || "var(--accent)",
+                  task,
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Sort course tasks by due date
+  allCourseTasks.sort((a, b) => {
+    if (a.task.dueDate && b.task.dueDate) return a.task.dueDate.localeCompare(b.task.dueDate);
+    if (a.task.dueDate) return -1;
+    if (b.task.dueDate) return 1;
+    return 0;
+  });
+
   // 4. Update Badge Counts
   const activeIdeas = ideaProjects.filter((p) => p.status === "active");
   const headerIdeasBadge = document.getElementById("headerIdeasBadge");
@@ -1069,25 +1298,24 @@ async function renderAllTasksUnified() {
   const menuIdeasBadge = document.getElementById("menuIdeasBadge");
   if (menuIdeasBadge) menuIdeasBadge.textContent = `${activeIdeas.length}/3`;
   if (badgeDailyTasksCount) badgeDailyTasksCount.textContent = faDigits(undoneDaily);
+  if (typeof vuPendingCount === "function") totalUndoneCourseTasks += vuPendingCount();
+  if (badgeCourseTasksCount) badgeCourseTasksCount.textContent = faDigits(totalUndoneCourseTasks);
   if (badgeGcalCount) badgeGcalCount.textContent = faDigits(cachedGcalEventsForSelectedDate.length);
   if (badgeAllTasksCount) {
-    badgeAllTasksCount.textContent = faDigits(undoneDaily + dayExams.length + cachedGcalEventsForSelectedDate.length);
+    badgeAllTasksCount.textContent = faDigits(undoneDaily + totalUndoneCourseTasks + dayExams.length + cachedGcalEventsForSelectedDate.length);
   }
 
   const fragment = document.createDocumentFragment();
   let visibleSectionsCount = 0;
 
   // Section: Scheduled Exams
-  if (currentTaskFilter === "all" && dayExams.length > 0) {
+  if ((currentTaskFilter === "all" || currentTaskFilter === "course") && dayExams.length > 0) {
     visibleSectionsCount++;
     const group = document.createElement("div");
     group.className = "unified-section-group";
     group.innerHTML = `
       <div class="unified-group-title">
-        <span class="unified-group-label">
-          <span class="solar-icon" data-solar="target"></span>
-          <span title="امتحانات و کوئیزهای این روز">امتحانات و کوئیزهای این روز</span>
-        </span>
+        <span>🎯 امتحانات و کوئیزهای این روز</span>
         <span class="unified-group-count">${faDigits(dayExams.length)} آزمون</span>
       </div>
     `;
@@ -1098,29 +1326,15 @@ async function renderAllTasksUnified() {
       examCard.className = "sidebar-day-exam-card";
       examCard.innerHTML = `
         <div class="sidebar-day-exam-title">
-          <span class="solar-icon" data-solar="target"></span>
-          <strong data-user-text dir="auto"></strong>
+          <span>🎯</span>
+          <strong>${de.exam.title} (${de.courseTitle})</strong>
         </div>
-        <div class="sidebar-day-exam-details"></div>
+        <div class="sidebar-day-exam-details">
+          <span>⏰ ${de.exam.time ? `ساعت ${faDigits(de.exam.time)}` : "بدون ساعت مشخص"}</span>
+          ${de.exam.location ? ` • 📍 ${de.exam.location}` : ""}
+          ${de.exam.syllabus ? `<div style="margin-top: 4px; font-size: 11px; color: var(--accent);">📚 مباحث: ${de.exam.syllabus}</div>` : ""}
+        </div>
       `;
-      const title = examCard.querySelector("strong");
-      title.textContent = `${de.exam.title} (${de.courseTitle})`;
-      title.title = title.textContent;
-
-      const details = examCard.querySelector(".sidebar-day-exam-details");
-      const examDetails = [
-        ["clock-circle", de.exam.time ? `ساعت ${faDigits(de.exam.time)}` : "بدون ساعت مشخص"],
-        ["map-point", de.exam.location],
-        ["book", de.exam.syllabus && `مباحث: ${de.exam.syllabus}`],
-      ];
-      for (const [icon, value] of examDetails) {
-        if (!value) continue;
-        const detail = document.createElement("div");
-        detail.innerHTML = '<span class="solar-icon"></span><span data-user-text dir="auto"></span>';
-        detail.firstElementChild.dataset.solar = icon;
-        detail.lastElementChild.textContent = value;
-        details.appendChild(detail);
-      }
       wrap.appendChild(examCard);
     });
     group.appendChild(wrap);
@@ -1134,10 +1348,7 @@ async function renderAllTasksUnified() {
     group.className = "unified-section-group";
     group.innerHTML = `
       <div class="unified-group-title">
-        <span class="unified-group-label">
-          <span class="solar-icon" data-solar="calendar"></span>
-          <span title="رویدادهای تقویم گوگل">رویدادهای تقویم گوگل</span>
-        </span>
+        <span>📅 رویدادهای تقویم گوگل</span>
         <span class="unified-group-count">${faDigits(cachedGcalEventsForSelectedDate.length)} رویداد</span>
       </div>
     `;
@@ -1154,10 +1365,7 @@ async function renderAllTasksUnified() {
         time.textContent = "تمام روز";
       }
       const title = document.createElement("span");
-      title.className = "gcal-event-title";
-      title.dir = "auto";
       title.textContent = ev.summary || "(بدون عنوان)";
-      title.title = title.textContent;
       row.appendChild(time);
       row.appendChild(title);
       wrap.appendChild(row);
@@ -1173,10 +1381,7 @@ async function renderAllTasksUnified() {
     group.className = "unified-section-group";
     group.innerHTML = `
       <div class="unified-group-title">
-        <span class="unified-group-label">
-          <span class="solar-icon" data-solar="check-circle"></span>
-          <span title="کارهای روزانه">کارهای روزانه</span>
-        </span>
+        <span>✅ کارهای روزانه</span>
         <span class="unified-group-count">${faDigits(undoneDaily)} باز / ${faDigits(tasks.length)} کل</span>
       </div>
     `;
@@ -1208,14 +1413,12 @@ async function renderAllTasksUnified() {
       });
 
       const span = document.createElement("span");
-      span.className = "task-text";
       span.textContent = task.text;
-      span.title = span.textContent;
 
       const removeBtn = document.createElement("button");
       removeBtn.className = "task-remove";
       removeBtn.type = "button";
-      removeBtn.textContent = "❌";
+      removeBtn.textContent = "×";
       removeBtn.setAttribute("aria-label", "حذف کار");
       removeBtn.addEventListener("click", async () => {
         const idx = tasks.findIndex((t) => t.id === task.id);
@@ -1238,13 +1441,98 @@ async function renderAllTasksUnified() {
     fragment.appendChild(group);
   }
 
+  // Section: VU (vu.um.ac.ir) deadlines
+  if (typeof vuAppendSidebarSection === "function") {
+    visibleSectionsCount += vuAppendSidebarSection(fragment, currentTaskFilter, selectedDate);
+  }
+
+  // Section: Course Assignments
+  if ((currentTaskFilter === "all" || currentTaskFilter === "course") && allCourseTasks.length > 0) {
+    visibleSectionsCount++;
+    const group = document.createElement("div");
+    group.className = "unified-section-group";
+    group.innerHTML = `
+      <div class="unified-group-title">
+        <span>📚 تکالیف و پروژه‌های درسی</span>
+        <span class="unified-group-count">${faDigits(allCourseTasks.length)} انجام‌نشده</span>
+      </div>
+    `;
+    const ul = document.createElement("ul");
+    ul.className = "course-tasks-sidebar-list";
+
+    allCourseTasks.forEach(({ courseId, courseTitle, courseColor, task }) => {
+      const li = document.createElement("li");
+      li.className = "sidebar-course-task-item";
+      li.style.setProperty("--course-color", courseColor);
+
+      const topRow = document.createElement("div");
+      topRow.className = "sidebar-task-top";
+
+      // Interactive chip: a real button (keyboard + focus), styled with the official Chip classes.
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "chip chip--sm chip--default chip--soft sd-chip-button sidebar-course-pill";
+      pill.textContent = courseTitle;
+      pill.setAttribute("aria-label", `باز کردن دفترچه درس ${courseTitle}`);
+      pill.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openCourseHub(courseId);
+      });
+      topRow.appendChild(pill);
+
+      const typeInfo = TASK_TYPE_LABELS[task.type] || TASK_TYPE_LABELS.assignment;
+      const typeBadge = typeChip(typeInfo.label);
+      topRow.appendChild(typeBadge);
+
+      const mainRow = document.createElement("div");
+      mainRow.className = "sidebar-task-main";
+
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = false;
+      chk.addEventListener("change", async () => {
+        task.done = chk.checked;
+        await storageSet({ scheduleClasses });
+        renderScheduleTable();
+        await renderAllTasksUnified();
+      });
+
+      const titleSpan = document.createElement("span");
+      titleSpan.className = "sidebar-task-title";
+      titleSpan.textContent = task.title;
+
+      mainRow.appendChild(chk);
+      mainRow.appendChild(titleSpan);
+
+      const footerRow = document.createElement("div");
+      footerRow.className = "sidebar-task-footer";
+      if (task.dueDate) {
+        const dueInfo = formatDueDays(task.dueDate);
+        if (dueInfo) {
+          const dueBadge = dueChip(dueInfo);
+          footerRow.appendChild(dueBadge);
+        }
+      }
+
+      li.appendChild(topRow);
+      li.appendChild(mainRow);
+      if (task.dueDate) li.appendChild(footerRow);
+      ul.appendChild(li);
+    });
+
+    group.appendChild(ul);
+    fragment.appendChild(group);
+  }
+
   if (currentSeq !== renderAllTasksSeq) return;
   allTasksUnifiedList.innerHTML = "";
   allTasksUnifiedList.appendChild(fragment);
 
   if (allTasksUnifiedEmpty) {
     allTasksUnifiedEmpty.hidden = visibleSectionsCount > 0;
-    if (currentTaskFilter === "daily") {
+    if (currentTaskFilter === "course") {
+      allTasksUnifiedEmpty.textContent = "🎉 هیچ تکلیف انجام‌نشده‌ای نداری!";
+    } else if (currentTaskFilter === "daily") {
       allTasksUnifiedEmpty.textContent = "کاری برای این روز ثبت نشده.";
     } else if (currentTaskFilter === "gcal") {
       allTasksUnifiedEmpty.textContent = "هیچ رویدادی در تقویم گوگل برای این روز نیست.";
@@ -1393,10 +1681,7 @@ function renderGoogleEvents(events) {
       time.textContent = "تمام روز";
     }
     const title = document.createElement("span");
-    title.className = "gcal-event-title";
-    title.dir = "auto";
     title.textContent = ev.summary || "(بدون عنوان)";
-    title.title = title.textContent;
     row.appendChild(time);
     row.appendChild(title);
     gcalEvents.appendChild(row);
@@ -1557,57 +1842,18 @@ function displayScheduleTime(timeStr, fallback = "08:00") {
   return raw === "00:00" ? "12:00" : raw;
 }
 
-function appendScheduleLabel(row, text, iconName) {
-  const label = document.createElement("span");
-  label.className = "schedule-card-label";
-  label.setAttribute("dir", "auto");
-  label.textContent = text;
+function getGridSpanForClass(startTime, endTime) {
+  const startFrac = Math.max(8, Math.min(20, timeToHourFraction(startTime)));
+  let endFrac = Math.max(8, Math.min(20, timeToHourFraction(endTime)));
+  if (endFrac <= startFrac) endFrac = Math.min(20, startFrac + 1.5);
 
-  const icon = document.createElement("span");
-  icon.className = "solar-icon";
-  icon.dataset.solar = iconName;
-  icon.setAttribute("aria-hidden", "true");
-  row.append(label, icon);
-}
+  // 12 columns for 08:00 to 20:00. In CSS grid line numbers are 1..13
+  // Grid direction is RTL, so the natural column numbering already places
+  // earlier hours on the right and later hours on the left.
+  const startCol = Math.max(1, Math.min(12, Math.floor(startFrac - 8) + 1));
+  const endCol = Math.max(startCol + 1, Math.min(13, Math.ceil(endFrac - 8) + 1));
 
-function getGridSpanForClass(startTime, endTime, range, legacyNoon = true) {
-  return StudashSchedule.span(StudashSchedule.interval(startTime, endTime, legacyNoon), range);
-}
-
-function applyScheduleRange(container, range) {
-  container.style.setProperty("--schedule-columns", range?.columns || 1);
-  container.dataset.startHour = range ? range.start : "";
-  container.dataset.endHour = range ? range.end : "";
-}
-
-function appendScheduleHours(header, range) {
-  if (!range) {
-    const label = document.createElement("div");
-    label.className = "sched-hour-header";
-    label.textContent = "برنامهٔ روز";
-    header.appendChild(label);
-    return;
-  }
-  for (let h = range.start; h < range.end; h++) {
-    const cell = document.createElement("div");
-    cell.className = "sched-hour-header";
-    const title = document.createElement("span");
-    title.textContent = `${pad2(h)}:00`;
-    const sub = document.createElement("span");
-    sub.className = "sched-hour-sub";
-    sub.textContent = `تا ${pad2(h + 1)}:00`;
-    cell.append(title, sub);
-    header.appendChild(cell);
-  }
-}
-
-function appendScheduleEmpty(container, count) {
-  if (count) return;
-  container.hidden = true;
-  const empty = document.createElement("p");
-  empty.className = "empty-hint";
-  empty.textContent = "این هفته برنامه‌ای برای نمایش نداری.";
-  scheduleGrid.appendChild(empty);
+  return { startCol, endCol };
 }
 
 // ---------------------------------------------------------------
@@ -1692,16 +1938,13 @@ function updateTodayClassesSummary() {
   todayClassesSummary.textContent = `کلاس‌های امروز تمام شد ✅ (${faDigits(state.sessions.length)} جلسه)`;
 }
 
-// Live "you are here" line on today's row, using the current week's time range.
+// Live "you are here" line on today's row (08:00–20:00 grid).
 function updateNowMarker() {
   const row = scheduleGrid && scheduleGrid.querySelector(".schedule-day-row.today-row .sched-day-slots-container");
   if (!row) return;
   const state = getTodayClassState();
   let marker = row.querySelector(".now-marker");
-  const grid = row.closest(".schedule-grid-container");
-  const start = Number(grid?.dataset.startHour);
-  const end = Number(grid?.dataset.endHour);
-  if (!grid?.dataset.endHour || state.nowFrac < start || state.nowFrac >= end) {
+  if (state.nowFrac < 8 || state.nowFrac >= 20) {
     if (marker) marker.remove();
     return;
   }
@@ -1711,10 +1954,10 @@ function updateNowMarker() {
     marker.innerHTML = '<span class="now-marker-dot"></span><span class="now-marker-label"></span>';
     row.appendChild(marker);
   }
-  const frac = (state.nowFrac - start) / (end - start);
+  const frac = (state.nowFrac - 8) / 12;
   marker.style.insetInlineStart = `calc(6px + (100% - 12px) * ${frac.toFixed(4)})`;
   marker.classList.toggle("in-class", Boolean(state.current));
-  marker.classList.toggle("label-flip", frac > 0.8); // keep the label inside the visible time range
+  marker.classList.toggle("label-flip", frac > 0.8); // keep the label inside the grid near 20:00
   marker.querySelector(".now-marker-label").textContent = state.current
     ? `شما اینجا هستید · ${formatHourFraction(state.nowFrac)} · سر کلاس`
     : `شما اینجا هستید · ${formatHourFraction(state.nowFrac)} · کلاس ندارید`;
@@ -1740,30 +1983,68 @@ function tickScheduleNow() {
 }
 setInterval(tickScheduleNow, 30 * 1000);
 
+function formatScheduleLocationNode(session) {
+  const room = document.createElement("span");
+  room.className = "class-room";
+
+  const rawLoc = (session.location || "").trim();
+  const fullTitle = session.locationFull || rawLoc;
+  room.title = fullTitle;
+
+  const pinSvg = `
+    <svg class="loc-pin-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </svg>
+  `;
+
+  // Clean location string and strip redundant leading "کلاس "
+  let loc = rawLoc.replace(/^کلاس\s*/, "");
+  let roomCode = loc;
+  let faculty = "";
+
+  const matchFaculty = loc.match(/^([0-9a-zA-Z\-_]+)\s*(دانشکده.*)$/);
+  if (matchFaculty) {
+    roomCode = matchFaculty[1].trim();
+    faculty = matchFaculty[2].trim();
+  } else if (loc.includes("دانشکده")) {
+    const parts = loc.split(/دانشکده/);
+    roomCode = parts[0].trim();
+    faculty = "دانشکده " + parts.slice(1).join(" ").trim();
+  }
+
+  // Refine and shorten faculty names for clean card display
+  if (faculty) {
+    faculty = faculty
+      .replace(/^دانشکده\s*/, "")
+      .replace(/\s*و\s*اقتصادی$/, "")
+      .trim();
+  }
+
+  const isCode = /^[0-9a-zA-Z\-_]+$/.test(roomCode);
+  const roomHtml = isCode
+    ? `<span class="loc-code" dir="ltr">${roomCode}</span>`
+    : `<span class="loc-name">${roomCode}</span>`;
+
+  const facultyHtml = faculty
+    ? `<span class="loc-faculty" title="${faculty}">• ${faculty}</span>`
+    : "";
+
+  const prefix = (rawLoc.includes("کلاس") || isCode) ? "کلاس " : "";
+
+  room.innerHTML = `${pinSvg} <span>${prefix}${roomHtml}</span>${facultyHtml}`;
+  return room;
+}
+
 function renderUniversityScheduleTable() {
   scheduleGrid.innerHTML = "";
   if (scheduleEmpty) scheduleEmpty.hidden = true;
   updateTodayClassesSummary();
 
-  const visibleDays = new Set(SCHEDULE_DAYS.map(day => day.index));
-  const activeSessions = scheduleClasses.map(normalizeCourse).flatMap(course => normalizeCourseSessions(course)
-    .filter(session => visibleDays.has(session.day) && sessionMeetsOnDay(course, session, session.day))
-    .map(session => ({ course, session })));
-  const deadlines = typeof vuItemsDueOn === "function" ? SCHEDULE_DAYS.flatMap(day => vuItemsDueOn(vuDateForScheduleDay(day.index))) : [];
-  const range = StudashSchedule.range([
-    ...activeSessions.map(({ session }) => StudashSchedule.interval(session.startTime || "08:00", session.endTime || "10:00", true)),
-    ...deadlines.filter(item => !vuIsMidnightDeadline(item)).map(item => {
-      const due = new Date(item.due);
-      const start = due.getHours() + due.getMinutes() / 60;
-      return { start, end: Math.min(24, start + 1 / 60) };
-    }),
-  ]);
-
   const container = document.createElement("div");
   container.className = "schedule-grid-container";
-  applyScheduleRange(container, range);
 
-  // Header uses only the occupied time range for this week.
+  // 1. Header Row (08:00 to 20:00)
   const headerRow = document.createElement("div");
   headerRow.className = "schedule-grid-header";
 
@@ -1772,7 +2053,21 @@ function renderUniversityScheduleTable() {
   cornerCell.textContent = "روز / ساعت";
   headerRow.appendChild(cornerCell);
 
-  appendScheduleHours(headerRow, range);
+  for (let h = 8; h < 20; h++) {
+    const hourCell = document.createElement("div");
+    hourCell.className = "sched-hour-header";
+
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = faDigits(`${pad2(h)}:۰۰`);
+
+    const subSpan = document.createElement("span");
+    subSpan.className = "sched-hour-sub";
+    subSpan.textContent = faDigits(`${pad2(h)} - ${pad2(h + 1)}`);
+
+    hourCell.appendChild(titleSpan);
+    hourCell.appendChild(subSpan);
+    headerRow.appendChild(hourCell);
+  }
   container.appendChild(headerRow);
 
   // 2. Day Rows
@@ -1802,10 +2097,10 @@ function renderUniversityScheduleTable() {
     const slotsContainer = document.createElement("div");
     slotsContainer.className = "sched-day-slots-container";
 
-    // Guidelines use the same dynamic columns as the header.
+    // Background guideline lines (12 columns)
     const guideLines = document.createElement("div");
     guideLines.className = "sched-slot-guidelines";
-    for (let i = 0; i < (range?.columns || 1); i++) {
+    for (let i = 0; i < 12; i++) {
       const col = document.createElement("div");
       col.className = "sched-guide-col";
       guideLines.appendChild(col);
@@ -1813,14 +2108,26 @@ function renderUniversityScheduleTable() {
     slotsContainer.appendChild(guideLines);
 
     // Find all sessions for this specific day
-    const daySessions = activeSessions.filter(({ session }) => session.day === day.index);
+    const daySessions = [];
+    for (const rawItem of scheduleClasses) {
+      const item = normalizeCourse(rawItem);
+      const sessions = normalizeCourseSessions(item);
+      for (const s of sessions) {
+        if (s.day === day.index) {
+          daySessions.push({
+            course: item,
+            session: s,
+          });
+        }
+      }
+    }
 
     // Sort sessions by startTime
     daySessions.sort((a, b) => (a.session.startTime || "").localeCompare(b.session.startTime || ""));
 
     for (const entry of daySessions) {
       const { course, session } = entry;
-      const { startCol, endCol } = getGridSpanForClass(session.startTime || "08:00", session.endTime || "10:00", range);
+      const { startCol, endCol } = getGridSpanForClass(session.startTime, session.endTime);
 
       const card = document.createElement("div");
       // Interactive card: the title is the card's primary button and its hit area is
@@ -1843,7 +2150,6 @@ function renderUniversityScheduleTable() {
       titleBtn.type = "button";
       titleBtn.className = "sd-card__link";
       titleBtn.textContent = course.title;
-      titleBtn.title = course.title;
       titleBtn.setAttribute("aria-label", `باز کردن دفترچه درس ${course.title}`);
       titleBtn.addEventListener("click", () => openCourseHub(course.id));
       titleEl.appendChild(titleBtn);
@@ -1880,7 +2186,7 @@ function renderUniversityScheduleTable() {
       delBtn.className = "class-action-btn btn-delete";
       delBtn.title = "حذف این درس";
       delBtn.setAttribute("aria-label", `حذف ${course.title}`);
-      delBtn.textContent = "❌";
+      delBtn.textContent = "×";
       delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         deleteClass(course.id, course.title);
@@ -1889,6 +2195,7 @@ function renderUniversityScheduleTable() {
       actions.appendChild(hubBtn);
       actions.appendChild(editBtn);
       actions.appendChild(delBtn);
+      topRow.appendChild(actions);
       card.appendChild(topRow);
 
       // Middle: Location & Instructor
@@ -1896,18 +2203,13 @@ function renderUniversityScheduleTable() {
       details.className = "class-card-details";
 
       if (session.location && session.location !== "—") {
-        const room = document.createElement("span");
-        room.className = "class-room";
-        appendScheduleLabel(room, session.location, "map-point");
-        room.title = session.locationFull || session.location;
-        details.appendChild(room);
+        details.appendChild(formatScheduleLocationNode(session));
       }
 
       if (course.instructor) {
         const inst = document.createElement("span");
         inst.className = "class-instructor";
-        appendScheduleLabel(inst, course.instructor, "user-rounded");
-        inst.title = course.instructor;
+        inst.textContent = `👨‍🏫 ${course.instructor}`;
         details.appendChild(inst);
       }
       card.appendChild(details);
@@ -1924,18 +2226,19 @@ function renderUniversityScheduleTable() {
       // Session-level week (from Pooya) wins over the course-level setting.
       const effectiveWeekType = session.weekType && session.weekType !== "all" ? session.weekType : course.weekType;
       if (effectiveWeekType === "odd" || effectiveWeekType === "even") {
-        const tag = SDUI.chip(effectiveWeekType === "odd" ? "هفته‌های فرد" : "هفته‌های زوج", { color: "default", variant: "", className: "class-week-tag" });
+        const weekParity = typeof scheduleParityForDay === "function" ? scheduleParityForDay(day.index) : null;
+        const isOff = weekParity && weekParity !== effectiveWeekType;
+
+        const tagText = effectiveWeekType === "odd" ? "هفته‌های فرد" : "هفته‌های زوج";
+        const tagClass = "class-week-tag" + (isOff ? " neon-reason" : "");
+        const tag = SDUI.chip(tagText, { color: isOff ? "danger" : "default", variant: "", className: tagClass });
         bottomRow.appendChild(tag);
 
-        const weekParity = typeof scheduleParityForDay === "function" ? scheduleParityForDay(day.index) : null;
-        if (weekParity && weekParity !== effectiveWeekType) {
+        if (isOff) {
           card.classList.add("off-week");
-          card.title = "این هفته تشکیل نمی‌شود (کلاس یک هفته در میان)";
-          const off = SDUI.chip("این هفته نیست", { color: "default", variant: "tertiary", className: "class-week-tag" });
-          bottomRow.appendChild(off);
+          card.title = `این هفته تشکیل نمی‌شود (مخصوص ${tagText})`;
         }
       }
-
       const unitsTag = SDUI.chip(`${faDigits(course.units || 3)} واحد`, { color: "default", variant: "", className: "class-units-tag" });
       bottomRow.appendChild(unitsTag);
 
@@ -1957,15 +2260,14 @@ function renderUniversityScheduleTable() {
           badgesContainer.appendChild(absBadge);
         }
 
-        bottomRow.appendChild(badgesContainer);
+        card.appendChild(badgesContainer);
       }
 
-      bottomRow.appendChild(actions);
       card.appendChild(bottomRow);
       slotsContainer.appendChild(card);
     }
 
-    const vuDeadlines = typeof vuBuildScheduleDeadlines === "function" ? vuBuildScheduleDeadlines(day.index, range) : null;
+    const vuDeadlines = typeof vuBuildScheduleDeadlines === "function" ? vuBuildScheduleDeadlines(day.index) : null;
     if (vuDeadlines) slotsContainer.appendChild(vuDeadlines);
 
     dayRow.appendChild(slotsContainer);
@@ -1973,7 +2275,6 @@ function renderUniversityScheduleTable() {
   }
 
   scheduleGrid.appendChild(container);
-  appendScheduleEmpty(container, activeSessions.length + deadlines.length);
   updateNowMarker();
 
   // Calculate total units & course count for the footer summary bar
@@ -2044,56 +2345,6 @@ async function fetchGoogleEventsForWeek(token, weekDays) {
   return data.items || [];
 }
 
-function getPersonalDayEvents(day, weekGcalEvents) {
-  const dayEvents = [];
-  const dayStart = StudashDate.parseIsoDate(day.isoDate);
-  const dayEnd = new Date(dayStart);
-  dayEnd.setDate(dayEnd.getDate() + 1);
-  for (const ev of weekGcalEvents) {
-    if (!ev.start) continue;
-    const isAllDay = Boolean(ev.start.date && !ev.start.dateTime);
-    const start = isAllDay ? StudashDate.parseIsoDate(ev.start.date) : new Date(ev.start.dateTime);
-    const end = isAllDay
-      ? (ev.end?.date ? StudashDate.parseIsoDate(ev.end.date) : new Date(start.getTime() + 86400000))
-      : (ev.end?.dateTime ? new Date(ev.end.dateTime) : new Date(start.getTime() + 3600000));
-    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start >= dayEnd || end <= dayStart) continue;
-    const clippedStart = new Date(Math.max(start.getTime(), dayStart.getTime()));
-    const clippedEnd = new Date(Math.min(end.getTime(), dayEnd.getTime()));
-    dayEvents.push({
-      id: ev.id,
-      title: ev.summary || "رویداد بدون عنوان",
-      startTime: isAllDay ? null : `${pad2(clippedStart.getHours())}:${pad2(clippedStart.getMinutes())}`,
-      endTime: isAllDay ? null : (clippedEnd.getTime() === dayEnd.getTime() ? "24:00" : `${pad2(clippedEnd.getHours())}:${pad2(clippedEnd.getMinutes())}`),
-      isAllDay,
-      source: "Google Calendar",
-      color: "#818cf8",
-      link: ev.htmlLink || ev.hangoutLink,
-    });
-  }
-
-    // 2) From Scheduled Exams for this day
-    const allExams = getAllScheduledExams();
-    const dayExams = allExams.filter((e) => e.exam.date === day.isoDate);
-    for (const de of dayExams) {
-      const examStart = de.exam.time || null;
-      // Default duration: 2 hours
-      const start = StudashSchedule.hour(examStart) ?? 8;
-      const endMinutes = Math.min(1440, Math.round((start + 2) * 60));
-      const examEnd = `${pad2(Math.floor(endMinutes / 60))}:${pad2(endMinutes % 60)}`;
-      dayEvents.push({
-        id: de.exam.id,
-        title: `${de.exam.title} (${de.courseTitle})`,
-        startTime: examStart,
-        endTime: examEnd,
-        isAllDay: !examStart,
-        source: "🎯 آزمون کلاسی",
-        color: "#ef4444",
-      });
-    }
-
-  return dayEvents;
-}
-
 async function renderPersonalScheduleTable() {
   scheduleGrid.innerHTML = "";
   if (scheduleEmpty) scheduleEmpty.hidden = true;
@@ -2126,16 +2377,10 @@ async function renderPersonalScheduleTable() {
     }
   }
 
-  const eventsByDay = new Map(weekDays.map(day => [day.isoDate, getPersonalDayEvents(day, weekGcalEvents)]));
-  const range = StudashSchedule.range([...eventsByDay.values()].flat()
-    .filter(event => !event.isAllDay)
-    .map(event => StudashSchedule.interval(event.startTime, event.endTime)));
-
   const container = document.createElement("div");
   container.className = "schedule-grid-container";
-  applyScheduleRange(container, range);
 
-  // Header uses only the occupied time range for this week.
+  // 1. Header Row (08:00 to 20:00)
   const headerRow = document.createElement("div");
   headerRow.className = "schedule-grid-header";
 
@@ -2144,7 +2389,21 @@ async function renderPersonalScheduleTable() {
   cornerCell.textContent = "روز / تاریخ";
   headerRow.appendChild(cornerCell);
 
-  appendScheduleHours(headerRow, range);
+  for (let h = 8; h < 20; h++) {
+    const hourCell = document.createElement("div");
+    hourCell.className = "sched-hour-header";
+
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = faDigits(`${pad2(h)}:۰۰`);
+
+    const subSpan = document.createElement("span");
+    subSpan.className = "sched-hour-sub";
+    subSpan.textContent = faDigits(`${pad2(h)} - ${pad2(h + 1)}`);
+
+    hourCell.appendChild(titleSpan);
+    hourCell.appendChild(subSpan);
+    headerRow.appendChild(hourCell);
+  }
   container.appendChild(headerRow);
 
   let totalEventsCount = 0;
@@ -2177,10 +2436,10 @@ async function renderPersonalScheduleTable() {
     const slotsContainer = document.createElement("div");
     slotsContainer.className = "sched-day-slots-container";
 
-    // Guidelines use the occupied time range.
+    // 12 guidelines
     const guideLines = document.createElement("div");
     guideLines.className = "sched-slot-guidelines";
-    for (let i = 0; i < (range?.columns || 1); i++) {
+    for (let i = 0; i < 12; i++) {
       const col = document.createElement("div");
       col.className = "sched-guide-col";
       guideLines.appendChild(col);
@@ -2188,22 +2447,69 @@ async function renderPersonalScheduleTable() {
     slotsContainer.appendChild(guideLines);
 
     // Filter events for this specific day
-    const dayEvents = eventsByDay.get(day.isoDate);
+    const dayEvents = [];
+
+    // 1) From Google Calendar
+    for (const ev of weekGcalEvents) {
+      if (!ev.start) continue;
+      let evStart = null;
+      let evEnd = null;
+      let isAllDay = false;
+
+      if (ev.start.dateTime) {
+        evStart = new Date(ev.start.dateTime);
+        evEnd = ev.end?.dateTime ? new Date(ev.end.dateTime) : new Date(evStart.getTime() + 3600000);
+      } else if (ev.start.date) {
+        isAllDay = true;
+        evStart = StudashDate.parseIsoDate(ev.start.date); // all-day: date-only, keep the local day
+      }
+
+      if (evStart && isoDate(evStart) === day.isoDate) {
+        dayEvents.push({
+          id: ev.id,
+          title: ev.summary || "رویداد بدون عنوان",
+          startTime: isAllDay ? "08:00" : `${pad2(evStart.getHours())}:${pad2(evStart.getMinutes())}`,
+          endTime: isAllDay ? "10:00" : (evEnd ? `${pad2(evEnd.getHours())}:${pad2(evEnd.getMinutes())}` : "10:00"),
+          isAllDay,
+          source: "Google Calendar",
+          color: "#818cf8",
+          link: ev.htmlLink || ev.hangoutLink,
+        });
+      }
+    }
+
+    // 2) From Scheduled Exams for this day
+    const allExams = getAllScheduledExams();
+    const dayExams = allExams.filter((e) => e.exam.date === day.isoDate);
+    for (const de of dayExams) {
+      const examStart = de.exam.time || "08:30";
+      // Default duration: 2 hours
+      const [eh, em] = examStart.split(":").map(Number);
+      const endH = Math.min(20, (isNaN(eh) ? 8 : eh) + 2);
+      const examEnd = `${pad2(endH)}:${pad2(isNaN(em) ? 0 : em)}`;
+      dayEvents.push({
+        id: de.exam.id,
+        title: `${de.exam.title} (${de.courseTitle})`,
+        startTime: examStart,
+        endTime: examEnd,
+        source: "🎯 آزمون کلاسی",
+        color: "#ef4444",
+      });
+    }
 
     totalEventsCount += dayEvents.length;
 
     // Render Event Cards on Grid
     for (const ev of dayEvents) {
-      const { startCol, endCol } = getGridSpanForClass(ev.startTime, ev.endTime, range, false);
+      const { startCol, endCol } = getGridSpanForClass(ev.startTime, ev.endTime);
 
       const card = document.createElement("div");
       card.className = "personal-event-card";
-      card.style.gridColumn = ev.isAllDay ? "1 / -1" : `${startCol} / ${endCol}`;
+      card.style.gridColumn = `${startCol} / ${endCol}`;
       card.style.setProperty("--event-color", ev.color);
-      card.title = ev.isAllDay ? `${ev.title} (${ev.source}) — بدون ساعت مشخص` : `${ev.title} (${ev.source}) — ${ev.startTime} تا ${ev.endTime}`;
+      card.title = `${ev.title} (${ev.source}) — ${ev.startTime} تا ${ev.endTime}`;
 
       if (ev.link) {
-        card.dataset.contextOpen = "true";
         card.addEventListener("click", () => {
           window.open(ev.link, "_blank");
         });
@@ -2214,9 +2520,8 @@ async function renderPersonalScheduleTable() {
 
       const titleEl = document.createElement("h4");
       titleEl.className = "personal-event-title";
-      titleEl.title = ev.title;
-      const icon = ev.source === "Google Calendar" ? "calendar" : (ev.source.includes("آزمون") ? "target" : "alarm");
-      appendScheduleLabel(titleEl, ev.title, icon);
+      const icon = ev.source === "Google Calendar" ? "📅" : (ev.source.includes("آزمون") ? "🎯" : "⏰");
+      titleEl.innerHTML = `<span>${icon}</span> <span>${ev.title}</span>`;
       topRow.appendChild(titleEl);
       card.appendChild(topRow);
 
@@ -2225,7 +2530,7 @@ async function renderPersonalScheduleTable() {
 
       const timeEl = document.createElement("span");
       timeEl.className = "personal-event-time";
-      timeEl.textContent = ev.isAllDay ? "بدون ساعت مشخص" : `${ev.startTime} - ${ev.endTime}`;
+      timeEl.textContent = `${faDigits(displayScheduleTime(ev.startTime))} - ${faDigits(displayScheduleTime(ev.endTime, "10:00"))}`;
       bottomRow.appendChild(timeEl);
 
       const sourceTag = document.createElement("span");
@@ -2243,7 +2548,6 @@ async function renderPersonalScheduleTable() {
 
   scheduleGrid.appendChild(container);
 
-  appendScheduleEmpty(container, totalEventsCount);
   if (personalTotalEvents) {
     personalTotalEvents.textContent = `${faDigits(totalEventsCount)} رویداد`;
   }
@@ -2667,9 +2971,7 @@ function renderHubTasks() {
 
     const titleSpan = document.createElement("span");
     titleSpan.className = "hub-task-title";
-    titleSpan.dir = "auto";
     titleSpan.textContent = task.title;
-    titleSpan.title = titleSpan.textContent;
 
     left.appendChild(chk);
     left.appendChild(titleSpan);
@@ -2783,7 +3085,14 @@ function renderHubLinks() {
 
     const favWrap = document.createElement("div");
     favWrap.className = "hub-link-favicon";
-    favWrap.innerHTML = '<span class="solar-icon" data-solar="link" aria-hidden="true"></span>';
+    const img = document.createElement("img");
+    img.src = faviconFor(l.url);
+    img.alt = "";
+    img.loading = "lazy";
+    img.onerror = () => {
+      favWrap.textContent = "🔗";
+    };
+    favWrap.appendChild(img);
 
     const details = document.createElement("div");
     details.className = "hub-link-details";
@@ -3919,11 +4228,45 @@ async function renderStudyReport() {
         .join("");
     }
   }
+
+  // Today's Study Sessions Breakdown
+  const todaySessionsContainer = document.getElementById("reportTodaySessionsList");
+  const todaySessionsEmpty = document.getElementById("reportSessionsEmpty");
+  if (todaySessionsContainer) {
+    const sessions = todayEntry.sessions || [];
+    if (sessions.length === 0) {
+      todaySessionsContainer.innerHTML = "";
+      if (todaySessionsEmpty) todaySessionsEmpty.hidden = false;
+    } else {
+      if (todaySessionsEmpty) todaySessionsEmpty.hidden = true;
+      todaySessionsContainer.innerHTML = sessions
+        .map((s) => {
+          const course = scheduleClasses.find((c) => c.id === s.courseId);
+          const name = s.subject || (course ? course.title : "مطالعه آزاد");
+          return `
+            <div class="report-session-item">
+              <span class="report-session-bullet">🔥</span>
+              <div class="report-session-info">
+                <strong class="report-session-title">${name}</strong>
+                <span class="report-session-time">ساعت ${faDigits(s.time)}</span>
+              </div>
+              <span class="report-session-dur">${formatMinutesToHours(s.minutes)}</span>
+            </div>
+          `;
+        })
+        .join("");
+    }
+  }
 }
 
 async function initStudyReport() {
   if (studyReportLaunchBtn && studyReportModal) {
     studyReportLaunchBtn.addEventListener("click", async () => {
+      try {
+        await new Promise((resolve) => {
+          chrome.runtime.sendMessage({ action: "GET_TIMER_STATE" }, () => resolve());
+        });
+      } catch (e) {}
       await renderStudyReport();
       studyReportModal.showModal();
     });
@@ -4441,101 +4784,417 @@ function initIdeaLab() {
 async function initNotes() {
   const dialog = document.getElementById("notesDialog");
   const openBtn = document.getElementById("headerNotesBtn");
+  const quickToolNotes = document.getElementById("quickToolNotes");
   const closeBtn = document.getElementById("notesCloseBtn");
   const form = document.getElementById("noteCreateForm");
   const titleInput = document.getElementById("noteTitleInput");
   const bodyInput = document.getElementById("noteBodyInput");
+  const folderInput = document.getElementById("noteFolderPicker");
   const colorInput = document.getElementById("noteColorPicker");
   const grid = document.getElementById("notesGrid");
   const empty = document.getElementById("notesEmpty");
   const search = document.getElementById("notesSearchInput");
+  const folderChips = document.getElementById("notesFolderChips");
+
+  // Full Editor Modal Elements
+  const fullDialog = document.getElementById("noteFullDialog");
+  const fullTitle = document.getElementById("noteFullTitle");
+  const fullBody = document.getElementById("noteFullBody");
+  const fullFolder = document.getElementById("noteFullFolder");
+  const fullColor = document.getElementById("noteFullColor");
+  const fullDate = document.getElementById("noteFullDate");
+  const fullWordCount = document.getElementById("noteFullWordCount");
+  const fullCopyBtn = document.getElementById("noteFullCopyBtn");
+  const fullSaveBtn = document.getElementById("noteFullSaveBtn");
+  const fullCloseBtn = document.getElementById("noteFullCloseBtn");
+
   if (!dialog || !form || !grid) return;
-  const submitBtn = form.querySelector(".note-add-btn");
   let notes = [];
   let editingNote = null;
+  let activeFullNote = null;
+  let activeFolderFilter = "all";
+
+  const escapeHtml = (str) => String(str || "").replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[m]));
+  const escapeAttr = (str) => String(str || "").replace(/["']/g, "");
+
   const stored = await storageGet(["quickNotes"]);
   notes = Array.isArray(stored.quickNotes) ? stored.quickNotes : [];
 
+  const updateWordCount = () => {
+    if (!fullWordCount || !fullBody) return;
+    const text = (fullBody.value || "").trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    const chars = text.length;
+    fullWordCount.textContent = words.toLocaleString("fa-IR") + " کلمه · " + chars.toLocaleString("fa-IR") + " نویسه";
+  };
+
+  const openFullModal = (note) => {
+    if (!fullDialog) return;
+    activeFullNote = note;
+    if (fullTitle) fullTitle.value = note.title || "";
+    if (fullBody) fullBody.value = note.body || "";
+    if (fullFolder) fullFolder.value = note.folder || "";
+    if (fullColor) fullColor.value = note.color || "default";
+    fullDialog.dataset.color = note.color || "default";
+    if (fullDate) {
+      const d = new Date(note.updatedAt || note.createdAt || Date.now());
+      const formatted = isNaN(d.getTime()) ? "" : d.toLocaleDateString("fa-IR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      fullDate.textContent = formatted;
+    }
+    updateWordCount();
+    fullDialog.showModal();
+  };
+
+  const closeFullModal = () => {
+    if (!fullDialog) return;
+    fullDialog.close();
+    activeFullNote = null;
+  };
+
+  fullColor?.addEventListener("change", () => {
+    if (fullDialog) fullDialog.dataset.color = fullColor.value || "default";
+  });
+
+  fullCloseBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeFullModal();
+  });
+
+  fullBody?.addEventListener("input", updateWordCount);
+
+  // Safe backdrop click handlers (only closes when clicking OUTSIDE the dialog boundary)
+  dialog.addEventListener("click", (e) => {
+    const rect = dialog.getBoundingClientRect();
+    if (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY < rect.top ||
+      e.clientY > rect.bottom
+    ) {
+      dialog.close();
+    }
+  });
+
+  fullDialog?.addEventListener("click", (e) => {
+    const rect = fullDialog.getBoundingClientRect();
+    if (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY < rect.top ||
+      e.clientY > rect.bottom
+    ) {
+      closeFullModal();
+    }
+  });
+
+  fullCopyBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const title = (fullTitle?.value || "").trim();
+    const body = (fullBody?.value || "").trim();
+    const fullText = title ? (title + "\n\n" + body) : body;
+    if (!fullText) return;
+    try {
+      await navigator.clipboard.writeText(fullText);
+      const prev = fullCopyBtn.textContent;
+      fullCopyBtn.textContent = "کپی شد ✓";
+      setTimeout(() => { fullCopyBtn.textContent = prev; }, 1600);
+    } catch {
+      alert("کپی متن یادداشت انجام نشد.");
+    }
+  });
+
+  const saveFullNote = async () => {
+    if (!activeFullNote) return;
+    const body = (fullBody?.value || "").trim();
+    if (!body) {
+      alert("متن یادداشت نمی‌تواند خالی باشد.");
+      return;
+    }
+    activeFullNote.title = (fullTitle?.value || "").trim();
+    activeFullNote.body = body;
+    activeFullNote.folder = (fullFolder?.value || "").trim();
+    activeFullNote.color = fullColor?.value || "default";
+    activeFullNote.updatedAt = new Date().toISOString();
+
+    await storageSet({ quickNotes: notes });
+    closeFullModal();
+    renderFolderChips();
+    render();
+  };
+
+  fullSaveBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    saveFullNote();
+  });
+
+  fullBody?.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      saveFullNote();
+    }
+  });
+  fullTitle?.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      saveFullNote();
+    }
+  });
+
+  // Render folder chips
+  const renderFolderChips = () => {
+    if (!folderChips) return;
+    const folderSet = new Set(["دانشگاه", "شخصی", "کاری", "پروژه"]);
+    notes.forEach((n) => {
+      if (n.folder && n.folder.trim()) folderSet.add(n.folder.trim());
+    });
+    const folderIcons = {
+      "دانشگاه": "🎓",
+      "شخصی": "👤",
+      "کاری": "💼",
+      "پروژه": "🚀"
+    };
+
+    const hasPinned = notes.some((n) => n.pinned);
+
+    let html = '<button type="button" class="notes-chip ' + (activeFolderFilter === "all" ? "active" : "") + '" data-folder="all">همه (' + notes.length.toLocaleString("fa-IR") + ')</button>';
+
+    if (hasPinned) {
+      const pinnedCount = notes.filter((n) => n.pinned).length;
+      html += '<button type="button" class="notes-chip notes-chip--pinned ' + (activeFolderFilter === "pinned" ? "active" : "") + '" data-folder="pinned">📌 سنجاق‌ها (' + pinnedCount.toLocaleString("fa-IR") + ')</button>';
+    }
+
+    folderSet.forEach((f) => {
+      const count = notes.filter((n) => n.folder === f).length;
+      if (count > 0 || ["دانشگاه", "شخصی", "کاری", "پروژه"].includes(f)) {
+        const icon = folderIcons[f] || "📁";
+        const isActive = activeFolderFilter === f;
+        html += '<button type="button" class="notes-chip ' + (isActive ? "active" : "") + '" data-folder="' + escapeAttr(f) + '">' + icon + ' ' + escapeHtml(f) + ' <span class="notes-chip-count">' + count.toLocaleString("fa-IR") + '</span></button>';
+      }
+    });
+
+    folderChips.innerHTML = html;
+    folderChips.querySelectorAll(".notes-chip").forEach((chip) => {
+      chip.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeFolderFilter = chip.dataset.folder;
+        renderFolderChips();
+        render();
+      });
+    });
+  };
+
   const render = () => {
     const q = (search?.value || "").trim().toLowerCase();
-    const visible = notes.filter((n) => `${n.title} ${n.body}`.toLowerCase().includes(q));
+
+    // Sort: Pinned first, then newest updated/created
+    const sorted = [...notes].sort((a, b) => {
+      const pA = a.pinned ? 1 : 0;
+      const pB = b.pinned ? 1 : 0;
+      if (pB !== pA) return pB - pA;
+      const tA = new Date(a.updatedAt || a.createdAt || 0).getTime() || 0;
+      const tB = new Date(b.updatedAt || b.createdAt || 0).getTime() || 0;
+      return tB - tA;
+    });
+
+    let visible = sorted;
+    if (activeFolderFilter === "pinned") {
+      visible = visible.filter((n) => n.pinned);
+    } else if (activeFolderFilter && activeFolderFilter !== "all") {
+      visible = visible.filter((n) => n.folder === activeFolderFilter);
+    }
+
+    if (q) {
+      visible = visible.filter((n) => ((n.title || "") + " " + (n.body || "") + " " + (n.folder || "")).toLowerCase().includes(q));
+    }
+
     grid.innerHTML = "";
     if (empty) empty.hidden = visible.length > 0;
+
     visible.forEach((note) => {
       const card = document.createElement("article");
-      card.className = "note-card";
-      card.dataset.color = note.color || "yellow";
-      card.innerHTML = `<h3 class="note-card-title"></h3><p class="note-card-body"></p><div class="note-card-date"></div><div class="note-card-actions"><button type="button" class="note-action-btn copy">کپی</button><button type="button" class="note-action-btn edit">ویرایش</button><button type="button" class="note-action-btn delete">حذف</button></div>`;
-      card.querySelector(".note-card-title").textContent = note.title || "یادداشت بدون عنوان";
-      card.querySelector(".note-card-body").textContent = note.body;
-      card.querySelector(".note-card-date").textContent = new Date(note.createdAt).toLocaleString("fa-IR");
-      card.querySelector(".copy").addEventListener("click", async () => {
-        const text = note.title ? `${note.title}\n\n${note.body}` : note.body;
+      card.className = "note-card" + (note.pinned ? " is-pinned" : "");
+      card.dataset.color = note.color || "default";
+
+      const folderBadge = note.folder ? ('<span class="note-card-folder-badge" title="پوشه: ' + escapeAttr(note.folder) + '">📁 ' + escapeHtml(note.folder) + '</span>') : "";
+      const pinActive = note.pinned ? "active" : "";
+      const pinTitle = note.pinned ? "برداشتن سنجاق" : "سنجاق به بالا";
+      const d = new Date(note.updatedAt || note.createdAt || Date.now());
+      const formattedDate = isNaN(d.getTime()) ? "" : d.toLocaleDateString("fa-IR", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+
+      card.innerHTML =
+        '<div class="note-card-header">' +
+          '<div class="note-card-meta-tags">' +
+            folderBadge +
+          '</div>' +
+          '<button type="button" class="note-pin-btn ' + pinActive + '" title="' + pinTitle + '" aria-label="' + pinTitle + '">' +
+            '<svg viewBox="0 0 24 24" width="14" height="14" fill="' + (note.pinned ? "currentColor" : "none") + '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M12 17v5M9 2h6l-1 5 3 4v2H7v-2l3-4-1-5z"/>' +
+            '</svg>' +
+          '</button>' +
+        '</div>' +
+        '<h3 class="note-card-title">' + escapeHtml(note.title || "یادداشت بدون عنوان") + '</h3>' +
+        '<p class="note-card-body">' + escapeHtml(note.body) + '</p>' +
+        '<div class="note-card-footer">' +
+          '<span class="note-card-date">' + formattedDate + '</span>' +
+          '<div class="note-card-actions">' +
+            '<button type="button" class="note-action-btn view-full" title="نمایش کامل و ویرایش" aria-label="نمایش کامل و ویرایش">' +
+              '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>' +
+              '</svg>' +
+            '</button>' +
+            '<button type="button" class="note-action-btn copy" title="کپی متن" aria-label="کپی متن">' +
+              '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>' +
+                '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>' +
+              '</svg>' +
+            '</button>' +
+            '<button type="button" class="note-action-btn delete" title="حذف یادداشت" aria-label="حذف یادداشت">' +
+              '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<polyline points="3 6 5 6 21 6"/>' +
+                '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
+              '</svg>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+
+      // Pin button handler
+      card.querySelector(".note-pin-btn").addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        note.pinned = !note.pinned;
+        await storageSet({ quickNotes: notes });
+        renderFolderChips();
+        render();
+      });
+
+      // View full / edit button
+      card.querySelector(".view-full").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openFullModal(note);
+      });
+
+      // Copy button
+      card.querySelector(".copy").addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const text = note.title ? (note.title + "\n\n" + note.body) : note.body;
         try {
           await navigator.clipboard.writeText(text);
           const btn = card.querySelector(".copy");
-          btn.textContent = "کپی شد ✓";
-          setTimeout(() => { btn.textContent = "کپی"; }, 1600);
+          const oldHtml = btn.innerHTML;
+          btn.innerHTML = "✓";
+          btn.style.color = "#4ade80";
+          setTimeout(() => {
+            btn.innerHTML = oldHtml;
+            btn.style.color = "";
+          }, 1500);
         } catch {
           alert("کپی متن یادداشت انجام نشد.");
         }
       });
+
+      // Delete button
+      card.querySelector(".delete").addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        notes = notes.filter((n) => n.id !== note.id);
+        await storageSet({ quickNotes: notes });
+        renderFolderChips();
+        render();
+      });
+
+      // Mode 1: Controlled Inline Expand on Card Click
       card.addEventListener("click", (e) => {
-        if (e.target.closest("button")) return;
+        if (e.target.closest("button") || e.target.closest(".note-card-actions")) return;
+        e.stopPropagation();
         card.classList.toggle("is-expanded");
         card.setAttribute("aria-expanded", String(card.classList.contains("is-expanded")));
       });
+
       card.setAttribute("role", "button");
       card.setAttribute("tabindex", "0");
       card.setAttribute("aria-expanded", "false");
       card.addEventListener("keydown", (e) => {
         if ((e.key === "Enter" || e.key === " ") && !e.target.closest("button")) {
           e.preventDefault();
+          e.stopPropagation();
           card.click();
         }
       });
-      card.querySelector(".edit").addEventListener("click", () => {
-        editingNote = note;
-        titleInput.value = note.title || "";
-        bodyInput.value = note.body || "";
-        colorInput.value = note.color || "yellow";
-        if (submitBtn) submitBtn.textContent = "ذخیره ویرایش";
-        titleInput.focus();
-        dialog.querySelector(".note-create-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      card.querySelector(".delete").addEventListener("click", async () => {
-        notes = notes.filter((n) => n.id !== note.id);
-        await storageSet({ quickNotes: notes });
-        render();
-      });
+
       grid.appendChild(card);
     });
+
     const badge = document.getElementById("headerNotesBadge");
     if (badge) { badge.textContent = String(notes.length); badge.style.display = notes.length ? "" : "none"; }
     const menuBadge = document.getElementById("menuNotesBadge");
     if (menuBadge) { menuBadge.textContent = String(notes.length); menuBadge.style.display = notes.length ? "" : "none"; }
   };
-  openBtn?.addEventListener("click", () => { render(); dialog.showModal(); });
-  closeBtn?.addEventListener("click", () => dialog.close());
-  search?.addEventListener("input", render);
-  form.addEventListener("submit", async (e) => {
+
+  openBtn?.addEventListener("click", (e) => {
     e.preventDefault();
-    const body = bodyInput.value.trim();
-    if (!body) return;
-    if (editingNote) {
-      editingNote.title = titleInput.value.trim();
-      editingNote.body = body;
-      editingNote.color = colorInput.value || "yellow";
-      editingNote.updatedAt = new Date().toISOString();
-      editingNote = null;
-    } else {
-      notes.unshift({ id: crypto.randomUUID(), title: titleInput.value.trim(), body, color: colorInput.value || "yellow", createdAt: new Date().toISOString() });
-    }
-    await storageSet({ quickNotes: notes });
-    form.reset();
-    if (submitBtn) submitBtn.textContent = "+ افزودن یادداشت";
+    e.stopPropagation();
+    renderFolderChips();
+    render();
+    dialog.showModal();
+  });
+  quickToolNotes?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    renderFolderChips();
     render();
   });
+  closeBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dialog.close();
+  });
+  search?.addEventListener("input", render);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const body = bodyInput.value.trim();
+    if (!body) return;
+    const newNote = {
+      id: crypto.randomUUID(),
+      title: titleInput.value.trim(),
+      body,
+      folder: folderInput?.value?.trim() || "",
+      color: colorInput?.value || "default",
+      pinned: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    notes.unshift(newNote);
+    await storageSet({ quickNotes: notes });
+    form.reset();
+    renderFolderChips();
+    render();
+  });
+
+  renderFolderChips();
   render();
 }
 
@@ -4543,7 +5202,6 @@ async function initNotes() {
 // Pinned Tools Management (which shortcut buttons show near the clock)
 // ---------------------------------------------------------------
 const DEFAULT_PINNED_TOOLS = {
-  webmail: true,
   idea: true,
   notes: true,
   timer: true,
@@ -4554,13 +5212,12 @@ let pinnedToolsState = { ...DEFAULT_PINNED_TOOLS };
 
 // Fixed reading order + element ids for the small buttons that flank the clock.
 const TOOL_BTN_IDS = {
-  webmail: "headerWebmailBtn",
   idea: "headerIdeaLabBtn",
   notes: "headerNotesBtn",
   timer: "focusLaunchBtn",
   report: "studyReportLaunchBtn",
 };
-const TOOL_BTN_ORDER = ["webmail", "idea", "notes", "timer", "report"];
+const TOOL_BTN_ORDER = ["idea", "notes", "timer", "report"];
 
 async function initToolsMenuAndPinning() {
   // Load saved pin preferences
@@ -4594,7 +5251,7 @@ async function initToolsMenuAndPinning() {
     const rightWing = document.querySelector(".clock-wing-right");
     const leftWing = document.querySelector(".clock-wing-left");
     const rightKeys = ["timer", "report"];
-    const leftKeys = ["webmail", "idea", "notes"];
+    const leftKeys = ["idea", "notes"];
 
     if (rightWing && leftWing) {
       rightKeys.forEach((key) => {
@@ -4772,11 +5429,7 @@ async function initNotificationsCenter() {
   if (!notifTriggerBtn || !notifDropdownMenu) return;
 
   const toFaNum = (n) => String(n ?? "").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
-  const safeHtml = (value) => String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  const safeHtml = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   function formatRelativeTime(ts) {
     if (!ts) return "";
@@ -4833,11 +5486,11 @@ async function initNotificationsCenter() {
     notifList.innerHTML = list
       .map((item) => {
         const badgeHtml = item.meta && item.meta.grade
-          ? `<span class="notif-item-badge">نمره: ${safeHtml(toFaNum(item.meta.grade))}${item.meta.maxGrade ? ` از ${safeHtml(toFaNum(item.meta.maxGrade))}` : ""}</span>`
+          ? `<span class="notif-item-badge">نمره: ${toFaNum(item.meta.grade)}${item.meta.maxGrade ? ` از ${toFaNum(item.meta.maxGrade)}` : ""}</span>`
           : "";
         return `
-          <div class="notif-item ${item.read ? "" : "is-unread"}" data-id="${safeHtml(item.id)}" ${item.url ? `data-url="${safeHtml(item.url)}"` : ""}>
-            <div class="notif-item-icon">${safeHtml(item.icon || "🔔")}</div>
+          <div class="notif-item ${item.read ? "" : "is-unread"}" data-id="${item.id}" ${item.url ? `data-url="${safeHtml(item.url)}"` : ""}>
+            <div class="notif-item-icon">${item.icon || "🔔"}</div>
             <div class="notif-item-content">
               <div class="notif-item-header">
                 <span class="notif-item-title">${safeHtml(item.title)}</span>
@@ -4859,8 +5512,8 @@ async function initNotificationsCenter() {
         if (id && window.StudashNotifications) {
           await window.StudashNotifications.markAsRead(id);
         }
-        if (url && /^https?:\/\//i.test(url)) {
-          window.open(url, "_blank", "noopener,noreferrer");
+        if (url) {
+          window.open(url, "_blank");
         }
         await renderNotifications();
       });

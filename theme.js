@@ -21,8 +21,8 @@
     accent: "", // "" = preset accent, else an id from ACCENTS
     density: "comfortable", // "compact" | "comfortable" | "spacious"
     scale: "normal", // "compact" | "normal" | "large"
+    surface: "solid",
     radius: "rounded", // "sharp" | "rounded" | "soft"
-    surface: "solid", // "solid" | "glass" (frosted cards over a soft backdrop)
   });
 
   const PRESETS = [
@@ -51,8 +51,8 @@
     accent: ["", ...ACCENTS.map((a) => a.id)],
     density: ["compact", "comfortable", "spacious"],
     scale: ["compact", "normal", "large"],
-    radius: ["sharp", "rounded", "soft"],
     surface: ["solid", "glass"],
+    radius: ["sharp", "rounded", "soft"],
   };
 
   function normalize(value) {
@@ -78,7 +78,7 @@
     if (root === document.documentElement) {
       root.setAttribute("data-mode", a.mode);
       root.setAttribute("data-density", a.density);
-      root.setAttribute("data-scale", a.scale);
+      root.setAttribute("data-scale", a.scale || "normal");
       root.setAttribute("data-radius", a.radius);
       root.setAttribute("data-surface", a.surface);
       root.style.colorScheme = mode;

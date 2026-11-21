@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fa"><meta charset="utf-8"><body>
+<script>
+window.addEventListener('error', event => {
+ const output = document.createElement('pre'); output.id = 'results';
+ output.textContent = JSON.stringify([{name:'page execution',ok:false,error:event.message}]);document.body.append(output);
+});
+// file:// has no shared extension origin for Web Locks. Exercise the storage fallback here.
+Object.defineProperty(navigator, 'locks', { value: undefined });
+const values = {};
+chrome.storage = { local: {
+  get: async keys => {
+    if (typeof keys === 'string') return { [keys]: values[keys] };
+    return Object.fromEntries((keys || Object.keys(values)).map(key => [key, values[key]]));
+  },
+  set: async entries => Object.assign(values, entries),
+  remove: async keys => { for (const key of [].concat(keys)) delete values[key]; },
+} };
+const calls = [];
+let failAssignments = false, failQuizzes = false, loginRedirect = false, sessionRequests = 0;
+window.fetch = async (url, options = {}) => {
+  url = String(url);
+  calls.push({ url, signal: options.signal });
+  if (url.includes('/my/')) {
+    sessionRequests++;
+    return new Response('<span class="usertext">Test Student</span>{"sesskey":"sample"}');
+  }
+  if (url.includes('service.php')) {
+    const info = new URL(url).searchParams.get('info');
+    return Response.json([{ data: info.includes('enrolled_courses')
+      ? { courses: [{ id: 1, fullname: 'Course One' }] }
+      : { events: [] } }]);
+  }
+  if (url.includes('/mod/assign/index.php')) {
+    if (loginRedirect) return new Response('<form action="/login"><input name="username"></form>');
+    if (failAssignments) return new Response('unavailable', { status: 503 });
+    return new Response('<table class="generaltable"><thead><tr><th>Name</th><th>Due</th><th>Submission</th></tr></thead><tbody><tr><td><a href="https://vu.um.ac.ir/mod/assign/view.php?id=42">Assignment</a></td><td>Monday, 23 November 2026, 12:00 PM</td><td>Submitted</td></tr></tbody></table>');
+  }
+  if (url.includes('/mod/quiz/index.php')) {
+    if (failQuizzes) return new Response('unavailable', { status: 503 });
+    return new Response('<table class="generaltable"><tbody></tbody></table>');
+  }
+  throw new Error('Unexpected URL ' + url);
+};
+</script>
+<script src="../../jalali.js"></script>
+<script src="../../vu-client.js"></script>
+<script>
+const results = [];
+function assert(value, message) { if (!value) throw new Error(message); }
+async function test(name, run) {
+  document.body.dataset.phase = name;
+  try { await run(); results.push({ name, ok: true }); }
+  catch (error) { results.push({ name, ok: false, error: error.message }); }
+}
+(async () => {
+  await test('concurrent sync and forced sync share one request and release their lock', async () => {
+    const one = VU.syncAll();
+    const two = VU.syncAll({ force: true });
+    assert(one === two, 'sync requests overlap');
+    const data = await one;
+    assert(sessionRequests === 1, 'multiple session requests');
+    assert(data.items.length === 1 && data.items[0].submitted, 'assignment parsing failed');
+    assert(!values.vuSyncLock, 'sync lock remained');
+    assert(calls.every(call => call.signal instanceof AbortSignal), 'unbounded portal request');
+  });
+  await test('a failed assignment index preserves its cached tasks and reports partial data', async () => {
+    failAssignments = true;
+    const previous = values.vuData.items[0];
+    const data = await VU.syncAll();
+    assert(data.items[0].id === previous.id && data.items[0].submitted, 'cached data was lost');
+    assert(data.syncWarnings.length === 1, 'missing partial sync warning');
+    assert(!values.vuSyncLock, 'lock retained after partial failure');
+  });
+  await test('complete portal failure preserves the entire cache and last successful sync', async () => {
+    failQuizzes = true;
+    const previous = values.vuData;
+    let error;
+    try { await VU.syncAll(); } catch (caught) { error = caught; }
+    assert(error?.code === 'HTTP', 'HTTP failure was not reported');
+    assert(values.vuData === previous, 'failed request overwrote the cache');
+    assert(!values.vuSyncLock, 'lock retained after failure');
+  });
+  await test('an expired portal session fails without replacing cached assignments', async () => {
+    failAssignments = false; failQuizzes = false; loginRedirect = true;
+    const previous = values.vuData;
+    let error;
+    try { await VU.syncAll(); } catch (caught) { error = caught; }
+    assert(error?.code === 'NO_SESSION', 'expired session was not recognized');
+    assert(values.vuData === previous, 'expired session replaced cache');
+    loginRedirect = false;
+  });
+  await test('a later successful sync recovers after portal errors', async () => {
+    const data = await VU.syncAll();
+    assert(data.items.length === 1 && data.syncWarnings.length === 0, 'recovery failed');
+    assert(!values.vuSyncLock, 'lock retained after recovery');
+  });
+  const output = document.createElement('pre');
+  output.id = 'results'; output.textContent = JSON.stringify(results); document.body.append(output);
+})().catch(error => {
+ const output = document.createElement('pre'); output.id = 'results';
+ output.textContent = JSON.stringify([{name:'portal execution',ok:false,error:error.stack}]);document.body.append(output);
+});
+</script>
+</body></html>

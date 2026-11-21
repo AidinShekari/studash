@@ -1,0 +1,91 @@
+/* Modal content scrolls independently so pickers can escape the form body. */
+dialog.sd-modal {
+  overflow: visible !important;
+  transform: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation: none !important;
+}
+dialog.sd-modal[open] {
+  display: flex;
+  flex-direction: column;
+  max-block-size: calc(100dvh - 32px);
+}
+.sd-modal .sd-modal__panel { display: contents; }
+.sd-modal .sd-modal__body {
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sd-modal :is(.sd-modal__header, .sd-modal__footer) { flex: none; }
+.sd-modal :is(.sd-modal__footer, .pin-form-actions, .class-form-actions,
+  .vu-dialog-actions, .hub-links-actions, .absence-actions, .focus-actions,
+  .notes-tools, .idea-form-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sd-modal :is(button, .button, .primary-btn, .ghost-btn, .ghost-btn-sm) {
+  font-family: inherit;
+  line-height: 1.4;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sd-modal :is(.form-row, .hub-task-form, .hub-link-form) {
+  min-inline-size: 0;
+  gap: 10px;
+}
+.sd-modal .form-row {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.sd-modal .form-row > :is(.sd-island, .form-group, .sd-field) {
+  flex: 1 1 140px;
+  min-inline-size: 0;
+}
+.sd-modal .sd-modal__footer > button { margin: 0; }
+.sd-modal [hidden] { display: none !important; }
+
+/* Keep React Aria overlays inside the native dialog's top layer. */
+.sd-overlay-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.sd-overlay-root > * { pointer-events: auto; }
+:is(.date-picker__popover, .select__popover) {
+  z-index: 101;
+  max-inline-size: calc(100vw - 24px);
+  max-block-size: min(440px, calc(100dvh - 32px));
+}
+.sd-overlay-root :is(.date-picker__popover, .select__popover) {
+  pointer-events: auto;
+}
+.sd-modal .date-input-group { min-inline-size: 0; }
+.sd-modal .hub-task-form .form-row > input { min-inline-size: 100px; flex: 1 1 140px; }
+
+/* Avoid repeated backdrop compositing on every tile and scroll position. */
+:is(.pin-tile, .class-card, .schedule-cell) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition-property: background-color, border-color, color, opacity, box-shadow !important;
+}
+body.modal-open :is(.page, .schedule-section) { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+dialog.sd-modal { position: fixed !important; }
+.sd-modal .sd-modal__footer :is(.button--primary, .button--danger, .button--primary-action) { order: 2; }
+.sd-modal :is(.onboard-actions, .tour-actions, .focus-actions-row,
+  .note-form-row, .note-full-actions, .hub-tabs) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sd-modal .sd-modal__header { min-inline-size: 0; }

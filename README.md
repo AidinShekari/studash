@@ -40,7 +40,7 @@ npm test
 npm run test:browser
 ```
 
-After changing source files, run `npm run build` and click **Reload** in `chrome://extensions`. `npm run build:css` rebuilds `styles/studash.css`; `npm run build:islands` rebuilds `islands/islands.js`. Both generated files are committed because extension pages load them directly. Set `CHROME_PATH` if the browser test cannot find Chrome automatically.
+After changing source files, run `npm run build` and click **Reload** in `chrome://extensions`. `npm run build:css` rebuilds `styles/studash.css`; `npm run build:islands` rebuilds `islands/islands.js`. Both generated files are committed because extension pages load them directly. The 1.3.0 stylesheet combines the supplied design in `styles/src/v1.3-base.css`, the shared context menu, and corrections in `styles/src/v1.3-fixes.css` using `scripts/build-css.mjs`. The Vazirmatn font files are bundled locally. Set `CHROME_PATH` if the browser test cannot find Chrome automatically.
 
 To load a source checkout, use **Load unpacked** on the repository root, where `manifest.json` lives. Do not select `node_modules` or a parent folder.
 

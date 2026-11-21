@@ -19,7 +19,7 @@ try {
 } finally {
   rmSync(profile, { recursive: true, force: true });
 }
-const m = html.match(/<pre id="results">([\s\S]*?)<\/pre>/);
+const m = html.match(/<pre id="results"[^>]*>([\s\S]*?)<\/pre>/);
 if (!m || !m[1]) { console.error("No results — page failed to run"); process.exit(1); }
 const results = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"));
 let failed = 0;

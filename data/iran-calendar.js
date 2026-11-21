@@ -334,7 +334,7 @@
     "1405-05-23": ["reza-martyrdom"],
     "1405-05-31": ["askari-martyrdom"],
     "1405-06-09": ["prophet-birth"],
-    "1405-08-23": ["fatima-martyrdom"],
+    "1405-08-22": ["fatima-martyrdom"],
     "1405-10-02": ["ali-birth"],
     "1405-10-16": ["mabath"],
     "1405-11-04": ["mahdi-birth"],

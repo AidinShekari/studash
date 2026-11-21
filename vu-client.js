@@ -36,14 +36,15 @@
     NO_CREDENTIALS: "هنوز به VU متصل نشده‌ای. نام کاربری و رمز عبور را وارد کن.",
     BAD_CREDENTIALS: "نام کاربری یا رمز عبور اشتباه است.",
     CAPTCHA: "سامانه ورود کد امنیتی (کپچا) خواسته. یک بار در تب جدید وارد VU شو و دوباره امتحان کن.",
+    NO_SESSION: "نشست سامانه منقضی شده. دوباره وارد حساب دانشگاه شو.",
+    HTTP: "سامانه دانشگاه موقتاً پاسخ معتبر نمی‌دهد. کمی بعد دوباره همگام‌سازی کن.",
+    TIMEOUT: "دریافت اطلاعات از سامانه طول کشید. دوباره امتحان کن.",
     NETWORK: "ارتباط با سامانه VU برقرار نشد. اتصال اینترنت یا VPN را بررسی کن.",
     UNKNOWN: "ورود به VU انجام نشد. کمی بعد دوباره امتحان کن.",
     BUSY: "همگام‌سازی دیگری در حال انجام است.",
   };
   const errorMessage = (err) =>
     (err && ERROR_MESSAGES[err.code]) || (err && err.message) || ERROR_MESSAGES.UNKNOWN;
-
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------------------------------------------------------------
   // Text helpers
@@ -167,21 +168,32 @@
     }
   }
 
-  async function fetchPage(url, options = {}) {
-    let res;
+  async function portalRequest(url, options, read) {
+    const timeout = AbortSignal.timeout(20000);
+    const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
     try {
-      res = await fetch(url, {
+      const response = await fetch(url, {
         credentials: "include",
         redirect: "follow",
         cache: "no-store",
         ...options,
+        signal,
       });
-    } catch (e) {
-      throw new VUError("NETWORK", e.message);
+      if (!response.ok) throw new VUError("HTTP", `HTTP ${response.status}`);
+      return await read(response);
+    } catch (error) {
+      if (error instanceof VUError) throw error;
+      if (timeout.aborted) throw new VUError("TIMEOUT");
+      throw new VUError("NETWORK", error.message);
     }
-    const text = decodeBody(await res.arrayBuffer(), res.headers.get("content-type") || "");
-    const doc = new DOMParser().parseFromString(text, "text/html");
-    return { url: res.url || url, status: res.status, text, doc };
+  }
+
+  async function fetchPage(url, options = {}) {
+    return portalRequest(url, options, async response => {
+      const text = decodeBody(await response.arrayBuffer(), response.headers.get("content-type") || "");
+      const doc = new DOMParser().parseFromString(text, "text/html");
+      return { url: response.url || url, status: response.status, text, doc };
+    });
   }
 
   function isLoginPage(url = "", doc = null) {
@@ -416,18 +428,15 @@
   // Moodle AJAX web services (same endpoints the VU dashboard uses)
   // ---------------------------------------------------------------
   async function ajax(sesskey, methodname, args) {
-    let res;
-    try {
-      res = await fetch(`${VU_ORIGIN}/lib/ajax/service.php?sesskey=${encodeURIComponent(sesskey)}&info=${methodname}`, {
+    const json = await portalRequest(
+      `${VU_ORIGIN}/lib/ajax/service.php?sesskey=${encodeURIComponent(sesskey)}&info=${methodname}`,
+      {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([{ index: 0, methodname, args }]),
-      });
-    } catch (e) {
-      throw new VUError("NETWORK", e.message);
-    }
-    const json = await res.json();
+      },
+      response => response.json()
+    );
     if (!Array.isArray(json)) throw new Error((json && (json.message || json.error)) || "AJAX error");
     const first = json[0];
     if (first.error) throw new Error((first.exception && first.exception.message) || "AJAX error");
@@ -436,6 +445,7 @@
 
   async function getCourses(session) {
     const seen = new Map();
+    let listError = null;
     for (const classification of ["inprogress"]) {
       try {
         const data = await ajax(session.sesskey, "core_course_get_enrolled_courses_by_timeline_classification", {
@@ -454,6 +464,7 @@
         }
         if (seen.size > 0) break;
       } catch (e) {
+        listError = e;
         console.warn("[VU] course list via AJAX failed", e);
       }
     }
@@ -467,6 +478,7 @@
         if (id && id !== "1" && name && !seen.has(id)) seen.set(id, { id, name, shortName: shortCourseName(name), url });
       }
     }
+    if (!seen.size && listError) throw listError;
     return [...seen.values()];
   }
 
@@ -582,7 +594,7 @@
   async function acquireLock() {
     const data = await store.get(STORAGE_KEYS.lock);
     const lock = data[STORAGE_KEYS.lock];
-    if (lock && Date.now() - lock < 3 * 60 * 1000) return false;
+    if (lock && Date.now() - lock < 10 * 60 * 1000) return false;
     await store.set({ [STORAGE_KEYS.lock]: Date.now() });
     return true;
   }
@@ -593,17 +605,28 @@
     return !t || t === "-" ? "" : t;
   };
 
-  async function syncAll({ force = false } = {}) {
-    if (!(await acquireLock())) {
-      if (!force) throw new VUError("BUSY");
-    }
+  let syncPromise = null;
+  function syncAll() {
+    if (syncPromise) return syncPromise;
+    const run = async lock => {
+      if (!lock) throw new VUError("BUSY");
+      return syncWithStorageLock();
+    };
+    const operation = global.navigator?.locks
+      ? global.navigator.locks.request("studash-vu-sync", { ifAvailable: true }, run)
+      : syncWithStorageLock();
+    syncPromise = operation.finally(() => { syncPromise = null; });
+    return syncPromise;
+  }
+
+  async function syncWithStorageLock() {
+    if (!(await acquireLock())) throw new VUError("BUSY");
     try {
       const prevData = (await store.get(STORAGE_KEYS.data))[STORAGE_KEYS.data] || {};
       const prevById = new Map((prevData.items || []).map((it) => [it.id, it]));
 
       const session = await ensureSession();
-      const courses = await getCourses(session);
-      const events = await getActionEvents(session);
+      const [courses, events] = await Promise.all([getCourses(session), getActionEvents(session)]);
       const eventByCmid = new Map();
       for (const ev of events) {
         if (ev.modulename !== "assign" && ev.modulename !== "quiz") continue;
@@ -612,19 +635,30 @@
       }
 
       const items = [];
+      const failedCourses = new Set();
+      let successfulIndexes = 0;
+      let firstIndexError = null;
       let detailFetches = 0;
       for (const course of courses) {
-        let assignments = [];
-        let quizzes = [];
-        try {
-          assignments = await getCourseAssignments(course.id);
-          await sleep(200);
-          quizzes = await getCourseQuizzes(course.id);
-          await sleep(200);
-        } catch (e) {
-          console.warn("[VU] course scrape failed", course.id, e);
-          continue;
-        }
+        const results = await Promise.allSettled([
+          getCourseAssignments(course.id),
+          getCourseQuizzes(course.id),
+        ]);
+        const readResult = (result, type) => {
+          if (result.status === "fulfilled") {
+            successfulIndexes++;
+            return result.value;
+          }
+          if (result.reason?.code === "NO_SESSION") throw result.reason;
+          firstIndexError ||= result.reason;
+          failedCourses.add(course.id);
+          items.push(...(prevData.items || []).filter(item =>
+            String(item.courseId) === String(course.id) && item.type === type
+          ));
+          return [];
+        };
+        const assignments = readResult(results[0], "assign");
+        const quizzes = readResult(results[1], "quiz");
 
         for (const a of assignments) {
           const id = `assign-${a.cmid}`;
@@ -645,8 +679,14 @@
                 due = parsed ? parsed.getTime() : null;
               }
               gradeText = gradeText || details.gradeText;
-              await sleep(200);
-            } catch (e) {}
+
+            } catch (e) {
+              if (e.code === "NO_SESSION") throw e;
+              failedCourses.add(course.id);
+              const previous = prevById.get(id);
+              if (submission === "unknown" && previous) submission = previous.submission;
+              if (!due && previous) { due = previous.due; dueText = previous.dueText; }
+            }
           }
           if (submission === "unknown" && ev) submission = "new"; // open action ⇒ not submitted yet
 
@@ -709,7 +749,9 @@
         });
       }
 
+      if (courses.length && !successfulIndexes) throw firstIndexError || new VUError("NETWORK");
       const vuData = {
+        syncWarnings: [...failedCourses],
         lastSync: Date.now(),
         fullName: session.fullName || prevData.fullName || "",
         courses,
@@ -741,7 +783,7 @@
     return "pending";
   }
 
-  const faNum = (n) => toEnglishDigits(String(n));
+  const faNum = (n) => String(n).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 
   // { text, level: "overdue" | "urgent" (<24h) | "soon" (<3d) | "normal" | "none" }
   function formatTimeLeft(due, now = Date.now()) {
@@ -760,7 +802,7 @@
     return { text: `${span} مانده`, level: hours < 24 ? "urgent" : days < 3 ? "soon" : "normal" };
   }
 
-  const shamsiFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
+  const shamsiFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     weekday: "long",
     day: "numeric",
     month: "long",
