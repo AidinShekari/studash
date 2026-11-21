@@ -4,6 +4,36 @@
   const button = document.getElementById("updatesRefreshBtn");
   if (!list || !status || !button) return;
   let busy = false;
+  const control = document.getElementById("updatesControl");
+  const trigger = document.getElementById("updatesTriggerBtn");
+  const panel = document.getElementById("updatesSection");
+
+  function setOpen(open) {
+    panel.hidden = !open;
+    trigger.setAttribute("aria-expanded", String(open));
+  }
+  if (control && trigger && panel) {
+    trigger.addEventListener("click", () => {
+      const open = panel.hidden;
+      if (open) {
+        for (const [menuId, triggerId] of [["notifDropdownMenu", "notifTriggerBtn"], ["quickToolsMenu", "quickToolsTriggerBtn"], ["weatherPopover", "weatherAdvicePill"]]) {
+          const menu = document.getElementById(menuId);
+          if (menu) menu.hidden = true;
+          document.getElementById(triggerId)?.setAttribute("aria-expanded", "false");
+        }
+      }
+      setOpen(open);
+    });
+    document.addEventListener("click", event => {
+      if (!control.contains(event.target)) setOpen(false);
+    }, true);
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !panel.hidden) {
+        setOpen(false);
+        trigger.focus({ preventScroll: true });
+      }
+    });
+  }
 
   function render(items) {
     const fragment = document.createDocumentFragment();

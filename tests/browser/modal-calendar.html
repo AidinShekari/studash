@@ -137,11 +137,41 @@ async function test(name, run) {
         assert(controls.every(Boolean), 'visible course control missing');
         const boxes = controls.map(control => control.getBoundingClientRect());
         assert(boxes.every(box => Math.abs(box.height - 42) < 1), id + ': control heights differ ' + boxes.map(box => box.height));
-        assert(Math.abs(boxes[0].width - boxes[1].width) < 1, id + ': field widths differ');
+        if (id === 'classDialog') assert(Math.abs(boxes[0].width - boxes[1].width) < 1, id + ': field widths differ');
+        else assert(Math.abs(boxes[1].width - boxes[2].width) < 1, id + ': type and date widths differ ' + boxes.map(box => box.width).join(','));
         for (const row of dialog.querySelectorAll('.form-row')) {
           if (row.getBoundingClientRect().height) assert(row.scrollWidth <= row.clientWidth + 1, id + ': field row overflow');
         }
       } finally { dialog.close(); dialog.getAnimations().forEach(animation => animation.finish()); }
+    }
+  });
+
+  await test('course tabs stay in one row and exam fields form consistent rows without overflowing', () => {
+    const dialog = document.getElementById('courseHubDialog');
+    dialog.showModal();
+    try {
+      dialog.getAnimations().forEach(animation => animation.finish());
+      const nav = dialog.querySelector('.course-hub-nav');
+      const tabs = [...nav.querySelectorAll('.hub-tab-btn')];
+      const top = tabs[0].getBoundingClientRect().top;
+      assert(tabs.every(tab => Math.abs(tab.getBoundingClientRect().top - top) < 1), 'course tabs wrap onto multiple rows');
+      assert(nav.scrollWidth > 0 && nav.clientWidth > 0, 'navigation is hidden');
+      dialog.querySelector('#tabContentTasks').classList.remove('active');
+      const exams = dialog.querySelector('#tabContentExams');
+      exams.classList.add('active');
+      for (const row of exams.querySelectorAll('.form-row')) {
+        assert(row.scrollWidth <= row.clientWidth + 1, 'exam form row overflows');
+      }
+      const controls = [...exams.querySelectorAll('input:not(.sd-native-hidden), .select__trigger, .date-input-group')]
+        .filter(control => control.getBoundingClientRect().height);
+      assert(controls.length >= 5, 'exam controls missing');
+      assert(controls.every(control => Math.abs(control.getBoundingClientRect().height - 42) < 1), 'exam control heights differ');
+      const syllabus = exams.querySelector('#hubExamSyllabus');
+      assert(syllabus.closest('.form-row').nextElementSibling.classList.contains('hub-form-actions'), 'exam submit crowds the syllabus');
+    } finally {
+      dialog.querySelector('#tabContentExams').classList.remove('active');
+      dialog.querySelector('#tabContentTasks').classList.add('active');
+      dialog.close();
     }
   });
 

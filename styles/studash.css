@@ -2911,3 +2911,127 @@ body { min-inline-size: 0; }
 @media (prefers-reduced-motion: reduce) {
   :is(.notif-dropdown-menu, .quick-tools-menu, .weather-popover) { transition: none !important; }
 }
+
+/* Latest updates live beside a compact top-right trigger. */
+.updates-control {
+  position: relative;
+  align-self: flex-start;
+  z-index: 110;
+}
+.updates-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  inline-size: auto;
+  min-block-size: 40px;
+  padding-inline: 12px;
+  color: var(--foreground);
+  font: 600 13px/1.4 var(--font-sans);
+  white-space: nowrap;
+}
+.updates-trigger > svg { flex: none; }
+.updates-control .updates-section {
+  position: absolute;
+  inset-block-start: calc(100% + 10px);
+  inset-inline-start: 0;
+  inline-size: min(380px, calc(100vw - 48px));
+  box-sizing: border-box;
+  max-block-size: min(560px, calc(100dvh - 110px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--overlay, var(--surface));
+  color: var(--foreground);
+  box-shadow: var(--overlay-shadow);
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  transform-origin: top right;
+  transition: opacity 160ms ease, scale 200ms ease, translate 200ms ease, display 200ms allow-discrete;
+}
+.updates-control .updates-section[hidden] {
+  display: none;
+  opacity: 0;
+  scale: 0.96;
+  translate: 0 -6px;
+  pointer-events: none;
+}
+@starting-style {
+  .updates-control .updates-section:not([hidden]) { opacity: 0; scale: 0.96; translate: 0 -6px; }
+}
+.updates-control .updates-header { align-items: start; }
+.updates-control .updates-header h2 { font-size: 14px; }
+.updates-control .updates-actions { gap: 8px 12px; font-size: 12px; }
+.updates-control .updates-list { display: flex; flex-direction: column; gap: 0; }
+.updates-control .updates-item { padding: 12px 0; border: 0; border-radius: 0; }
+.updates-control .updates-item + .updates-item { border-block-start: 1px solid var(--border); }
+.updates-control .updates-item p { font-size: 12px; }
+
+/* Keep course navigation together, followed by consistently labeled form rows. */
+#courseHubDialog .course-hub-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  flex: none;
+}
+#courseHubDialog .course-hub-nav > .hub-tab-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 42px;
+  padding: 8px 12px;
+  gap: 4px;
+  line-height: 1.4;
+}
+#courseHubDialog .hub-tab-content {
+  min-inline-size: 0;
+  padding: 0;
+}
+#courseHubDialog :is(.hub-task-form, .hub-exam-form, .hub-link-form) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+#courseHubDialog :is(.hub-task-form, .hub-exam-form, .hub-link-form) .form-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+}
+#courseHubDialog .hub-task-form .hub-task-title-row,
+#courseHubDialog .hub-exam-form .form-row:has(#hubExamSyllabus) { grid-template-columns: minmax(0, 1fr); }
+#courseHubDialog .hub-form-actions { display: flex; justify-content: flex-end; gap: 10px; }
+#courseHubDialog .hub-form-actions > button { min-block-size: 42px; }
+#courseHubDialog .hub-exam-form .form-row:has(#hubExamDate) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+:is(#classDialog, #courseHubDialog) .form-group > span:first-child {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#classDialog .form-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#classDialog .form-row:has(#colorPalette) > :last-child { grid-column: 1 / -1; }
+#classDialog .session-fields .form-row:last-child { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#classDialog .sessions-header { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+@media (max-width: 600px) {
+  #courseHubDialog :is(.hub-task-form, .hub-exam-form, .hub-link-form) .form-row,
+  #courseHubDialog .hub-exam-form .form-row:has(#hubExamDate),
+  #classDialog .form-row,
+  #classDialog .session-fields .form-row:last-child { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .updates-control .updates-section { transition: none; }
+}
+:is(#classDialog, #courseHubDialog) .sd-island--date > .date-picker {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+}

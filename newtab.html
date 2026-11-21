@@ -17,6 +17,29 @@
 
   <div class="page">
 
+    <div class="updates-control" id="updatesControl">
+      <button type="button" class="profile-edit-btn updates-trigger" id="updatesTriggerBtn"
+        aria-label="آخرین آپدیت‌های StuDash" aria-expanded="false" aria-controls="updatesSection" title="آخرین آپدیت‌ها">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 10v4h4l9 5V5l-9 5H4Z"/><path d="m8 14 1 6H6l-1-6M20 9v6"/>
+        </svg>
+        <span>آپدیت‌ها</span>
+      </button>
+      <section class="updates-section" id="updatesSection" aria-labelledby="updatesTitle" hidden>
+            <header class="updates-header">
+              <h2 id="updatesTitle">آخرین آپدیت‌های StuDash</h2>
+              <div class="updates-actions">
+                <a href="https://t.me/StuDash" target="_blank" rel="noopener noreferrer">کانال تلگرام</a>
+                <a href="https://github.com/AidinShekari/studash/blob/main/data/announcements.json" target="_blank" rel="noopener noreferrer">اعلان‌ها در گیت‌هاب</a>
+                <button type="button" class="ghost-btn-sm" id="updatesRefreshBtn">به‌روزرسانی</button>
+              </div>
+            </header>
+            <p class="updates-status" id="updatesStatus" role="status">در حال دریافت آخرین آپدیت‌ها…</p>
+            <ul class="updates-list" id="updatesList" aria-label="اعلان‌های StuDash"></ul>
+          </section>
+    </div>
+
+
     <!-- UPCOMING EXAM 7-DAY REMINDER BANNER -->
     <div id="examReminderBanner" class="exam-reminder-banner" hidden></div>
 
@@ -461,19 +484,6 @@
           <span class="chip__label" id="personalGcalStatusText">Google Calendar همگام است</span>
         </span>
       </footer>
-    </section>
-
-    <section class="card card--default sd-card updates-section" id="updatesSection" aria-labelledby="updatesTitle">
-      <header class="updates-header">
-        <h2 id="updatesTitle">آخرین آپدیت‌های StuDash</h2>
-        <div class="updates-actions">
-          <a href="https://t.me/StuDash" target="_blank" rel="noopener noreferrer">کانال تلگرام</a>
-          <a href="https://github.com/AidinShekari/studash/blob/main/data/announcements.json" target="_blank" rel="noopener noreferrer">اعلان‌ها در گیت‌هاب</a>
-          <button type="button" class="ghost-btn-sm" id="updatesRefreshBtn">به‌روزرسانی</button>
-        </div>
-      </header>
-      <p class="updates-status" id="updatesStatus" role="status">در حال دریافت آخرین آپدیت‌ها…</p>
-      <ul class="updates-list" id="updatesList" aria-label="اعلان‌های StuDash"></ul>
     </section>
 
     <!-- APP FOOTER & COPYRIGHT -->
@@ -1156,16 +1166,29 @@
       <!-- Tab 1: Tasks & Assignments -->
       <section class="hub-tab-content active" id="tabContentTasks" role="tabpanel" aria-labelledby="hubTab-tasks">
         <form id="hubTaskForm" class="hub-task-form">
+          <div class="form-row hub-task-title-row">
+            <label class="form-group">
+              <span>عنوان تکلیف *</span>
+              <input type="text" id="hubTaskTitle" placeholder="عنوان تکلیف، تمرین یا پروژه جدید…" required autocomplete="off" />
+            </label>
+          </div>
           <div class="form-row">
-            <input type="text" id="hubTaskTitle" placeholder="عنوان تکلیف، تمرین یا پروژه جدید…" required autocomplete="off" class="flex-2" />
-            <select id="hubTaskType" class="flex-1">
+            <label class="form-group">
+              <span>نوع تکلیف</span>
+              <select id="hubTaskType">
               <option value="assignment">📝 تمرین / حل‌تمرین</option>
               <option value="project">💻 پروژه / فاز</option>
               <option value="quiz">🎯 کوئیز / آزمونک</option>
               <option value="report">📄 گزارش آزمایشگاه</option>
               <option value="other">📌 سایر موارد</option>
-            </select>
-            <input type="date" id="hubTaskDueDate" class="flex-1" title="تاریخ تحویل" />
+              </select>
+            </label>
+            <label class="form-group">
+              <span>تاریخ تحویل</span>
+              <input type="date" id="hubTaskDueDate" title="تاریخ تحویل" />
+            </label>
+          </div>
+          <div class="hub-form-actions">
             <button type="submit" class="primary-btn">+ ثبت تکلیف</button>
           </div>
         </form>
@@ -1239,9 +1262,9 @@
               <span>سرفصل‌ها و مباحث امتحانی (اختیاری)</span>
               <input type="text" id="hubExamSyllabus" placeholder="مثلاً: فصل ۱ و ۲ کتاب، جزوه جلسات ۳ تا ۶" autocomplete="off" />
             </label>
-            <div class="form-group flex-1 sd-form-submit">
-              <button type="submit" class="primary-btn">+ ثبت آزمون</button>
-            </div>
+          </div>
+          <div class="hub-form-actions">
+            <button type="submit" class="primary-btn">+ ثبت آزمون</button>
           </div>
         </form>
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><meta charset="utf-8"><body>
+<html lang="fa" dir="rtl"><meta charset="utf-8"><link rel="stylesheet" href="../../styles/studash.css"><body>
 <script>
 const results = [];
 function assert(value, message) { if (!value) throw new Error(message); }
@@ -13,7 +13,10 @@ window.chrome = { runtime: {
 } };
 (async () => {
   const parsed = new DOMParser().parseFromString(await (await fetch('../../newtab.html')).text(), 'text/html');
-  document.body.append(document.importNode(parsed.getElementById('updatesSection'), true));
+  const page = document.createElement('div');
+  page.className = 'page';
+  page.append(document.importNode(parsed.getElementById('updatesControl'), true));
+  document.body.append(page);
   const script = document.createElement('script'); script.src = '../../updates-ui.js';
   document.body.append(script);
   await new Promise(resolve => script.onload = resolve);
@@ -22,6 +25,23 @@ window.chrome = { runtime: {
     try { run(); results.push({name,ok:true}); }
     catch (error) { results.push({name,ok:false,error:error.message}); }
   }
+  test('updates open as a top-right dropdown list and dismiss with Escape or outside click', () => {
+    const trigger = document.getElementById('updatesTriggerBtn');
+    const panel = document.getElementById('updatesSection');
+    assert(parsed.querySelector('.page').firstElementChild.id === 'updatesControl', 'updates remain at the bottom');
+    assert(panel.hidden && trigger.querySelector('svg'), 'updates trigger or initial state missing');
+    trigger.click();
+    panel.getAnimations().forEach(animation => animation.finish());
+    assert(!panel.hidden && trigger.getAttribute('aria-expanded') === 'true', 'updates did not open');
+    assert(getComputedStyle(document.getElementById('updatesList')).flexDirection === 'column', 'updates are not a list');
+    const box = panel.getBoundingClientRect();
+    assert(box.left >= 0 && box.right <= innerWidth + 1, 'updates overflow the viewport');
+    document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+    assert(panel.hidden && document.activeElement === trigger, 'Escape did not return focus');
+    trigger.click();
+    document.body.click();
+    assert(panel.hidden, 'outside click did not dismiss updates');
+  });
   test('remote announcements render as text and cannot inject HTML', () => {
     const list = document.getElementById('updatesList');
     assert(list.querySelector('h3').textContent === response.items[0].title, 'remote title missing');
