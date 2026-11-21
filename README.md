@@ -69,3 +69,7 @@ The UI uses HeroUI v3 styles and a small React island for select and date contro
 ## Credits
 
 Originally developed by Iliya Abdollahzadeh ([email](mailto:iliyaabdollahzade@gmail.com)).
+
+## Publish dashboard announcements
+
+Edit [data/announcements.json](data/announcements.json) on the repository's main branch and push the change. The dashboard reads that public file and caches it for 30 minutes. Its refresh button checks immediately. Each announcement has a unique `id`, an ISO `date` such as `2026-11-21`, a `title`, and a plain-text `body`. Up to six entries appear, newest first. Publish an empty `announcements` array to clear the list. Cached entries and the bundled feed remain available when GitHub cannot be reached.

@@ -10,7 +10,7 @@
     "watch:css": "node scripts/build-css.mjs --watch",
     "build:islands": "esbuild islands/src/index.jsx --bundle --minify --format=iife --target=chrome120 --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --legal-comments=linked --outfile=islands/islands.js",
     "test": "node --test tests/*.test.js",
-    "test:browser": "node tests/browser/run.mjs && node tests/browser/run.mjs tests/browser/vu-dashboard.html && node tests/browser/run.mjs tests/browser/context-menu.html && node tests/browser/run.mjs tests/browser/modal-calendar.html && node tests/browser/run.mjs tests/browser/portal-sync.html"
+    "test:browser": "node tests/browser/run.mjs && node tests/browser/run.mjs tests/browser/vu-dashboard.html && node tests/browser/run.mjs tests/browser/context-menu.html && node tests/browser/run.mjs tests/browser/modal-calendar.html && node tests/browser/run.mjs tests/browser/portal-sync.html && node tests/browser/run.mjs tests/browser/updates.html"
   },
   "devDependencies": {
     "@fontsource/estedad": "^5.3.0",

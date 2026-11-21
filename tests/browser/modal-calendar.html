@@ -107,6 +107,69 @@ async function test(name, run) {
     } finally { dialog.close(); }
   });
 
+  await test('opening and closing a modal preserves the page width and horizontal position', () => {
+    const spacer = document.createElement('div');
+    spacer.style.cssText = 'height:3000px;width:80%;margin:auto';
+    document.body.prepend(spacer);
+    const dialog = document.getElementById('classDialog');
+    const before = spacer.getBoundingClientRect();
+    dialog.showModal();
+    dialog.getAnimations().forEach(animation => animation.finish());
+    const during = spacer.getBoundingClientRect();
+    assert(Math.abs(before.width - during.width) < 1 && Math.abs(before.left - during.left) < 1, 'page shifted when modal opened');
+    dialog.close();
+    dialog.getAnimations().forEach(animation => animation.finish());
+    const after = spacer.getBoundingClientRect();
+    assert(Math.abs(before.width - after.width) < 1 && Math.abs(before.left - after.left) < 1, 'page shifted when modal closed');
+    spacer.remove();
+  });
+
+  await test('course inputs, selectors and date controls share a common height and equal column widths', () => {
+    for (const id of ['classDialog', 'courseHubDialog']) {
+      const dialog = document.getElementById(id);
+      dialog.showModal();
+      try {
+        dialog.getAnimations().forEach(animation => animation.finish());
+        const selectors = id === 'classDialog'
+          ? ['#className', '#classInstructor', '#classUnits + .sd-island .select__trigger', '#classWeekType + .sd-island .select__trigger']
+          : ['#hubTaskTitle', '#hubTaskType + .sd-island .select__trigger', '#hubTaskDueDate + .sd-island .date-input-group'];
+        const controls = selectors.map(selector => dialog.querySelector(selector));
+        assert(controls.every(Boolean), 'visible course control missing');
+        const boxes = controls.map(control => control.getBoundingClientRect());
+        assert(boxes.every(box => Math.abs(box.height - 42) < 1), id + ': control heights differ ' + boxes.map(box => box.height));
+        assert(Math.abs(boxes[0].width - boxes[1].width) < 1, id + ': field widths differ');
+        for (const row of dialog.querySelectorAll('.form-row')) {
+          if (row.getBoundingClientRect().height) assert(row.scrollWidth <= row.clientWidth + 1, id + ': field row overflow');
+        }
+      } finally { dialog.close(); dialog.getAnimations().forEach(animation => animation.finish()); }
+    }
+  });
+
+  await test('notification, tools and weather menus animate both opening and dismissal', async () => {
+    for (const selector of ['.notif-dropdown-menu', '.quick-tools-menu', '.weather-popover']) {
+      const menu = document.importNode(parsed.querySelector(selector), true);
+      document.body.append(menu);
+      try {
+        menu.hidden = true;
+        getComputedStyle(menu).display;
+        menu.hidden = false;
+        getComputedStyle(menu).opacity;
+        await wait(30);
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          assert(menu.getAnimations().some(animation => animation.transitionProperty === 'scale'), selector + ': opening animation missing');
+        }
+        menu.getAnimations().forEach(animation => animation.finish());
+        menu.hidden = true;
+        getComputedStyle(menu).opacity;
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          assert(menu.getAnimations().some(animation => animation.transitionProperty === 'scale'), selector + ': closing animation missing');
+        }
+        menu.getAnimations().forEach(animation => animation.finish());
+        assert(getComputedStyle(menu).display === 'none', selector + ': closed menu still visible');
+      } finally { menu.remove(); }
+    }
+  });
+
   await test('a dropdown in the modal uses the same top-layer overlay container', async () => {
     const dialog = document.getElementById('classDialog');
     dialog.showModal();

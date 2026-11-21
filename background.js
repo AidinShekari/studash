@@ -6,6 +6,7 @@
 importScripts("jalali.js");
 importScripts("notifications.js");
 importScripts("weather.js");
+importScripts("repository-updates.js");
 
 const DEFAULT_TIMER_STATE = {
   isRunning: false,
@@ -282,6 +283,11 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 // Runtime Messages
 // ---------------------------------------------------------------
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.action === "GET_STUDASH_UPDATES") {
+    if (!sender.url?.startsWith(chrome.runtime.getURL(""))) return false;
+    StudashUpdates.get(message.force === true).then(sendResponse, () => sendResponse({ items: [], stale: true }));
+    return true;
+  }
   if (message && (message.target === "offscreen" || String(message.action || "").startsWith("VU_"))) return false;
   (async () => {
     let state = await getTimerState();

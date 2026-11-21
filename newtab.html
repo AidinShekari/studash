@@ -463,6 +463,19 @@
       </footer>
     </section>
 
+    <section class="card card--default sd-card updates-section" id="updatesSection" aria-labelledby="updatesTitle">
+      <header class="updates-header">
+        <h2 id="updatesTitle">آخرین آپدیت‌های StuDash</h2>
+        <div class="updates-actions">
+          <a href="https://t.me/StuDash" target="_blank" rel="noopener noreferrer">کانال تلگرام</a>
+          <a href="https://github.com/AidinShekari/studash/blob/main/data/announcements.json" target="_blank" rel="noopener noreferrer">اعلان‌ها در گیت‌هاب</a>
+          <button type="button" class="ghost-btn-sm" id="updatesRefreshBtn">به‌روزرسانی</button>
+        </div>
+      </header>
+      <p class="updates-status" id="updatesStatus" role="status">در حال دریافت آخرین آپدیت‌ها…</p>
+      <ul class="updates-list" id="updatesList" aria-label="اعلان‌های StuDash"></ul>
+    </section>
+
     <!-- APP FOOTER & COPYRIGHT -->
     <footer class="app-footer">
       <div class="footer-inner">
@@ -703,6 +716,11 @@
               <p>آزمایشگاه ایده با هوش مصنوعی، یادداشت‌های سریع و هاب ابزارهای AI</p>
             </div>
           </div>
+        </div>
+
+        <div class="onboard-channel">
+          <span>اخبار، آموزش و آخرین به‌روزرسانی‌های StuDash</span>
+          <a href="https://t.me/StuDash" target="_blank" rel="noopener noreferrer" dir="ltr">@StuDash · Telegram</a>
         </div>
 
         <div class="onboard-actions">
@@ -2173,6 +2191,7 @@
   <script src="app.js"></script>
   <script src="context-menu.js"></script>
   <script src="appearance.js"></script>
+  <script src="updates-ui.js"></script>
   <!-- HeroUI Select + Persian DatePicker (React island, built from islands/src) -->
   <script src="islands/islands.js"></script>
 </body>

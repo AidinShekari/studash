@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><meta charset="utf-8"><body>
+<script>
+const results = [];
+function assert(value, message) { if (!value) throw new Error(message); }
+const response = { items: [{ id: 'remote', date: '2026-11-21', title: '<img src=x onerror=alert(1)>', body: '<script>window.feedExecuted=true;<\/script>' }], stale: false };
+window.chrome = { runtime: {
+  getURL: path => '../../' + path,
+  sendMessage: async message => {
+    window.updateRequest = message;
+    return response;
+  },
+} };
+(async () => {
+  const parsed = new DOMParser().parseFromString(await (await fetch('../../newtab.html')).text(), 'text/html');
+  document.body.append(document.importNode(parsed.getElementById('updatesSection'), true));
+  const script = document.createElement('script'); script.src = '../../updates-ui.js';
+  document.body.append(script);
+  await new Promise(resolve => script.onload = resolve);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  function test(name, run) {
+    try { run(); results.push({name,ok:true}); }
+    catch (error) { results.push({name,ok:false,error:error.message}); }
+  }
+  test('remote announcements render as text and cannot inject HTML', () => {
+    const list = document.getElementById('updatesList');
+    assert(list.querySelector('h3').textContent === response.items[0].title, 'remote title missing');
+    assert(!list.querySelector('img, script') && !window.feedExecuted, 'remote markup executed');
+    assert(list.querySelector('time').dateTime === '2026-11-21', 'date missing');
+  });
+  response.stale = true; response.items = [];
+  document.getElementById('updatesRefreshBtn').click();
+  await new Promise(resolve => setTimeout(resolve, 50));
+  test('refresh requests fresh GitHub content and keeps previous entries offline', () => {
+    assert(window.updateRequest.force === true, 'refresh used cached request');
+    assert(document.querySelectorAll('#updatesList li').length === 1, 'cached entry disappeared');
+    assert(document.getElementById('updatesStatus').textContent.includes('ذخیره'), 'offline status missing');
+  });
+  response.stale = false;
+  document.getElementById('updatesRefreshBtn').click();
+  await new Promise(resolve => setTimeout(resolve, 50));
+  test('an empty published feed clears entries and restores the refresh control', () => {
+    assert(!document.querySelector('#updatesList li'), 'empty publication did not clear old items');
+    assert(!document.getElementById('updatesRefreshBtn').disabled, 'refresh left disabled');
+  });
+  test('first-run introduction includes the official Telegram channel', () => {
+    assert(parsed.querySelector('#onboardDialog a[href="https://t.me/StuDash"]'), 'first-run channel link missing');
+  });
+  const output = document.createElement('pre'); output.id = 'results';
+  output.textContent = JSON.stringify(results); document.body.append(output);
+})().catch(error => {
+  const output = document.createElement('pre'); output.id = 'results';
+  output.textContent = JSON.stringify([{name:'updates UI',ok:false,error:error.message}]); document.body.append(output);
+});
+</script>
+</body></html>
