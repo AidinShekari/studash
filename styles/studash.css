@@ -3155,3 +3155,10 @@ body { min-inline-size: 0; }
 .preset-site-icon { display: inline-flex; align-items: center; justify-content: center; inline-size: 18px; block-size: 18px; flex: none; }
 .preset-site-icon > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .hub-link-favicon img { object-fit: contain; }
+
+/* Submitted work stays readable; its status chip carries the completion state. */
+.vu-row-submitted td,
+.vu-sched-submitted,
+.vu-sidebar-done { opacity: 1; }
+.vu-row-submitted .vu-td-title a,
+.vu-sched-submitted .vu-sched-title { text-decoration: none; }
