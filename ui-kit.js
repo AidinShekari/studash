@@ -198,6 +198,15 @@
       const opener = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
       enhanceDialog(this);
       nativeShowModal.apply(this, args);
+      if (opener && !opener.closest("dialog")) {
+        const source = opener.getBoundingClientRect();
+        const target = this.getBoundingClientRect();
+        const x = Math.max(10, Math.min(90, (source.left + source.width / 2 - target.left) / target.width * 100));
+        const y = Math.max(10, Math.min(90, (source.top + source.height / 2 - target.top) / target.height * 100));
+        this.style.setProperty("--sd-morph-origin", `${x}% ${y}%`);
+      } else {
+        this.style.removeProperty("--sd-morph-origin");
+      }
       this._sdOpener = opener;
       focusInitial(this);
     };

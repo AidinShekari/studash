@@ -39,6 +39,25 @@ async function test(name, run) {
   document.body.dataset.phase = "mounted";
   await wait(250);
 
+  await test('modal morph animates both ways while close state and reopening stay immediate', async () => {
+    const dialog = document.getElementById('pinDialog');
+    dialog.showModal();
+    getComputedStyle(dialog).opacity;
+    await wait(30);
+    const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (motion) assert(dialog.getAnimations().some(animation => animation.transitionProperty === 'transform'), 'opening morph missing');
+    dialog.getAnimations().forEach(animation => animation.finish());
+    assert(getComputedStyle(dialog).transform === 'none', 'settled modal changes picker coordinates');
+    dialog.close('done');
+    assert(!dialog.open && dialog.returnValue === 'done', 'closing delayed native dialog state');
+    getComputedStyle(dialog).opacity;
+    if (motion) assert(dialog.getAnimations().some(animation => animation.transitionProperty === 'transform'), 'closing morph missing');
+    dialog.showModal();
+    assert(dialog.open, 'reopening during closing animation failed');
+    await wait(260);
+    dialog.close();
+  });
+
   await test('modal footer buttons have a visible gap at the current viewport width', () => {
     for (const id of ['pinDialog', 'classDialog', 'vuLoginDialog', 'pooyaDialog']) {
       const dialog = document.getElementById(id);
@@ -60,6 +79,7 @@ async function test(name, run) {
     const dialog = document.getElementById('courseHubDialog');
     dialog.showModal();
     try {
+      dialog.getAnimations().forEach(animation => animation.finish());
       const date = dialog.querySelector('#hubTaskDueDate');
       date.value = '2026-11-21';
       await wait(100);
