@@ -383,3 +383,90 @@ body { min-inline-size: 0; }
   text-overflow: ellipsis;
 }
 #courseHubDialog .course-hub-nav > .hub-tab-btn { font-size: 12px; padding-inline: 8px; gap: 3px; }
+
+/* Give the initial course workspace two sections per navigation row. */
+#courseHubDialog .course-hub-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 20px;
+  overflow: visible;
+}
+#courseHubDialog .course-hub-nav > .hub-tab-btn {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 10px 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  min-block-size: 42px;
+}
+#courseHubDialog .course-hub-nav > .hub-tab-btn[aria-selected="true"] {
+  background: var(--accent-soft);
+  border-color: var(--border);
+  color: var(--accent-soft-foreground);
+}
+.sd-modal .sd-modal__subheader { margin-block-end: 0; }
+.sd-modal .sd-modal__body { padding-block: 20px; }
+#courseHubDialog .sd-modal__body { padding: 20px; gap: 20px; }
+#courseHubDialog .hub-tab-content.active { gap: 18px; }
+.sd-modal :is(.hub-notes-header, .sessions-header, .settings-section-header) {
+  margin-block-end: 8px;
+}
+.sd-modal :is(.hub-tasks-list, .hub-exams-list, .hub-links-grid) { margin-block: 0; }
+.sd-modal :is(.sd-modal__footer, .hub-form-actions) { row-gap: 10px; }
+
+/* The welcome features use the same two-column rhythm. */
+#onboardDialog { --sd-modal-width: 44rem; }
+#onboardDialog .onboard-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+#onboardDialog .onboard-form > :is(.onboard-features, .onboard-channel, .onboard-actions) {
+  grid-column: 1 / -1;
+}
+#onboardDialog .onboard-form > .form-group { min-inline-size: 0; }
+#onboardDialog .onboard-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+#onboardDialog .onboard-feat-item { min-inline-size: 0; gap: 8px; }
+#onboardDialog .onboard-feat-item > div { min-inline-size: 0; }
+#onboardDialog .onboard-feat-item p { line-height: 1.7; }
+
+/* Center the actual value text, including empty select placeholders, in every island. */
+.sd-island .select__trigger { align-items: center; }
+.sd-island .select__trigger .select__value {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  min-inline-size: 0;
+  line-height: 1.4;
+  font-family: inherit;
+  margin-block: 0;
+  padding-block: 0;
+}
+.sd-island .select__value > [data-placeholder] { align-self: center; }
+.updates-control .updates-trigger {
+  inline-size: max-content !important;
+  max-inline-size: 100%;
+  box-sizing: border-box;
+  background: var(--surface-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  opacity: 1;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.updates-control .updates-trigger:is(:hover, :focus-visible, [aria-expanded="true"]) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-soft-foreground);
+}
+@media (max-width: 480px) {
+  #onboardDialog .onboard-form { grid-template-columns: minmax(0, 1fr); }
+  #onboardDialog .onboard-feat-item { flex-direction: column; }
+  #courseHubDialog .course-hub-nav { padding-inline: 16px; }
+}

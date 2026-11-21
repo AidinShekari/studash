@@ -31,6 +31,7 @@ window.chrome = { runtime: {
     assert(parsed.querySelector('.page').firstElementChild.id === 'updatesControl', 'updates remain at the bottom');
     assert(panel.hidden && trigger.querySelector('svg'), 'updates trigger or initial state missing');
     assert(trigger.scrollWidth <= trigger.clientWidth + 1, 'updates label spills outside its button');
+    assert(getComputedStyle(trigger).backgroundColor !== 'rgba(0, 0, 0, 0)', 'updates button has no full-width background');
     trigger.click();
     panel.getAnimations().forEach(animation => animation.finish());
     assert(!panel.hidden && trigger.getAttribute('aria-expanded') === 'true', 'updates did not open');

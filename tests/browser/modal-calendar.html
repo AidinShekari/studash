@@ -28,7 +28,7 @@ async function test(name, run) {
   document.body.dataset.phase = "fetch";
   const html = await (await fetch('../../newtab.html')).text();
   const parsed = new DOMParser().parseFromString(html, 'text/html');
-  for (const id of ['courseHubDialog', 'pinDialog', 'classDialog', 'vuLoginDialog', 'pooyaDialog']) {
+  for (const id of ['courseHubDialog', 'pinDialog', 'classDialog', 'vuLoginDialog', 'pooyaDialog', 'onboardDialog']) {
     document.body.append(document.importNode(parsed.getElementById(id), true));
   }
   SDUI.enhanceDialogs();
@@ -153,16 +153,17 @@ async function test(name, run) {
     }
   });
 
-  await test('course tabs stay in one row and exam fields form consistent rows without overflowing', () => {
+  await test('course navigation has two items per row with space before the exam form', () => {
     const dialog = document.getElementById('courseHubDialog');
     dialog.showModal();
     try {
       dialog.getAnimations().forEach(animation => animation.finish());
       const nav = dialog.querySelector('.course-hub-nav');
       const tabs = [...nav.querySelectorAll('.hub-tab-btn')];
-      const top = tabs[0].getBoundingClientRect().top;
-      assert(tabs.every(tab => Math.abs(tab.getBoundingClientRect().top - top) < 1), 'course tabs wrap onto multiple rows');
-      assert(nav.scrollWidth > 0 && nav.clientWidth > 0, 'navigation is hidden');
+      const boxes = tabs.map(tab => tab.getBoundingClientRect());
+      assert(Math.abs(boxes[0].top - boxes[1].top) < 1, 'first row does not have two items');
+      assert(Math.abs(boxes[2].top - boxes[3].top) < 1 && boxes[2].top >= boxes[0].bottom + 7, 'second row is crowded');
+      assert(nav.getBoundingClientRect().bottom >= boxes[4].bottom + 11, 'tabs touch the bottom border');
       dialog.querySelector('#tabContentTasks').classList.remove('active');
       const exams = dialog.querySelector('#tabContentExams');
       exams.classList.add('active');
@@ -173,6 +174,14 @@ async function test(name, run) {
         .filter(control => control.getBoundingClientRect().height);
       assert(controls.length >= 5, 'exam controls missing');
       assert(controls.every(control => Math.abs(control.getBoundingClientRect().height - 42) < 1), 'exam control heights differ');
+      const form = exams.querySelector('form');
+      assert(form.getBoundingClientRect().top >= nav.getBoundingClientRect().bottom + 19, 'exam form touches navigation');
+      const trigger = exams.querySelector('#hubExamTime + .sd-island .select__trigger');
+      const value = trigger.querySelector('.select__value');
+      assert(value.textContent.includes('بدون ساعت مشخص'), 'no-time label missing');
+      const triggerBox = trigger.getBoundingClientRect();
+      const valueBox = value.getBoundingClientRect();
+      assert(Math.abs(triggerBox.top + triggerBox.height / 2 - valueBox.top - valueBox.height / 2) < 1, 'no-time label is above center');
       const syllabus = exams.querySelector('#hubExamSyllabus');
       assert(syllabus.closest('.form-row').nextElementSibling.classList.contains('hub-form-actions'), 'exam submit crowds the syllabus');
     } finally {
@@ -180,6 +189,20 @@ async function test(name, run) {
       dialog.querySelector('#tabContentTasks').classList.add('active');
       dialog.close();
     }
+  });
+
+  await test('welcome features appear in a two-by-two grid', () => {
+    const dialog = document.getElementById('onboardDialog');
+    dialog.showModal();
+    try {
+      dialog.getAnimations().forEach(animation => animation.finish());
+      const features = [...dialog.querySelectorAll('.onboard-feat-item')].map(item => item.getBoundingClientRect());
+      assert(features.length === 4, 'welcome features missing');
+      assert(Math.abs(features[0].top - features[1].top) < 1, 'welcome first row is not two columns');
+      assert(Math.abs(features[2].top - features[3].top) < 1 && features[2].top > features[0].bottom, 'welcome second row is crowded');
+      const grid = dialog.querySelector('.onboard-features');
+      assert(grid.scrollWidth <= grid.clientWidth + 1, 'welcome cards overflow');
+    } finally { dialog.close(); }
   });
 
   await test('notification, tools and weather menus animate both opening and dismissal', async () => {
