@@ -19,7 +19,7 @@ test("website icons resolve to existing downloaded assets", () => {
   }
 });
 
-test("sites without a high-quality PNG have no replacement icon", () => {
+test("sites without a high-quality PNG have no image URL", () => {
   for (const host of ["example.org", "pooya.um.ac.ir", "scholar.google.com", "calendar.google.com", "drive.google.com"]) {
     assert.equal(urlFor("https://" + host + "/"), "");
   }
@@ -32,7 +32,7 @@ test("website matching is exact and rejects non-website URLs", () => {
   }
 });
 
-test("missing or broken images hide their slot without fallback text", () => {
+test("missing or broken images show the first letter of the site name", () => {
   let onError;
   sandbox.document = { createElement: () => ({
     addEventListener: (event, callback) => { if (event === "error") onError = callback; },
@@ -40,16 +40,24 @@ test("missing or broken images hide their slot without fallback text", () => {
   const container = {
     hidden: false,
     child: null,
-    replaceChildren() { this.child = null; },
+    textContent: "",
+    classList: { add() {}, remove() {} },
+    replaceChildren() { this.child = null; this.textContent = ""; },
     append(image) { this.child = image; },
   };
   sandbox.StudashSiteIcons.render(container, "https://example.org/", "Example");
-  assert.equal(container.hidden, true);
+  assert.equal(container.hidden, false);
   assert.equal(container.child, null);
+  assert.equal(container.textContent, "E");
   sandbox.StudashSiteIcons.render(container, "https://chatgpt.com/", "ChatGPT");
   assert.equal(container.hidden, false);
   assert.ok(container.child.src.endsWith("chatgpt.png"));
   onError();
-  assert.equal(container.hidden, true);
+  assert.equal(container.hidden, false);
   assert.equal(container.child, null);
+  assert.equal(container.textContent, "C");
+  sandbox.StudashSiteIcons.render(container, "https://example.org/", "  پویا");
+  assert.equal(container.textContent, "پ");
+  sandbox.StudashSiteIcons.render(container, "https://example.org/");
+  assert.equal(container.textContent, "E");
 });

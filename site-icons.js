@@ -27,19 +27,33 @@
     }
   }
 
-  function render(container, url) {
+  function render(container, url, title = "") {
     const source = urlFor(url);
+    let name = title;
+    if (!String(name).trim()) {
+      try { name = new URL(url).hostname.replace(/^www\./, ""); } catch { name = ""; }
+    }
+    const initial = String(name).normalize("NFC").match(/[\p{L}\p{N}]/u)?.[0].toUpperCase() || "؟";
+    const showInitial = () => {
+      container.replaceChildren();
+      container.hidden = false;
+      container.classList.add("site-monogram");
+      container.textContent = initial;
+    };
     container.replaceChildren();
-    container.hidden = !source;
-    if (!source) return;
+    container.hidden = false;
+    container.classList.remove("site-monogram");
+    if (!source) {
+      showInitial();
+      return;
+    }
     const image = document.createElement("img");
     image.alt = "";
     image.loading = "lazy";
     image.decoding = "async";
     image.src = source;
     image.addEventListener("error", () => {
-      container.replaceChildren();
-      container.hidden = true;
+      showInitial();
     }, { once: true });
     container.append(image);
   }

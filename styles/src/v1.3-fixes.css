@@ -495,3 +495,21 @@ body { min-inline-size: 0; }
 .vu-row-submitted .vu-td-title a,
 .vu-sched-submitted .vu-sched-title { text-decoration: none; }
 :is(.pin-favicon, .preset-site-icon, .hub-link-favicon)[hidden] { display: none !important; }
+
+:is(.pin-favicon, .preset-site-icon, .hub-link-favicon).site-monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 25%;
+  background: var(--accent-soft, var(--surface-secondary));
+  color: var(--accent-soft-foreground, var(--foreground));
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+}
+.pin-favicon.site-monogram { font-size: 26px; }
+.preset-site-icon.site-monogram { font-size: 12px; }
+.hub-link-favicon.site-monogram { font-size: 18px; }

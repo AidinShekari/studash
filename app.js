@@ -309,7 +309,7 @@ function renderPinned() {
     } else if (site.isAiPackage || site.title === "AI Hub" || site.id === "def-ai-hub") {
       a.classList.add("ai-suite-tile");
       a.title = "پکیج ابزارهای هوش مصنوعی (AI Suite & Hub)";
-      iconWrap.hidden = true;
+      StudashSiteIcons.render(iconWrap, "", site.title);
       a.addEventListener("click", (e) => {
         if (!isDraggingSite) {
           e.preventDefault();
@@ -2845,7 +2845,7 @@ function renderHubLinks() {
 
     const favWrap = document.createElement("div");
     favWrap.className = "hub-link-favicon";
-    StudashSiteIcons.render(favWrap, l.url);
+    StudashSiteIcons.render(favWrap, l.url, l.title);
 
     const details = document.createElement("div");
     details.className = "hub-link-details";
