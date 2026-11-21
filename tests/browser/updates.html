@@ -30,6 +30,7 @@ window.chrome = { runtime: {
     const panel = document.getElementById('updatesSection');
     assert(parsed.querySelector('.page').firstElementChild.id === 'updatesControl', 'updates remain at the bottom');
     assert(panel.hidden && trigger.querySelector('svg'), 'updates trigger or initial state missing');
+    assert(trigger.scrollWidth <= trigger.clientWidth + 1, 'updates label spills outside its button');
     trigger.click();
     panel.getAnimations().forEach(animation => animation.finish());
     assert(!panel.hidden && trigger.getAttribute('aria-expanded') === 'true', 'updates did not open');

@@ -135,6 +135,13 @@ async function test(name, run) {
           : ['#hubTaskTitle', '#hubTaskType + .sd-island .select__trigger', '#hubTaskDueDate + .sd-island .date-input-group'];
         const controls = selectors.map(selector => dialog.querySelector(selector));
         assert(controls.every(Boolean), 'visible course control missing');
+        for (const control of controls) {
+          const value = control.querySelector('.select__value');
+          if (value) {
+            const a = control.getBoundingClientRect(), b = value.getBoundingClientRect();
+            assert(Math.abs(a.top + a.height / 2 - b.top - b.height / 2) < 1, id + ': select text is vertically misaligned');
+          }
+        }
         const boxes = controls.map(control => control.getBoundingClientRect());
         assert(boxes.every(box => Math.abs(box.height - 42) < 1), id + ': control heights differ ' + boxes.map(box => box.height));
         if (id === 'classDialog') assert(Math.abs(boxes[0].width - boxes[1].width) < 1, id + ': field widths differ');

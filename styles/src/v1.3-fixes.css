@@ -367,3 +367,19 @@ body { min-inline-size: 0; }
   inline-size: 100%;
   min-inline-size: 0;
 }
+.updates-control .updates-trigger {
+  width: auto !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+}
+:is(#classDialog, #courseHubDialog) .select__trigger { align-items: center; }
+:is(#classDialog, #courseHubDialog) .select__value {
+  font: inherit;
+  line-height: 1.4;
+  min-inline-size: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#courseHubDialog .course-hub-nav > .hub-tab-btn { font-size: 12px; padding-inline: 8px; gap: 3px; }
