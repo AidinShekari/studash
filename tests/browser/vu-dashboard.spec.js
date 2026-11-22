@@ -41,6 +41,34 @@ async function test(name, run) {
     eq(vuFilteredItems().map(item => item.id).join(), 'b');
     vuState.course = '';
   });
+  await test('upcoming excludes submitted work with future or missing deadlines across filter switches', () => {
+    vuState.data.items = [...items,
+      { ...items[0], id: 'sent-future', submitted: true },
+      { ...items[0], id: 'sent-no-due', submitted: true, due: null },
+      { ...items[0], id: 'pending-no-due', due: null },
+    ];
+    try {
+      for (const filter of ['submitted', 'all', 'upcoming', 'submitted', 'upcoming']) {
+        vuState.filter = filter;
+        renderVuSection();
+        if (filter === 'upcoming') {
+          eq(vuFilteredItems().map(item => item.id).join(), 'a,pending-no-due');
+          eq(document.querySelectorAll('#vuTableBody tr').length, 2);
+          eq(document.querySelector('#vuTableBody').textContent.includes('ارسال شده'), false);
+        } else if (filter === 'submitted') {
+          eq(vuFilteredItems().length, 3);
+        } else {
+          eq(vuFilteredItems().length, 6);
+        }
+      }
+      vuState.course = '2';
+      eq(vuFilteredItems().length, 0);
+    } finally {
+      vuState.data.items = items;
+      vuState.filter = 'all';
+      vuState.course = '';
+    }
+  });
   await test('disconnected view hides the portal table and header actions', () => {
     vuState.creds = null; renderVuSection();
     eq(document.getElementById('vuConnectedBody').hidden, true);

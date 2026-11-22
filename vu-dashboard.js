@@ -115,14 +115,9 @@ function vuFilteredItems() {
       return items.filter((it) => !it.submitted && it.due && it.due < now).sort(byDueDesc);
     case "all":
       return [...items].sort(byDueAsc);
-    default: {
-      // Upcoming: everything still open — unsubmitted first, then the ones already sent.
-      const open = items.filter((it) => !it.due || it.due >= now);
-      return [
-        ...open.filter((it) => !it.submitted).sort(byDueAsc),
-        ...open.filter((it) => it.submitted).sort(byDueAsc),
-      ];
-    }
+    default:
+      // Upcoming contains only unfinished work, including items without a deadline.
+      return items.filter((it) => !it.submitted && (!it.due || it.due >= now)).sort(byDueAsc);
   }
 }
 
